@@ -1,0 +1,83 @@
+# =====================
+# Build directories
+# =====================
+/build/
+/out/
+/bin/
+/lib/
+
+# =====================
+# CMake generated files
+# =====================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+
+# =====================
+# Make / Ninja artifacts
+# =====================
+Makefile
+*.ninja
+.ninja_deps
+.ninja_log
+
+# =====================
+# Object files
+# =====================
+*.o
+*.obj
+
+# =====================
+# Libraries
+# =====================
+*.a
+*.so
+*.so.*
+*.dylib
+
+# =====================
+# Executables
+# =====================
+*.exe
+*.out
+
+# =====================
+# Debug / profiling
+# =====================
+*.dSYM/
+*.prof
+*.gcda
+*.gcno
+
+# =====================
+# Logs
+# =====================
+*.log
+
+# =====================
+# Temporary files
+# =====================
+*.tmp
+*.temp
+
+# =====================
+# Editors / IDEs
+# =====================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+
+
+# =====================
+# Personal Notes
+# =====================
+notes.txt
