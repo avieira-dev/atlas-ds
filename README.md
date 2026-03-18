@@ -1,11 +1,15 @@
 # AtlasDS — Data Structures in C
 
-## Project Status
-The project is currently in early development.  
+> AtlasDS is a structured collection of fundamental data structures implemented in pure C.
+
+
+![status](https://img.shields.io/badge/status-in%20development-orange)
+![language](https://img.shields.io/badge/language-C-blue)
+![build](https://img.shields.io/badge/build-CMake-red)
+![license](https://img.shields.io/badge/license-MIT-blue)
 
 > [!NOTE]  
 > New data structures will be implemented progressively as the atlas grows.
-
 
 ### Table of Contents
 - [Overview](#overview)
@@ -18,15 +22,11 @@ The project is currently in early development.
 - [License](#license)
 
 ## Overview
+The project explores how **classic data structures** behave from a low-level systems perspective, **exposing their internal mechanics** such as memory layout, pointer relationships, and structural invariants.
 
-AtlasDS is a structured collection of fundamental data structures implemented in pure C.
-
-The project explores how classic data structures behave from a low-level systems perspective, exposing their internal mechanics such as memory layout, pointer relationships, and structural invariants.
-
-Rather than providing high-level abstractions, AtlasDS focuses on transparent implementations that reveal how data structures operate internally.
+Rather than providing high-level abstractions, **AtlasDS focuses on transparent implementations** that reveal how data structures operate internally.
 
 ## Philosophy
-
 Each structure in AtlasDS is implemented following a few core principles: 
 
 - Implemented entirely from scratch
@@ -36,7 +36,6 @@ Each structure in AtlasDS is implemented following a few core principles:
 The goal is to treat each structure not merely as a container, but as a mechanical system of memory.
 
 ## Project Goals
-
 AtlasDS is designed as a technical exploration of:
 
 - Low-level implementation techniques in C
@@ -48,7 +47,6 @@ AtlasDS is designed as a technical exploration of:
 > for students and developers studying computer science fundamentals.
 
 ## Planned Structures
-
 The atlas will progressively include implementations of structures such as:
 
 - Dynamic Arrays
@@ -68,7 +66,6 @@ Each module will contain:
 - Automated tests
 
 ## Repository Structure
-
 ```text
 atlas-ds
 ├── build/
@@ -84,8 +81,7 @@ atlas-ds
 └── README.md
 ```
 
-## Build 
-
+## Build
 AtlasDS uses CMake as its build system.
 
 ```bash
@@ -96,9 +92,7 @@ cmake --build .
 ```
 
 ## Developer
-
 Alexandre Vieira (**avieira-dev**)
 
 ## License
-
 [MIT License](LICENSE)
