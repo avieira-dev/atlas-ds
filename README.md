@@ -92,7 +92,8 @@ cmake --build .
 ```
 
 ## Developer
-Alexandre Vieira (**avieira-dev**)
+**Alexandre Vieira**  
+GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
 ## License
-[MIT License](LICENSE)
+Distributed under the license [MIT License](LICENSE). See the **LICENSE** file for more details.
