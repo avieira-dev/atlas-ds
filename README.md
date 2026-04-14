@@ -2,11 +2,12 @@
 
 > AtlasDS is a structured collection of fundamental data structures implemented in pure C.
 
-
-![status](https://img.shields.io/badge/status-in%20development-orange)
-![language](https://img.shields.io/badge/language-C-blue)
-![build](https://img.shields.io/badge/build-CMake-red)
-![license](https://img.shields.io/badge/license-MIT-blue)
+<p align="center">
+  <img src="https://img.shields.io/badge/status-in%20development-f39c12"/>
+  <img src="https://img.shields.io/badge/language-C-A8B9CC"/>
+  <img src="https://img.shields.io/badge/build-CMake-8a63d2"/>
+  <img src="https://img.shields.io/badge/license-MIT-6e7781"/>
+</p>
 
 > [!NOTE]  
 > New data structures will be implemented progressively as the atlas grows.
@@ -18,6 +19,7 @@
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
+- [Integration](#integration)
 - [Developer](#developer)
 - [License](#license)
 
@@ -90,6 +92,38 @@ cd build
 cmake ..
 cmake --build .
 ```
+
+## Integration
+AtlasDS can be integrated into your project by cloning the repository into your project directory.
+
+### Clone into your project
+
+```bash
+git clone https://github.com/avieira-dev/atlas-ds.git
+```
+
+Example project structure:
+
+```text
+your-project/
+├── atlas-ds/
+├── src/
+├── CMakeLists.txt
+├── LICENSE
+└── README.md
+```
+
+### Using with CMake
+Add AtlasDS to your project:
+
+```cmake
+add_subdirectory(atlas-ds)
+target_link_libraries(your_project atlas-ds)
+```
+
+> [!NOTE]  
+> This is currently the recommended integration method.  
+> Additional methods may be supported in the future.
 
 ## Developer
 **Alexandre Vieira**  
