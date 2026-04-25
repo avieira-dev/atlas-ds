@@ -1,6 +1,7 @@
-# AtlasDS — Data Structures in C
+# AtlasDS
 
-> AtlasDS is a structured collection of fundamental data structures implemented in pure C.
+> A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.
+> Designed for learning, experimentation, and systems-level understanding.
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-in%20development-f39c12"/>
@@ -13,9 +14,13 @@
 > New data structures will be implemented progressively as the atlas grows.
 
 ### Table of Contents
+
 - [Overview](#overview)
+- [Quick Example](#quick-example)
 - [Philosophy](#philosophy)
+- [Naming Convention](#naming-convention)
 - [Project Goals](#project-goals)
+- [Project Status](#project-status)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
@@ -24,11 +29,35 @@
 - [License](#license)
 
 ## Overview
-The project explores how **classic data structures** behave from a low-level systems perspective, **exposing their internal mechanics** such as memory layout, pointer relationships, and structural invariants.
 
-Rather than providing high-level abstractions, **AtlasDS focuses on transparent implementations** that reveal how data structures operate internally.
+The project explores how **fundamental data structures** behave from a low-level systems perspective, exposing their internal mechanics such as memory layout, pointer relationships, and structural invariants.
+
+Rather than providing high-level abstractions, AtlasDS focuses on transparent implementations that reveal how data structures operate internally.
+
+## Quick Example
+
+> The following example illustrates the intended usage of AtlasDS.  
+> The API may evolve as the project is under active development.
+
+```c
+#include <atlas/array.h> 
+
+int main() { 
+
+    atlas_array* arr = atlas_array_create(sizeof(int)); 
+
+    int value = 10; 
+    atlas_array_push(arr, &value); 
+    
+    int* data = (int*)atlas_array_get(arr, 0); 
+    
+    atlas_array_destroy(arr); 
+    return 0; 
+}
+```
 
 ## Philosophy
+
 Each structure in AtlasDS is implemented following a few core principles: 
 
 - Implemented entirely from scratch
@@ -37,7 +66,12 @@ Each structure in AtlasDS is implemented following a few core principles:
 
 The goal is to treat each structure not merely as a container, but as a mechanical system of memory.
 
+## Naming Convention
+
+AtlasDS uses a consistent `atlas_` prefix for all public APIs to ensure clarity and avoid symbol collisions in C programs.
+
 ## Project Goals
+
 AtlasDS is designed as a technical exploration of:
 
 - Low-level implementation techniques in C
@@ -45,10 +79,16 @@ AtlasDS is designed as a technical exploration of:
 - Pointer-based relationships between elements
 
 > [!NOTE]  
-> The repository also serves as a reference implementation library
-> for students and developers studying computer science fundamentals.
+> The repository also serves as a reference implementation library for students and developers studying computer science fundamentals.
+
+## Project Status
+
+- Core structures: in progress
+- API stability: unstable
+- Production readiness: no
 
 ## Planned Structures
+
 The atlas will progressively include implementations of structures such as:
 
 - Dynamic Arrays
@@ -68,6 +108,7 @@ Each module will contain:
 - Automated tests
 
 ## Repository Structure
+
 ```text
 atlas-ds
 ├── build/
@@ -84,6 +125,7 @@ atlas-ds
 ```
 
 ## Build
+
 AtlasDS uses CMake as its build system.
 
 ```bash
@@ -94,6 +136,7 @@ cmake --build .
 ```
 
 ## Integration
+
 AtlasDS can be integrated into your project by cloning the repository into your project directory.
 
 ### Clone into your project
@@ -106,7 +149,7 @@ Example project structure:
 
 ```text
 your-project/
-├── atlas-ds/
+├── atlas/
 ├── src/
 ├── CMakeLists.txt
 ├── LICENSE
@@ -114,11 +157,12 @@ your-project/
 ```
 
 ### Using with CMake
+
 Add AtlasDS to your project:
 
 ```cmake
 add_subdirectory(atlas-ds)
-target_link_libraries(your_project atlas-ds)
+target_link_libraries(your_project atlas)
 ```
 
 > [!NOTE]  
