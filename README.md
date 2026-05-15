@@ -1,26 +1,28 @@
-# AtlasDS
+<div align="center">
 
-> A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.
-> Designed for learning, experimentation, and systems-level understanding.
+<h1>AtlasDS</h1>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/status-in%20development-f39c12"/>
-  <img src="https://img.shields.io/badge/language-C-A8B9CC"/>
-  <img src="https://img.shields.io/badge/build-CMake-8a63d2"/>
-  <img src="https://img.shields.io/badge/license-MIT-6e7781"/>
+<p>A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.</p>
+
+<p>
+  <img src="https://img.shields.io/badge/status-in%20development-f39c12?style=flat-square"/>
+  <img src="https://img.shields.io/badge/language-C-A8B9CC?style=flat-square&logo=c&logoColor=white"/>
+  <img src="https://img.shields.io/badge/build-CMake-8a63d2?style=flat-square&logo=cmake&logoColor=white"/>
+  <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
 </p>
 
-> [!NOTE]  
+</div>
+
+---
+
+> [!NOTE]
 > New data structures will be implemented progressively as the atlas grows.
 
-### Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
-- [Quick Example](#quick-example)
 - [Philosophy](#philosophy)
-- [Naming Convention](#naming-convention)
-- [Project Goals](#project-goals)
-- [Project Status](#project-status)
+- [Quick Example](#quick-example)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
@@ -28,150 +30,130 @@
 - [Developer](#developer)
 - [License](#license)
 
+---
+
 ## Overview
 
-The project explores how **fundamental data structures** behave from a low-level systems perspective, exposing their internal mechanics such as memory layout, pointer relationships, and structural invariants.
+AtlasDS explores how **fundamental data structures** behave from a low-level systems perspective — exposing their internal mechanics such as memory layout, pointer relationships, and structural invariants.
 
-Rather than providing high-level abstractions, AtlasDS focuses on transparent implementations that reveal how data structures operate internally.
+Rather than providing high-level abstractions, every implementation is transparent by design, treating each structure not as a container, but as a mechanical system of memory.
 
-## Quick Example
+The library also serves as a reference implementation for students and developers studying computer science fundamentals.
 
-> The following example illustrates the intended usage of AtlasDS.  
-> The API may evolve as the project is under active development.
+**Naming convention:** all public symbols use the `atlas_` prefix to ensure clarity and avoid collisions in C translation units.
 
-```c
-#include <atlas/array.h> 
-
-int main() { 
-
-    atlas_array* arr = atlas_array_create(sizeof(int)); 
-
-    int value = 10; 
-    atlas_array_push(arr, &value); 
-    
-    int* data = (int*)atlas_array_get(arr, 0); 
-    
-    atlas_array_destroy(arr); 
-    return 0; 
-}
-```
+---
 
 ## Philosophy
 
-Each structure in AtlasDS is implemented following a few core principles: 
+- **From scratch** — no stdlib containers, no shortcuts
+- **Explicit memory control** — allocation and deallocation are always visible
+- **Systems-oriented patterns** — implementations reflect real usage in low-level programming
 
-- Implemented entirely from scratch
-- Explicit control over memory allocation
-- Typical usage patterns found in systems programming
+---
 
-The goal is to treat each structure not merely as a container, but as a mechanical system of memory.
+## Quick Example
 
-## Naming Convention
+> The API may evolve as the project is under active development.
 
-AtlasDS uses a consistent `atlas_` prefix for all public APIs to ensure clarity and avoid symbol collisions in C programs.
+```c
+#include <atlas/array.h>
 
-## Project Goals
+int main() {
+    atlas_array* arr = atlas_array_create(sizeof(int));
 
-AtlasDS is designed as a technical exploration of:
+    int value = 10;
+    atlas_array_push(arr, &value);
 
-- Low-level implementation techniques in C
-- Memory organization inside data structures
-- Pointer-based relationships between elements
+    int* data = (int*)atlas_array_get(arr, 0);
 
-> [!NOTE]  
-> The repository also serves as a reference implementation library for students and developers studying computer science fundamentals.
+    atlas_array_destroy(arr);
+    return 0;
+}
+```
 
-## Project Status
-
-- Core structures: in progress
-- API stability: unstable
-- Production readiness: no
+---
 
 ## Planned Structures
 
-The atlas will progressively include implementations of structures such as:
+Each module will include an implementation, usage examples, documentation, and automated tests.
 
-- Dynamic Arrays
-- Linked Lists
-- Stacks
-- Queues
-- Hash Tables
-- Binary Search Trees
-- Heaps / Priority Queues
-- Graph Representations
+| Structure | Status |
+|---|---|
+| Dynamic Arrays | 🔲 Planned |
+| Linked Lists | 🔲 Planned |
+| Stacks | 🔲 Planned |
+| Queues | 🔲 Planned |
+| Hash Tables | 🔲 Planned |
+| Binary Search Trees | 🔲 Planned |
+| Heaps / Priority Queues | 🔲 Planned |
+| Graph Representations | 🔲 Planned |
 
-Each module will contain:
-
-- The implementation
-- Usage examples
-- Documentation
-- Automated tests
+---
 
 ## Repository Structure
 
 ```text
-atlas-ds
-├── build/
-├── docs/
-├── examples/
+atlas-ds/
 ├── include/
-│   └── atlas/
-├── src/
-├── tests/
-├── .gitignore
+│   └── atlas/          # Public headers
+├── src/                # Implementations
+├── examples/           # Usage examples per structure
+├── tests/              # Automated tests
+├── docs/               # Documentation
+├── build/
 ├── CMakeLists.txt
 ├── LICENSE
 └── README.md
 ```
 
+---
+
 ## Build
 
-AtlasDS uses CMake as its build system.
-
 ```bash
-mkdir build
-cd build
+mkdir build && cd build
 cmake ..
 cmake --build .
 ```
 
+---
+
 ## Integration
 
-AtlasDS can be integrated into your project by cloning the repository into your project directory.
-
-### Clone into your project
+Clone AtlasDS into your project directory and add it via CMake:
 
 ```bash
 git clone https://github.com/avieira-dev/atlas-ds.git
 ```
-
-Example project structure:
-
-```text
-your-project/
-├── atlas/
-├── src/
-├── CMakeLists.txt
-├── LICENSE
-└── README.md
-```
-
-### Using with CMake
-
-Add AtlasDS to your project:
 
 ```cmake
 add_subdirectory(atlas-ds)
 target_link_libraries(your_project atlas)
 ```
 
-> [!NOTE]  
-> This is currently the recommended integration method.  
-> Additional methods may be supported in the future.
+Expected project layout after integration:
+
+```text
+your-project/
+├── atlas-ds/
+├── src/
+├── CMakeLists.txt
+└── README.md
+```
+
+> [!NOTE]
+> This is the recommended integration method. Additional methods may be supported in the future.
+
+---
 
 ## Developer
-**Alexandre Vieira**  
+
+**Alexandre Vieira**
 GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
+---
+
 ## License
-Distributed under the license [MIT License](LICENSE). See the **LICENSE** file for more details.
+
+Distributed under the [MIT License](LICENSE). See `LICENSE` for details.
