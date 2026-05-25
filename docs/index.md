@@ -22,7 +22,7 @@ AtlasDS is a low-level data structure library written in pure C, focused on expo
 
 ## Documentation Structure
 
-This documentation is organized by modules. Each data structure has its own section containing:
+This documentation is organized by modules. Each data structure module contains:
 
 - **Overview**
 - **Internal design**

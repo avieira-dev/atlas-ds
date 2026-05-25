@@ -10,7 +10,7 @@ Unlike static arrays in C, its size is not fixed: it uses **dynamic allocation o
 
 - [Conceptual Structure](#conceptual-structure)
 - [Resizing Strategy](#resizing-strategy)
-- [Generic Design](#generic-design)
+- [Current AtlasDS Implementation](#current-atlasds-implementation)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
 - [Applications](#applications)
@@ -19,57 +19,61 @@ Unlike static arrays in C, its size is not fixed: it uses **dynamic allocation o
 
 ## Conceptual Structure
 
-A Dynamic Array is typically composed of three main components:
+The current AtlasDS Dynamic Array implementation is specialized for the `int` type.
 
-- **data (void\*)**: pointer to the memory block where elements are stored
-- **size (size_t)**: number of elements currently in use
-- **capacity (size_t)**: total number of elements that can be stored without reallocation
+The structure is composed of three main components:
+
+- **data (`int*`)**: pointer to the contiguous memory block where elements are stored
+- **size (`size_t`)**: number of elements currently stored in the array
+- **capacity (`size_t`)**: total number of elements that can be stored before reallocation becomes necessary
 
 > [!NOTE]  
-> When `size == capacity`, the array must be resized.
+> When `size == capacity`, the internal buffer must be resized.
 
 ---
 
 ## Resizing Strategy
 
-Resizing is performed through **memory reallocation** (e.g., using `realloc`).
+Resizing is performed through **memory reallocation** using `realloc`.
 
-A common strategy is exponential growth:
+A common strategy for Dynamic Arrays is exponential growth:
 
-- When the limit is reached, capacity is multiplied (usually by 2)
+- When the array becomes full, its capacity is increased (typically doubled)
 
-This ensures:
+This strategy helps reduce the frequency of reallocations and provides:
 
-> [!NOTE]   
-> Amortized constant-time insertion _(amortized O(1): average cost remains constant over multiple operations)_
+> [!NOTE]  
+> Amortized constant-time insertion _(amortized O(1): average insertion cost remains constant over multiple operations)_
 
 ---
 
-## Generic Design
+## Current AtlasDS Implementation
 
-Since C does not support native generics, a Dynamic Array can be implemented generically using:
+The current implementation focuses on fundamental low-level concepts, including:
 
-- `void*`: generic pointer to the data
-- `element_size` (`size_t`): size in bytes of each stored element
+- Contiguous memory management
+- Dynamic resizing behavior
+- Manual allocation and deallocation
+- Lifecycle management (`create` / `destroy`)
+- Internal capacity tracking
 
-In this model, elements are treated as raw contiguous memory, and access is performed using pointer arithmetic:
+> [!IMPORTANT]  
+> The current implementation only supports the `int` type.
 
 > [!NOTE]  
-> element address = base + (index × element_size)
-
-This allows storing any data type, including primitive types and user-defined structures.
+> Generic support using mechanisms such as `void*` and element size tracking will be introduced in future versions of AtlasDS.
 
 ---
 
 ## Responsibilities
 
-Using Dynamic Arrays in C requires manual memory management:
+Using Dynamic Arrays in C requires explicit memory management:
 
 - Allocation (`malloc`)
 - Reallocation (`realloc`)
 - Deallocation (`free`)
 
-Improper handling may lead to:
+Improper memory handling may lead to:
 
 - Memory leaks
 - Invalid memory access
@@ -79,8 +83,21 @@ Improper handling may lead to:
 
 ## Complexity
 
-|    **Operation**    |  **Complexity**  |
-|:--------------------|:-----------------|
-|Access               |O(1)              |
-|Insertion (append)   |O(1) amortized    |
-|Resizing             |O(n)              |   
+| **Operation**      | **Complexity** |
+|:-------------------|:---------------|
+| Access             | O(1)           |
+| Insertion (append) | O(1) amortized |
+| Resizing           | O(n)           |
+
+---
+
+## Applications
+
+Dynamic Arrays are commonly used in:
+
+- Game engines
+- Entity systems
+- Rendering pipelines
+- Runtime buffers
+- Systems programming
+- General-purpose collections
