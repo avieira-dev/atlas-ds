@@ -41,4 +41,21 @@ AtlasArray *atlas_array_create(size_t initial_capacity);
  */
 void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 
+/**
+ * @brief Inserts a new element at the end of the dynamic array.
+ *
+ * Adds the specified value to the end of the array. If the current
+ * capacity is insufficient, the internal buffer is resized (doubled)
+ * to accommodate additional elements.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * If arr is NULL, the function returns -1.
+ *
+ * @param value Value to be inserted into the array.
+ *
+ * @return 0 on success, or -1 if memory allocation fails
+ * or the input pointer is NULL.
+ */
+int atlas_array_push(AtlasArray *arr, int value);
+
 #endif
