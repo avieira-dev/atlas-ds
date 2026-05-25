@@ -46,7 +46,7 @@ The library also serves as a reference implementation for students and developer
 
 ## Philosophy
 
-- **From scratch** — no stdlib containers, no shortcuts
+- **From scratch** — fully manual implementations, no shortcuts
 - **Explicit memory control** — allocation and deallocation are always visible
 - **Systems-oriented patterns** — implementations reflect real usage in low-level programming
 
@@ -60,14 +60,17 @@ The library also serves as a reference implementation for students and developer
 #include <atlas/array.h>
 
 int main() {
-    atlas_array* arr = atlas_array_create(sizeof(int));
 
-    int value = 10;
-    atlas_array_push(arr, &value);
+    size_t capacity = 2;
+    
+    AtlasArray *arr = atlas_array_create(capacity);
 
-    int* data = (int*)atlas_array_get(arr, 0);
+    if (!arr) {
+        return 1;
+    }
 
-    atlas_array_destroy(arr);
+    atlas_array_destroy(&arr);
+
     return 0;
 }
 ```
@@ -80,7 +83,7 @@ Each module will include an implementation, usage examples, documentation, and a
 
 | Structure | Status |
 |---|---|
-| Dynamic Arrays | 🔲 Planned |
+| Dynamic Array | 🚧 In Progress |
 | Linked Lists | 🔲 Planned |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
