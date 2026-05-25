@@ -61,13 +61,15 @@ The library also serves as a reference implementation for students and developer
 
 int main() {
 
-    size_t capacity = 2;
-    
-    AtlasArray *arr = atlas_array_create(capacity);
+    AtlasArray *arr = atlas_array_create(2);
 
     if (!arr) {
         return 1;
     }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30); // triggers resize
 
     atlas_array_destroy(&arr);
 
@@ -83,7 +85,7 @@ Each module will include an implementation, usage examples, documentation, and a
 
 | Structure | Status |
 |---|---|
-| Dynamic Array | 🚧 In Progress |
+| Dynamic Array | ✔ Implemented (basic int version) |
 | Linked Lists | 🔲 Planned |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |

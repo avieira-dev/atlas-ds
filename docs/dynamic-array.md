@@ -51,17 +51,16 @@ This strategy helps reduce the frequency of reallocations and provides:
 
 The current implementation focuses on fundamental low-level concepts, including:
 
-- Contiguous memory management
-- Dynamic resizing behavior
-- Manual allocation and deallocation
-- Lifecycle management (`create` / `destroy`)
-- Internal capacity tracking
+- Manual memory allocation and reallocation
+- Dynamic resizing using exponential growth
+- Safe lifecycle management (create / destroy)
+- Element insertion via push operation
 
 > [!IMPORTANT]  
 > The current implementation only supports the `int` type.
 
 > [!NOTE]  
-> Generic support using mechanisms such as `void*` and element size tracking will be introduced in future versions of AtlasDS.
+> Generic support using `void*` and element size abstraction is planned for future versions of AtlasDS.
 
 ---
 
