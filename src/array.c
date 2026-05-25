@@ -52,5 +52,4 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array) {
     free(array);
 
     *ptr_atlas_array = NULL;
-
 }
