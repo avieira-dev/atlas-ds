@@ -144,3 +144,23 @@ size_t atlas_array_capacity(const AtlasArray *arr) {
 
     return arr->capacity;
 }
+
+/*
+ * Implementation of atlas_array_pop:
+ * Removes the last logical element from the array and returns
+ * its value through the output parameter. Does not reduce the
+ * allocated capacity of the internal buffer.
+ */
+int atlas_array_pop(AtlasArray *arr, int *out_value) {
+
+    if (!arr || !out_value || arr->size == 0) {
+        return -1;
+    }
+
+    size_t last_index = arr->size - 1;
+    *out_value = arr->data[last_index];
+    
+    arr->size--;
+
+    return 0;
+}

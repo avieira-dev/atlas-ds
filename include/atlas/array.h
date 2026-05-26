@@ -94,4 +94,22 @@ size_t atlas_array_size(const AtlasArray *arr);
  */
 size_t atlas_array_capacity(const AtlasArray *arr);
 
+/**
+ * @brief Removes the last element from the dynamic array.
+ *
+ * Retrieves the last inserted element, stores it in the provided
+ * output pointer, and decreases the logical size of the array.
+ *
+ * This operation does not reduce the internal capacity.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param out_value Pointer where the removed value will be stored.
+ *
+ * @return 0 on success, or -1 if:
+ * - arr is NULL
+ * - out_value is NULL
+ * - the array is empty
+ */
+int atlas_array_pop(AtlasArray *arr, int *out_value);
+
 #endif
