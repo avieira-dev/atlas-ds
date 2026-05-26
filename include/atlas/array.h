@@ -58,4 +58,40 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array);
  */
 int atlas_array_push(AtlasArray *arr, int value);
 
+/**
+ * @brief Retrieves an element from the dynamic array at a specific index.
+ *
+ * Checks if the index is valid and within bounds, then extracts the value
+ * and stores it in the provided output pointer.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index The zero-based index of the element to retrieve.
+ * @param out_value Pointer to the variable where the retrieved value will be stored.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL, the output pointer
+ * is NULL, or the index is out of bounds.
+ */
+int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
+
+/**
+ * @brief Gets the current number of elements stored in the dynamic array.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ *
+ * @return The number of elements currently in the array, or 0 if arr is NULL.
+ */
+size_t atlas_array_size(const AtlasArray *arr);
+
+/**
+ * @brief Gets the total capacity of the dynamic array.
+ *
+ * The capacity represents how many elements the internal buffer can hold
+ * before requiring a memory reallocation.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ *
+ * @return The current capacity of the array, or 0 if arr is NULL.
+ */
+size_t atlas_array_capacity(const AtlasArray *arr);
+
 #endif
