@@ -22,10 +22,12 @@
 
 - [Overview](#overview)
 - [Philosophy](#philosophy)
+- [Current Features](#current-features)
 - [Quick Example](#quick-example)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
+- [Running Tests](#running-tests)
 - [Integration](#integration)
 - [Developer](#developer)
 - [License](#license)
@@ -49,6 +51,47 @@ The library also serves as a reference implementation for students and developer
 - **From scratch** — fully manual implementations, no shortcuts
 - **Explicit memory control** — allocation and deallocation are always visible
 - **Systems-oriented patterns** — implementations reflect real usage in low-level programming
+- **Defensive programming** — APIs validate invalid states and unsafe access patterns
+- **Transparent memory behavior** — resizing and allocation behavior remain observable
+
+---
+
+## Current Features
+
+### Dynamic Array (`int` implementation)
+
+Current capabilities:
+
+- Dynamic allocation and destruction
+- Automatic runtime resizing
+- Contiguous memory storage
+- Bounds-checked element access
+- Capacity tracking
+- Size tracking
+- Safe NULL handling
+- Automated tests using CMake
+
+Implemented public API:
+
+```c
+AtlasArray *atlas_array_create(size_t initial_capacity);
+
+void atlas_array_destroy(AtlasArray **ptr_atlas_array);
+
+int atlas_array_push(AtlasArray *arr, int value);
+
+int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
+
+size_t atlas_array_size(const AtlasArray *arr);
+
+size_t atlas_array_capacity(const AtlasArray *arr);
+```
+
+> [!IMPORTANT]
+> The current implementation supports only the `int` type.
+
+> [!NOTE]
+> Generic support using `void*` and element size tracking is planned for future versions.
 
 ---
 
@@ -59,7 +102,7 @@ The library also serves as a reference implementation for students and developer
 ```c
 #include <atlas/array.h>
 
-int main() {
+int main(void) {
 
     AtlasArray *arr = atlas_array_create(2);
 
@@ -69,7 +112,17 @@ int main() {
 
     atlas_array_push(arr, 10);
     atlas_array_push(arr, 20);
-    atlas_array_push(arr, 30); // triggers resize
+    atlas_array_push(arr, 30); // triggers automatic resize
+
+    size_t size = atlas_array_size(arr);
+    size_t capacity = atlas_array_capacity(arr);
+
+    int retrieved_value = 0;
+
+    if (atlas_array_get(arr, 1, &retrieved_value) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
 
     atlas_array_destroy(&arr);
 
@@ -101,11 +154,11 @@ Each module will include an implementation, usage examples, documentation, and a
 ```text
 atlas-ds/
 ├── include/
-│   └── atlas/          # Public headers
-├── src/                # Implementations
-├── examples/           # Usage examples per structure
-├── tests/              # Automated tests
-├── docs/               # Documentation
+│   └── atlas/          
+├── src/                
+├── examples/           
+├── tests/              
+├── docs/              
 ├── build/
 ├── CMakeLists.txt
 ├── LICENSE
@@ -117,9 +170,31 @@ atlas-ds/
 ## Build
 
 ```bash
-mkdir build && cd build
+mkdir build
+cd build
+
 cmake ..
 cmake --build .
+```
+
+---
+
+## Running Tests
+
+After building the project:
+
+```bash
+./tests/test_array
+```
+
+Example output:
+
+```text
+[INFO] Starting AtlasDS dynamic array tests...
+[OK] Dynamic array created successfully.
+[OK] Automatic resizing completed successfully.
+[OK] Out-of-bounds access correctly rejected.
+[INFO] All tests completed successfully.
 ```
 
 ---
@@ -134,7 +209,7 @@ git clone https://github.com/avieira-dev/atlas-ds.git
 
 ```cmake
 add_subdirectory(atlas-ds)
-target_link_libraries(your_project atlas)
+target_link_libraries(your_project atlasds)
 ```
 
 Expected project layout after integration:
@@ -148,13 +223,13 @@ your-project/
 ```
 
 > [!NOTE]
-> This is the recommended integration method. Additional methods may be supported in the future.
+> This is the recommended integration method. Additional integration methods may be supported in future releases.
 
 ---
 
 ## Developer
 
-**Alexandre Vieira**
+**Alexandre Vieira**  
 GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
 ---
