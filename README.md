@@ -66,9 +66,11 @@ Current capabilities:
 - Automatic runtime resizing
 - Contiguous memory storage
 - Bounds-checked element access
+- Logical element removal
 - Capacity tracking
 - Size tracking
 - Safe NULL handling
+- Stack-like push/pop behavior
 - Automated tests using CMake
 
 Implemented public API:
@@ -79,6 +81,8 @@ AtlasArray *atlas_array_create(size_t initial_capacity);
 void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 
 int atlas_array_push(AtlasArray *arr, int value);
+
+int atlas_array_pop(AtlasArray *arr, int *out_value);
 
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 
@@ -124,6 +128,13 @@ int main(void) {
         return 1;
     }
 
+    int removed_value = 0;
+
+    if (atlas_array_pop(arr, &removed_value) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
     atlas_array_destroy(&arr);
 
     return 0;
@@ -138,7 +149,7 @@ Each module will include an implementation, usage examples, documentation, and a
 
 | Structure | Status |
 |---|---|
-| Dynamic Array | ✔ Implemented (basic int version) |
+| Dynamic Array | 🚧 In Progress |
 | Linked Lists | 🔲 Planned |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
@@ -154,11 +165,11 @@ Each module will include an implementation, usage examples, documentation, and a
 ```text
 atlas-ds/
 ├── include/
-│   └── atlas/          
-├── src/                
-├── examples/           
-├── tests/              
-├── docs/              
+│   └── atlas/
+├── src/
+├── examples/
+├── tests/
+├── docs/
 ├── build/
 ├── CMakeLists.txt
 ├── LICENSE
@@ -193,7 +204,9 @@ Example output:
 [INFO] Starting AtlasDS dynamic array tests...
 [OK] Dynamic array created successfully.
 [OK] Automatic resizing completed successfully.
-[OK] Out-of-bounds access correctly rejected.
+[OK] Bounds checking validated successfully.
+[OK] Metadata queries validated successfully.
+[OK] Pop operation validated successfully.
 [INFO] All tests completed successfully.
 ```
 

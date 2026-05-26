@@ -66,6 +66,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Contiguous memory storage
 - Safe lifecycle management (`create` / `destroy`)
 - Element insertion using append semantics
+- Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
 - Runtime size and capacity tracking
 - Defensive NULL validation
@@ -79,6 +80,8 @@ AtlasArray *atlas_array_create(size_t initial_capacity);
 void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 
 int atlas_array_push(AtlasArray *arr, int value);
+
+int atlas_array_pop(AtlasArray *arr, int *out_value);
 
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 
@@ -105,6 +108,7 @@ Implemented safety mechanisms include:
 - NULL pointer validation
 - Safe destruction using double pointers
 - Reallocation failure handling
+- Underflow protection during removal operations
 - Explicit ownership management
 
 > [!NOTE]
@@ -139,6 +143,7 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 |:--------------------|:---------------|
 | Access (`get`)      | O(1)           |
 | Insertion (`push`)  | O(1) amortized |
+| Removal (`pop`)     | O(1)           |
 | Resizing            | O(n)           |
 | Size query          | O(1)           |
 | Capacity query      | O(1)           |
