@@ -69,8 +69,7 @@ int main(void) {
     size_t current_size = atlas_array_size(arr);
 
     if (current_size == total_values) {
-        printf( "\033[0;32m[OK]\033[0m Size validation passed (%zu elements).\n", current_size);
-
+        printf("\033[0;32m[OK]\033[0m Size validation passed (%zu elements).\n", current_size);
     } else {
         test_fail(&arr, "Size validation failed.");
         return 1;
@@ -86,7 +85,6 @@ int main(void) {
 
     if (current_capacity == expected_capacity) {
         printf("\033[0;32m[OK]\033[0m Capacity validation passed (%zu).\n", current_capacity);
-
     } else {
         test_fail(&arr, "Capacity validation failed.");
         return 1;
@@ -114,6 +112,32 @@ int main(void) {
     }
 
     // =========================================================
+    // Pop Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running pop operation tests...\n");
+
+    int removed_value = 0;
+
+    if (atlas_array_pop(arr, &removed_value) != 0) {
+        test_fail(&arr, "Failed to pop last element.");
+        return 1;
+    }
+
+    if (removed_value != 20) {
+        test_fail(&arr, "Pop returned an unexpected value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Pop operation returned correct value: %d\n", removed_value);
+
+    if (atlas_array_size(arr) == total_values - 1) {
+        printf("\033[0;32m[OK]\033[0m Size updated correctly after pop (%zu).\n", atlas_array_size(arr));
+    } else {
+        test_fail(&arr, "Size was not updated correctly after pop.");
+        return 1;
+    }
+
+    // =========================================================
     // Bounds Checking Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running bounds checking tests...\n");
@@ -122,9 +146,24 @@ int main(void) {
 
     if (atlas_array_get(arr, total_values, &dummy) == -1) {
         printf("\033[0;32m[OK]\033[0m Out-of-bounds access correctly rejected.\n");
-
     } else {
         test_fail(&arr, "Out-of-bounds access was incorrectly allowed.");
+        return 1;
+    }
+
+    // =========================================================
+    // Empty Pop Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running empty pop tests...\n");
+
+    while (atlas_array_size(arr) > 0) {
+        atlas_array_pop(arr, &dummy);
+    }
+
+    if (atlas_array_pop(arr, &dummy) == -1) {
+        printf("\033[0;32m[OK]\033[0m Empty array pop correctly rejected.\n");
+    } else {
+        test_fail(&arr, "Empty array pop was incorrectly allowed.");
         return 1;
     }
 
@@ -161,6 +200,27 @@ int main(void) {
         return 1;
     }
 
+    if (atlas_array_push(NULL, 10) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_push(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_push(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_pop(NULL, &dummy) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_pop(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_pop(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_pop(arr, NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_pop(..., NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_pop(..., NULL) failed.");
+        return 1;
+    }
+
     // =========================================================
     // Cleanup Tests
     // =========================================================
@@ -170,7 +230,6 @@ int main(void) {
 
     if (arr == NULL) {
         printf("\033[0;32m[OK]\033[0m Dynamic array destroyed successfully.\n");
-
     } else {
         printf("\033[0;31m[ERROR]\033[0m Failed to destroy dynamic array.\n");
         return 1;
