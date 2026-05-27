@@ -51,6 +51,8 @@ capacity: 2 -> 4 -> 8 -> 16
 
 This strategy reduces the frequency of reallocations and helps maintain efficient insertion performance.
 
+AtlasDS also provides explicit capacity management via `reserve()`, enabling manual preallocation of memory in addition to the automatic growth strategy used by `push()`.
+
 > [!NOTE]
 > Dynamic Arrays provide amortized constant-time insertion.  
 > Amortized O(1) means that although some insertions trigger expensive reallocations, the average insertion cost remains constant over multiple operations.
@@ -69,6 +71,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
 - Runtime size and capacity tracking
+- Manual capacity control via `reserve`
 - Defensive NULL validation
 - Automated runtime testing using CMake
 
@@ -88,6 +91,8 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 size_t atlas_array_size(const AtlasArray *arr);
 
 size_t atlas_array_capacity(const AtlasArray *arr);
+
+int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 ```
 
 > [!IMPORTANT]
