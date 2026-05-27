@@ -91,6 +91,42 @@ int main(void) {
     }
 
     // =========================================================
+    // Reserve Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running reserve tests...\n");
+
+    size_t before_capacity = atlas_array_capacity(arr);
+    size_t requested_capacity = before_capacity + 10;
+
+    if (atlas_array_reserve(arr, requested_capacity) != 0) {
+        test_fail(&arr, "reserve failed to increase capacity.");
+        return 1;
+    }
+
+    size_t after_capacity = atlas_array_capacity(arr);
+
+    if (after_capacity < requested_capacity) {
+        test_fail(&arr, "reserve did not reach required capacity.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Reserve increased capacity successfully (%zu -> %zu).\n", before_capacity, after_capacity);
+        
+    size_t stable_capacity = after_capacity;
+
+    if (atlas_array_reserve(arr, stable_capacity - 1) != 0) {
+        test_fail(&arr, "reserve failed on no-op case.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != stable_capacity) {
+        test_fail(&arr, "reserve changed capacity incorrectly on no-op call.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Reserve idempotency verified successfully.\n");
+
+    // =========================================================
     // Element Retrieval Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running element retrieval tests...\n");
