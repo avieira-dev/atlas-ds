@@ -69,6 +69,7 @@ Current capabilities:
 - Logical element removal
 - Capacity tracking
 - Size tracking
+- Manual capacity management via reserve()
 - Safe NULL handling
 - Stack-like push/pop behavior
 - Automated tests using CMake
@@ -89,6 +90,8 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 size_t atlas_array_size(const AtlasArray *arr);
 
 size_t atlas_array_capacity(const AtlasArray *arr);
+
+int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 ```
 
 > [!IMPORTANT]
@@ -114,9 +117,12 @@ int main(void) {
         return 1;
     }
 
+    // Optional: preallocate memory to reduce reallocations
+    atlas_array_reserve(arr, 10);
+
     atlas_array_push(arr, 10);
     atlas_array_push(arr, 20);
-    atlas_array_push(arr, 30); // triggers automatic resize
+    atlas_array_push(arr, 30); // no realloc needed due to reserve()
 
     size_t size = atlas_array_size(arr);
     size_t capacity = atlas_array_capacity(arr);
