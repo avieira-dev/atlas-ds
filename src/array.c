@@ -164,3 +164,33 @@ int atlas_array_pop(AtlasArray *arr, int *out_value) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_reserve:
+ * Ensures that the dynamic array has at least the requested capacity.
+ * If new_capacity is less than or equal to the current capacity, the
+ * function performs no operation and returns success (idempotent behavior).
+ *
+ * If expansion is required, the function allocates a new memory block
+ * using realloc and only updates the internal pointer and capacity after
+ * successful allocation, preserving the previous state in case of failure.
+ */
+int atlas_array_reserve(AtlasArray *arr, size_t new_capacity){
+
+    if (!arr) {
+        return -1;
+    }
+
+    if (new_capacity > arr->capacity) {
+        int *temp = realloc(arr->data, sizeof(int) * new_capacity);
+
+        if (!temp) {
+            return -1;
+        }
+
+        arr->data = temp;
+        arr->capacity = new_capacity;
+    }
+
+    return 0;
+}

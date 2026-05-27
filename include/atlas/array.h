@@ -112,4 +112,20 @@ size_t atlas_array_capacity(const AtlasArray *arr);
  */
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
+/**
+ * @brief Ensures the dynamic array has at least the specified capacity.
+ *
+ * If the current capacity is lower than the requested value, the internal
+ * buffer is reallocated to accommodate the new capacity. If the requested
+ * capacity is less than or equal to the current capacity, the function
+ * performs no operation and returns success.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param new_capacity Minimum required capacity for the array.
+ *
+ * @return 0 on success (including no-op cases), or -1 if memory allocation
+ * fails or the input pointer is NULL.
+ */
+int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
+
 #endif
