@@ -118,6 +118,23 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value) {
 }
 
 /*
+ * Implementation of atlas_array_set:
+ * Performs safe indexed overwrite with bounds validation.
+ * Replaces the value stored at the specified position without
+ * modifying the logical size or the allocated capacity.
+ */
+int atlas_array_set(AtlasArray *arr, size_t index, int new_value) {
+
+    if (!arr || index >= arr->size) {
+        return -1;
+    }
+
+    arr->data[index] = new_value;
+
+    return 0;
+}
+
+/*
  * Implementation of atlas_array_size:
  * Returns the logical size (element count) of the dynamic array.
  * Returns 0 as a safe fallback if the array pointer is NULL.
@@ -175,7 +192,7 @@ int atlas_array_pop(AtlasArray *arr, int *out_value) {
  * using realloc and only updates the internal pointer and capacity after
  * successful allocation, preserving the previous state in case of failure.
  */
-int atlas_array_reserve(AtlasArray *arr, size_t new_capacity){
+int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
 
     if (!arr) {
         return -1;

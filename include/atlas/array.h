@@ -74,6 +74,22 @@ int atlas_array_push(AtlasArray *arr, int value);
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 
 /**
+ * @brief Replaces the value stored at a specific index in the dynamic array.
+ *
+ * Performs bounds checking before overwriting the target element.
+ * The operation modifies the existing value without changing the
+ * logical size or the allocated capacity of the array.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index Zero-based index of the element to be replaced.
+ * @param new_value New value that will overwrite the current element.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or the index is out of bounds.
+ */
+int atlas_array_set(AtlasArray *arr, size_t index, int new_value);
+
+/**
  * @brief Gets the current number of elements stored in the dynamic array.
  *
  * @param arr Pointer to the AtlasArray instance.

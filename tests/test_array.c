@@ -62,6 +62,36 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Automatic resizing completed successfully.\n");
 
     // =========================================================
+    // Set Validation Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
+    
+    int new_value = 25;
+    size_t last_index = total_values - 1;
+
+    if (atlas_array_set(arr, last_index, new_value) != 0) {
+        test_fail(&arr, "Error updating value at index.");
+        return 1;
+    }
+
+    int old_value = values[last_index];
+    values[last_index] = new_value;
+
+    int updated_value = 0;
+
+    if (atlas_array_get(arr, last_index, &updated_value) != 0) {
+        test_fail(&arr, "Failed to retrieve updated value.");
+        return 1;
+    }
+
+    if (updated_value != new_value) {
+        test_fail(&arr, "Updated value does not match expected value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Element updated successfully at index %zu: %d -> %d\n", last_index, old_value, updated_value);
+
+    // =========================================================
     // Size Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running size validation tests...\n");
