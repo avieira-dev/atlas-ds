@@ -194,3 +194,20 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity){
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_clear:
+ * Removes all logical elements from the array by resetting
+ * its size to zero. The allocated memory buffer remains intact,
+ * allowing future insertions without additional reallocations.
+ */
+int atlas_array_clear(AtlasArray *arr) {
+
+    if (!arr) {
+        return -1;
+    }
+
+    arr->size = 0;
+
+    return 0;
+}

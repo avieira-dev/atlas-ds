@@ -66,6 +66,8 @@ Current capabilities:
 - Automatic runtime resizing
 - Contiguous memory storage
 - Bounds-checked element access
+- Logical reset using clear()
+- Buffer reuse without reallocation
 - Logical element removal
 - Capacity tracking
 - Size tracking
@@ -92,6 +94,8 @@ size_t atlas_array_size(const AtlasArray *arr);
 size_t atlas_array_capacity(const AtlasArray *arr);
 
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
+
+int atlas_array_clear(AtlasArray *arr);
 ```
 
 > [!IMPORTANT]
@@ -140,6 +144,11 @@ int main(void) {
         atlas_array_destroy(&arr);
         return 1;
     }
+
+    atlas_array_clear(arr);
+
+    // Array can be reused without reallocating memory
+    atlas_array_push(arr, 99);
 
     atlas_array_destroy(&arr);
 

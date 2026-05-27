@@ -128,4 +128,19 @@ int atlas_array_pop(AtlasArray *arr, int *out_value);
  */
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 
+/**
+ * @brief Removes all elements from the dynamic array.
+ *
+ * Resets the logical size of the array to zero while preserving
+ * the currently allocated memory buffer and capacity.
+ *
+ * This operation allows the array to be reused without triggering
+ * additional memory allocations on future insertions.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ *
+ * @return 0 on success, or -1 if the input pointer is NULL.
+ */
+int atlas_array_clear(AtlasArray *arr);
+
 #endif

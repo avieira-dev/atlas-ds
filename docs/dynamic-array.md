@@ -72,6 +72,8 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Bounds-checked indexed access
 - Runtime size and capacity tracking
 - Manual capacity control via `reserve`
+- Logical reset operations using `clear`
+- Buffer reuse without reallocation
 - Defensive NULL validation
 - Automated runtime testing using CMake
 
@@ -93,6 +95,8 @@ size_t atlas_array_size(const AtlasArray *arr);
 size_t atlas_array_capacity(const AtlasArray *arr);
 
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
+
+int atlas_array_clear(AtlasArray *arr);
 ```
 
 > [!IMPORTANT]
@@ -149,6 +153,8 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 | Access (`get`)      | O(1)           |
 | Insertion (`push`)  | O(1) amortized |
 | Removal (`pop`)     | O(1)           |
+| Clear (`clear`)     | 0(1)           |
+| Reserve (`reserve`) | 0(n) worst-case|
 | Resizing            | O(n)           |
 | Size query          | O(1)           |
 | Capacity query      | O(1)           |

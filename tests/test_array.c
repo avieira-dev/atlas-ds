@@ -111,7 +111,7 @@ int main(void) {
     }
 
     printf("\033[0;32m[OK]\033[0m Reserve increased capacity successfully (%zu -> %zu).\n", before_capacity, after_capacity);
-        
+
     size_t stable_capacity = after_capacity;
 
     if (atlas_array_reserve(arr, stable_capacity - 1) != 0) {
@@ -148,6 +148,54 @@ int main(void) {
     }
 
     // =========================================================
+    // Clear Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running clear tests...\n");
+
+    size_t capacity_before_clear = atlas_array_capacity(arr);
+
+    if (atlas_array_clear(arr) != 0) {
+        test_fail(&arr, "Failed to clear dynamic array.");
+        return 1;
+    }
+
+    if (atlas_array_size(arr) != 0) {
+        test_fail(&arr, "clear did not reset size to zero.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clear reset size successfully.\n");
+
+    if (atlas_array_capacity(arr) != capacity_before_clear) {
+        test_fail(&arr, "clear modified array capacity.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clear preserved allocated capacity (%zu).\n", capacity_before_clear);
+
+    if (atlas_array_clear(arr) != 0) {
+        test_fail(&arr, "clear failed on already empty array.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clear idempotency validated successfully.\n");
+
+    // Reinsert after clear to validate buffer reuse
+    if (atlas_array_push(arr, 99) != 0) {
+        test_fail(&arr, "Failed to reuse array after clear.");
+        return 1;
+    }
+
+    int reused_value = 0;
+
+    if (atlas_array_get(arr, 0, &reused_value) != 0 || reused_value != 99) {
+        test_fail(&arr, "Array reuse after clear failed.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Array reuse after clear validated successfully.\n");
+
+    // =========================================================
     // Pop Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running pop operation tests...\n");
@@ -159,14 +207,14 @@ int main(void) {
         return 1;
     }
 
-    if (removed_value != 20) {
+    if (removed_value != 99) {
         test_fail(&arr, "Pop returned an unexpected value.");
         return 1;
     }
 
     printf("\033[0;32m[OK]\033[0m Pop operation returned correct value: %d\n", removed_value);
 
-    if (atlas_array_size(arr) == total_values - 1) {
+    if (atlas_array_size(arr) == 0) {
         printf("\033[0;32m[OK]\033[0m Size updated correctly after pop (%zu).\n", atlas_array_size(arr));
     } else {
         test_fail(&arr, "Size was not updated correctly after pop.");
@@ -254,6 +302,13 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_pop(..., NULL) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_pop(..., NULL) failed.");
+        return 1;
+    }
+
+    if (atlas_array_clear(NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_clear(NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_clear(NULL) failed.");
         return 1;
     }
 
