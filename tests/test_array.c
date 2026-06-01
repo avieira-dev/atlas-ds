@@ -210,12 +210,43 @@ int main(void) {
 
     printf("\033[0;32m[OK]\033[0m Clear idempotency validated successfully.\n");
 
-    // Reinsert after clear to validate buffer reuse
-    if (atlas_array_push(arr, 99) != 0) {
-        test_fail(&arr, "Failed to reuse array after clear.");
+    // =========================================================
+    // Empty Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running empty tests...\n");
+
+    bool is_empty = false;
+
+    if (atlas_array_empty(arr, &is_empty) != 0) {
+        test_fail(&arr, "Failed to check empty state.");
         return 1;
     }
 
+    if (!is_empty) {
+        test_fail(&arr, "Array should be empty after clear.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Empty array detected correctly.\n");
+
+    if (atlas_array_push(arr, 99) != 0) {
+        test_fail(&arr, "Failed to insert element for empty validation.");
+        return 1;
+    }
+
+    if (atlas_array_empty(arr, &is_empty) != 0) {
+        test_fail(&arr, "Failed to check non-empty state.");
+        return 1;
+    }
+
+    if (is_empty) {
+        test_fail(&arr, "Array incorrectly reported as empty.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Non-empty array detected correctly.\n");
+
+    // Validate buffer reuse after clear
     int reused_value = 0;
 
     if (atlas_array_get(arr, 0, &reused_value) != 0 || reused_value != 99) {
@@ -224,7 +255,7 @@ int main(void) {
     }
 
     printf("\033[0;32m[OK]\033[0m Array reuse after clear validated successfully.\n");
-
+    
     // =========================================================
     // Pop Tests
     // =========================================================
@@ -339,6 +370,22 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_clear(NULL) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_clear(NULL) failed.");
+        return 1;
+    }
+
+    bool empty_state = false;
+
+    if (atlas_array_empty(NULL, &empty_state) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_empty(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_empty(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_empty(arr, NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_empty(..., NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_empty(..., NULL) failed.");
         return 1;
     }
 

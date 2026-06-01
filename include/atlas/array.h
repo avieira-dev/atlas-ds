@@ -2,6 +2,7 @@
 #define ATLAS_ARRAY_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #define STANDARD_CAPACITY 8
 
@@ -158,5 +159,20 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
  * @return 0 on success, or -1 if the input pointer is NULL.
  */
 int atlas_array_clear(AtlasArray *arr);
+
+/**
+ * @brief Checks whether the dynamic array is empty.
+ *
+ * Evaluates the current logical size of the array and stores
+ * the result in the provided output parameter.
+ *
+ * An array is considered empty when its size is equal to zero.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param empty Pointer where the result will be stored.
+ *
+ * @return 0 on success, or -1 if any input pointer is NULL.
+ */
+int atlas_array_empty(const AtlasArray *arr, bool *empty);
 
 #endif

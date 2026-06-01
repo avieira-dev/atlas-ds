@@ -72,6 +72,7 @@ Current capabilities:
 - Stack-like element removal via pop()
 - Capacity tracking
 - Size tracking
+- Empty-state queries via empty()
 - Manual capacity management via reserve()
 - Safe NULL handling
 - Stack-like push/pop behavior
@@ -99,6 +100,8 @@ size_t atlas_array_capacity(const AtlasArray *arr);
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 
 int atlas_array_clear(AtlasArray *arr);
+
+int atlas_array_empty(const AtlasArray *arr, bool *empty);
 ```
 
 > [!IMPORTANT]
@@ -152,8 +155,17 @@ int main(void) {
 
     atlas_array_clear(arr);
 
-    // Array can be reused without reallocating memory
-    atlas_array_push(arr, 99);
+    bool empty_array = false;
+
+    if (atlas_array_empty(arr, &empty_array) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (empty_array) {
+        // Array can be reused without reallocating memory
+        atlas_array_push(arr, 99);
+    }
 
     atlas_array_destroy(&arr);
 

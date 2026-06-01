@@ -228,3 +228,20 @@ int atlas_array_clear(AtlasArray *arr) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_empty:
+ * Checks whether the array contains any logical elements.
+ * The result is written to the provided output parameter
+ * without modifying the array state.
+ */
+int atlas_array_empty(const AtlasArray *arr, bool *empty) {
+
+    if (!arr || !empty) {
+        return -1;
+    }
+
+    *empty = (arr->size == 0);
+
+    return 0;
+}
