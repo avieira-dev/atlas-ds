@@ -178,6 +178,46 @@ int main(void) {
     }
 
     // =========================================================
+    // Front/Back Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running front/back tests...\n");
+
+    int first_value = 1941;
+
+    if (atlas_array_front(arr, &first_value) != 0) {
+        test_fail(&arr, "Failed to retrieve first element.");
+        return 1;
+    }
+
+    if (first_value != values[0]) {
+        test_fail(&arr, "Front element does not march expected value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Front element retrieved successfully: %d\n", first_value);
+
+    int last_value = 1972;
+
+    if (atlas_array_back(arr, &last_value) != 0) {
+        test_fail(&arr, "Failed to retrieve last element.");
+        return 1;
+    }
+
+    if (last_value != values[total_values - 1]) {
+        test_fail(&arr, "Back element does not match expected value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Back element retrieved successfully: %d\n", last_value);
+
+    if (atlas_array_size(arr) == total_values) {
+        printf("\033[0;32m[OK]\033[0m Front/back operations preserved array size.\n");
+    } else {
+        test_fail(&arr, "Front/back operations modified array size.");
+        return 1;
+    }
+
+    // =========================================================
     // Clear Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running clear tests...\n");
@@ -386,6 +426,34 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_empty(..., NULL) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_empty(..., NULL) failed.");
+        return 1;
+    }
+
+    if (atlas_array_front(NULL, &dummy) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_front(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_front(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_front(arr, NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_front(..., NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_front(..., NULL) failed.");
+        return 1;
+    }
+
+    if (atlas_array_back(NULL, &dummy) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_back(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_back(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_back(arr, NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_back(..., NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_back(..., NULL) failed.");
         return 1;
     }
 

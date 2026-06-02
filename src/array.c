@@ -245,3 +245,41 @@ int atlas_array_empty(const AtlasArray *arr, bool *empty) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_front:
+ * Retrieves the first element stored in the array and
+ * writes it to the provided output parameter without
+ * modifying the array state.
+ */
+int atlas_array_front(const AtlasArray *arr, int *out_value) {
+
+    if (!arr || !out_value) {
+        return -1;
+    }
+
+    if (arr->size > 0) {
+        *out_value = arr->data[0];
+    }
+
+    return 0;
+}
+
+/*
+ * Implementation of atlas_array_back:
+ * Retrieves the last element stored in the array and
+ * writes it to the provided output parameter without
+ * modifying the array state.
+ */
+int atlas_array_back(const AtlasArray *arr, int *out_value) {
+
+    if (!arr || !out_value) {
+        return -1;
+    }
+
+    if (arr->size > 0) {
+        *out_value = arr->data[arr->size - 1];
+    }
+
+    return 0;
+}

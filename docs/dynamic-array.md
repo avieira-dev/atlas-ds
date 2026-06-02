@@ -75,6 +75,8 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Manual capacity control via `reserve`
 - Logical reset operations using `clear`
 - Empty-state queries using `empty`
+- First-element queries using `front`
+- Last-element queries using `back`
 - Buffer reuse without reallocation
 - Defensive NULL validation
 - Automated runtime testing using CMake
@@ -103,6 +105,10 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 int atlas_array_clear(AtlasArray *arr);
 
 int atlas_array_empty(const AtlasArray *arr, bool *empty);
+
+int atlas_array_front(const AtlasArray *arr, int *out_value);
+
+int atlas_array_back(const AtlasArray *arr, int *out_value);
 ```
 
 > [!IMPORTANT]
@@ -110,6 +116,12 @@ int atlas_array_empty(const AtlasArray *arr, bool *empty);
 
 > [!NOTE]
 > Generic support using `void*` and element size abstraction is planned for future versions of AtlasDS.
+
+> [!NOTE]
+> The `front()` and `back()` functions distinguish between invalid input
+> and an empty array. Passing a NULL pointer results in an error (`-1`),
+> while querying an empty array is considered a valid operation and returns
+> success (`0`). In the latter case, the output parameter is left unchanged.
 
 ---
 
@@ -158,6 +170,8 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 |:--------------------|:----------------|
 | Access (`get`)      | O(1)            |
 | Mutation (`set`)    | O(1)            |
+| Front (`front`)     | O(1)            |
+| Back (`back`)       | O(1)            |
 | Empty (`empty`)     | O(1)            |
 | Insertion (`push`)  | O(1) amortized  |
 | Removal (`pop`)     | O(1)            |

@@ -73,6 +73,8 @@ Current capabilities:
 - Capacity tracking
 - Size tracking
 - Empty-state queries via empty()
+- First element access via front()
+- Last element access via back()
 - Manual capacity management via reserve()
 - Safe NULL handling
 - Stack-like push/pop behavior
@@ -102,6 +104,10 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 int atlas_array_clear(AtlasArray *arr);
 
 int atlas_array_empty(const AtlasArray *arr, bool *empty);
+
+int atlas_array_front(const AtlasArray *arr, int *out_value);
+
+int atlas_array_back(const AtlasArray *arr, int *out_value);
 ```
 
 > [!IMPORTANT]
@@ -133,6 +139,12 @@ int main(void) {
     atlas_array_push(arr, 10);
     atlas_array_push(arr, 20);
     atlas_array_push(arr, 30); // no realloc needed due to reserve()
+
+    int first = 0;
+    int last = 0;
+
+    atlas_array_front(arr, &first);
+    atlas_array_back(arr, &last);
 
     size_t size = atlas_array_size(arr);
     size_t capacity = atlas_array_capacity(arr);

@@ -175,4 +175,36 @@ int atlas_array_clear(AtlasArray *arr);
  */
 int atlas_array_empty(const AtlasArray *arr, bool *empty);
 
+/**
+ * @brief Retrieves the first element of the dynamic array.
+ *
+ * Copies the first stored element into the provided output
+ * parameter without removing it from the array.
+ *
+ * If the array contains no elements, the function performs
+ * no write operation and leaves the output parameter unchanged.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param out_value Pointer where the first element will be stored.
+ *
+ * @return 0 on success, or -1 if any input pointer is NULL.
+ */
+int atlas_array_front(const AtlasArray *arr, int *out_value);
+
+/**
+ * @brief Retrieves the last element of the dynamic array.
+ *
+ * Copies the last stored element into the provided output
+ * parameter without removing it from the array.
+ *
+ * If the array contains no elements, the function performs
+ * no write operation and leaves the output parameter unchanged.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param out_value Pointer where the last element will be stored.
+ *
+ * @return 0 on success, or -1 if any input pointer is NULL.
+ */
+int atlas_array_back(const AtlasArray *arr, int *out_value);
+
 #endif
