@@ -207,4 +207,26 @@ int atlas_array_front(const AtlasArray *arr, int *out_value);
  */
 int atlas_array_back(const AtlasArray *arr, int *out_value);
 
+/**
+ * @brief Inserts an element at the specified index.
+ *
+ * Inserts the provided value at the given position and shifts
+ * all subsequent elements one position to the right to preserve
+ * their order.
+ *
+ * If the internal buffer is full, the array automatically grows
+ * before performing the insertion.
+ *
+ * The index may be equal to the current size, in which case the
+ * operation behaves as an append at the end of the array.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index Zero-based insertion position.
+ * @param value Value to be inserted.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL,
+ * the index is out of bounds, or memory reallocation fails.
+ */
+int atlas_array_insert(AtlasArray *arr, size_t index, int value);
+
 #endif

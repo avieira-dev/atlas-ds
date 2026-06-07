@@ -67,7 +67,8 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Dynamic resizing using exponential growth
 - Contiguous memory storage
 - Safe lifecycle management (`create` / `destroy`)
-- Element insertion using append semantics
+- Element insertion using append semantics (`push`)
+- Indexed element insertion using `insert`
 - Indexed element mutation using `set`
 - Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
@@ -75,8 +76,8 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Manual capacity control via `reserve`
 - Logical reset operations using `clear`
 - Empty-state queries using `empty`
-- First-element queries using `front`
-- Last-element queries using `back`
+- First-element access using `front`
+- Last-element access using `back`
 - Buffer reuse without reallocation
 - Defensive NULL validation
 - Automated runtime testing using CMake
@@ -89,6 +90,8 @@ AtlasArray *atlas_array_create(size_t initial_capacity);
 void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 
 int atlas_array_push(AtlasArray *arr, int value);
+
+int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -122,6 +125,13 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > and an empty array. Passing a NULL pointer results in an error (`-1`),
 > while querying an empty array is considered a valid operation and returns
 > success (`0`). In the latter case, the output parameter is left unchanged.
+
+> [!NOTE]  
+> The `insert()` operation preserves element ordering by shifting all  
+> elements at and after the insertion index one position to the right.  
+> Valid insertion indices range from `0` to `size` (inclusive).  
+> An index equal to `size` behaves similarly to `push()`, inserting  
+> the new element at the end of the array.
 
 ---
 
@@ -166,20 +176,21 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 
 ## Complexity
 
-| **Operation**       | **Complexity**  |
-|:--------------------|:----------------|
-| Access (`get`)      | O(1)            |
-| Mutation (`set`)    | O(1)            |
-| Front (`front`)     | O(1)            |
-| Back (`back`)       | O(1)            |
-| Empty (`empty`)     | O(1)            |
-| Insertion (`push`)  | O(1) amortized  |
-| Removal (`pop`)     | O(1)            |
-| Clear (`clear`)     | O(1)            |
-| Reserve (`reserve`) | O(n) worst-case |
-| Resizing            | O(n)            |
-| Size query          | O(1)            |
-| Capacity query      | O(1)            |
+| **Operation**        | **Complexity**  |
+|:-------------------- |:----------------|
+| Access (`get`)       | O(1)            |
+| Mutation (`set`)     | O(1)            |
+| Front (`front`)      | O(1)            |
+| Back (`back`)        | O(1)            |
+| Empty (`empty`)      | O(1)            |
+| Insertion (`push`)   | O(1) amortized  |
+| Insertion (`insert`) | O(n)            |
+| Removal (`pop`)      | O(1)            |
+| Clear (`clear`)      | O(1)            |
+| Reserve (`reserve`)  | O(n) worst-case |
+| Resizing             | O(n)            |
+| Size query           | O(1)            |
+| Capacity query       | O(1)            |
 
 ---
 

@@ -10,6 +10,42 @@ struct atlas_array {
 };
 
 // =====================
+// Internal Helpers
+// =====================
+
+/*
+ * Internal resize helper used to change the capacity
+ * of the dynamic array. Supports both expansion and
+ * shrinking operations while preserving all stored
+ * elements.
+ *
+ * The requested capacity must be greater than zero
+ * and large enough to hold the current logical size.
+ *
+ * If the requested capacity matches the current one,
+ * the function performs no operation and returns success.
+ */
+static int atlas_array_resize(AtlasArray *arr, size_t new_capacity) {
+
+    if (!arr || new_capacity == 0 || new_capacity < arr->size) {
+        return -1;
+    }
+
+    if (new_capacity != arr->capacity) {
+        int *temp = realloc(arr->data, sizeof(int) * new_capacity);
+
+        if (!temp) {
+            return -1;
+        }
+
+        arr->data = temp;
+        arr->capacity = new_capacity;
+    }
+
+    return 0;
+}
+
+// =====================
 // Lifecycle
 // =====================
 
@@ -85,14 +121,10 @@ int atlas_array_push(AtlasArray *arr, int value) {
 
     if (arr->size == arr->capacity) {
         size_t new_capacity = arr->capacity * 2;
-        int *temp = realloc(arr->data, sizeof(int) * new_capacity);
 
-        if (!temp) {
+        if (atlas_array_resize(arr, new_capacity) != 0) {
             return -1;
         }
-
-        arr->data = temp;
-        arr->capacity = new_capacity;
     }
 
     arr->data[arr->size] = value;
@@ -199,14 +231,9 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
     }
 
     if (new_capacity > arr->capacity) {
-        int *temp = realloc(arr->data, sizeof(int) * new_capacity);
-
-        if (!temp) {
+        if (atlas_array_resize(arr, new_capacity) != 0) {
             return -1;
         }
-
-        arr->data = temp;
-        arr->capacity = new_capacity;
     }
 
     return 0;
@@ -280,6 +307,41 @@ int atlas_array_back(const AtlasArray *arr, int *out_value) {
     if (arr->size > 0) {
         *out_value = arr->data[arr->size - 1];
     }
+
+    return 0;
+}
+
+/*
+ * Implementation of atlas_array_insert:
+ * Inserts a new element at the specified index while preserving
+ * the order of existing elements. Elements at and after the
+ * insertion point are shifted one position to the right.
+ *
+ * If the current capacity is insufficient, the internal buffer
+ * is expanded before the insertion takes place.
+ */
+int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
+
+    if (!arr || index > arr->size) {
+        return -1;
+    }
+
+    if (arr->capacity == arr->size) {
+        size_t new_capacity = arr->capacity * 2;
+
+        if (atlas_array_resize(arr, new_capacity) != 0) {
+            return -1;
+        }
+    }
+
+    if (index < arr->size) {
+        for (size_t i = arr->size; i > index; i--) {
+            arr->data[i] = arr->data[i - 1];
+        }
+    }
+
+    arr->data[index] = value;
+    arr->size++;
 
     return 0;
 }

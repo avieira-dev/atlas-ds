@@ -62,6 +62,126 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Automatic resizing completed successfully.\n");
 
     // =========================================================
+    // Insert Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running insert tests...\n");
+
+    AtlasArray *insert_arr = atlas_array_create(4);
+
+    if (!insert_arr) {
+        test_fail(&arr, "Failed to create insert test array.");
+        return 1;
+    }
+
+    if (atlas_array_push(insert_arr, 10) != 0 || atlas_array_push(insert_arr, 20) != 0 || atlas_array_push(insert_arr, 30) != 0 || atlas_array_push(insert_arr, 40) !=0) {
+        atlas_array_destroy(&insert_arr);
+        test_fail(&arr, "Failed to prepare insert test array.");
+        return 1;
+    }
+
+    if (atlas_array_insert(insert_arr, 2, 99) != 0) {
+        atlas_array_destroy(&insert_arr);
+        test_fail(&arr, "Failed to insert element.");
+        return 1;
+    }
+
+    int expected[] = {10, 20, 99, 30, 40};
+
+    for (size_t i = 0; i < 5; i++) {
+        int value = 0;
+
+        if (atlas_array_get(insert_arr, i, &value) != 0) {
+            atlas_array_destroy(&insert_arr);
+            test_fail(&arr, "Failed to validate insert operation.");
+            return 1;
+        }
+
+        if (value != expected[i]) {
+            atlas_array_destroy(&insert_arr);
+            test_fail(&arr, "Insert operation produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    if (atlas_array_size(insert_arr) != 5) {
+        atlas_array_destroy(&insert_arr);
+        test_fail(&arr, "Insert did not update size correctly.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Insert operation validated successfully.\n");
+
+    atlas_array_destroy(&insert_arr);
+
+    AtlasArray *insert_begin = atlas_array_create(4);
+
+    if (!insert_begin) {
+        test_fail(&arr, "Failed to create beginning insert test array.");
+        return 1;
+    }
+
+    atlas_array_push(insert_begin, 10);
+    atlas_array_push(insert_begin, 20);
+    atlas_array_push(insert_begin, 30);
+
+    if (atlas_array_insert(insert_begin, 0, 99) != 0) {
+        atlas_array_destroy(&insert_begin);
+        test_fail(&arr, "Insert at beginning failed.");
+        return 1;
+    }
+
+    int expected_begin[] = {99, 10, 20, 30};
+
+    for (size_t i = 0; i < 4; i++) {
+        int value = 0;
+
+        if (atlas_array_get(insert_begin, i, &value) != 0 ||
+            value != expected_begin[i]) {
+
+            atlas_array_destroy(&insert_begin);
+            test_fail(&arr, "Insert at beginning produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    printf("\033[0;32m[OK]\033[0m Insert at beginning validated successfully.\n");
+
+    atlas_array_destroy(&insert_begin);
+
+    AtlasArray *insert_end = atlas_array_create(4);
+
+    if (!insert_end) {
+        test_fail(&arr, "Failed to create end insert test array.");
+        return 1;
+    }
+
+    atlas_array_push(insert_end, 10);
+    atlas_array_push(insert_end, 20);
+    atlas_array_push(insert_end, 30);
+
+    if (atlas_array_insert(insert_end, atlas_array_size(insert_end), 99) != 0) {
+        atlas_array_destroy(&insert_end);
+        test_fail(&arr, "Insert at end failed.");
+        return 1;
+    }
+
+    int expected_end[] = {10, 20, 30, 99};
+
+    for (size_t i = 0; i < 4; i++) {
+        int value = 0;
+
+        if (atlas_array_get(insert_end, i, &value) != 0 || value != expected_end[i]) {
+            atlas_array_destroy(&insert_end);
+            test_fail(&arr, "Insert at end produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    printf("\033[0;32m[OK]\033[0m Insert at end validated successfully.\n");
+
+    atlas_array_destroy(&insert_end);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -190,7 +310,7 @@ int main(void) {
     }
 
     if (first_value != values[0]) {
-        test_fail(&arr, "Front element does not march expected value.");
+        test_fail(&arr, "Front element does not match expected value.");
         return 1;
     }
 
@@ -389,6 +509,27 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_push(NULL, ...) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_push(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_set(arr, atlas_array_size(arr), 123) == -1) {
+        printf("\033[0;32m[OK]\033[0m Invalid set index rejected correctly.\n");
+    } else {
+        test_fail(&arr, "Invalid set index was incorrectly accepted.");
+        return 1;
+    }
+
+    if (atlas_array_set(NULL, 0, 123) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_set(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_set(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_reserve(NULL, 100) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_reserve(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_reserve(NULL, ...) failed.");
         return 1;
     }
 
