@@ -331,6 +331,58 @@ int main(void) {
     atlas_array_destroy(&erase_single);
 
     // =========================================================
+    // Find Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running find tests...\n");
+
+    AtlasArray *find_arr = atlas_array_create(5);
+
+    if (!find_arr) {
+        test_fail(&arr, "Failed to create find test array.");
+        return 1;
+    }
+
+    atlas_array_push(find_arr, 10);
+    atlas_array_push(find_arr, 20);
+    atlas_array_push(find_arr, 30);
+    atlas_array_push(find_arr, 20);
+    atlas_array_push(find_arr, 40);
+
+    size_t found_index = 999;
+
+    if (atlas_array_find(find_arr, &found_index, 20) != 0) {
+        atlas_array_destroy(&find_arr);
+        test_fail(&arr, "Failed to find existing value.");
+        return 1;
+    }
+
+    if (found_index != 1) {
+        atlas_array_destroy(&find_arr);
+        test_fail(&arr, "find returned incorrect index.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m First occurrence found successfully at index %zu.\n", found_index);
+
+    size_t unchanged_index = 777;
+
+    if (atlas_array_find(find_arr, &unchanged_index, 99) != -1) {
+        atlas_array_destroy(&find_arr);
+        test_fail(&arr, "find incorrectly reported a missing value.");
+        return 1;
+    }
+
+    if (unchanged_index != 777) {
+        atlas_array_destroy(&find_arr);
+        test_fail(&arr, "find modified output parameter when value was not found.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Missing value handled correctly.\n");
+
+    atlas_array_destroy(&find_arr);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -758,6 +810,22 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_erase(NULL, ...) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_erase(NULL, ...) failed.");
+        return 1;
+    }
+
+    size_t dummy_index = 0;
+
+    if (atlas_array_find(NULL, &dummy_index, 10) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_find(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_find(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_find(arr, NULL, 10) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_find(..., NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_find(..., NULL, ...) failed.");
         return 1;
     }
 

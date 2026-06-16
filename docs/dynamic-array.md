@@ -70,6 +70,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Element insertion using append semantics (`push`)
 - Indexed element insertion using `insert`
 - Indexed element removal using `erase`
+- Linear search using `find`
 - Indexed element mutation using `set`
 - Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
@@ -95,6 +96,8 @@ int atlas_array_push(AtlasArray *arr, int value);
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
 int atlas_array_erase(AtlasArray *arr, size_t index);
+
+int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -141,6 +144,14 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > elements located after the removed position one slot to the left.
 > Valid removal indices range from `0` to `size - 1`.
 > The allocated capacity remains unchanged after the operation.
+
+> [!NOTE]  
+> The `find()` operation performs a linear search from the beginning
+> of the array towards the end, returning the index of the first
+> occurrence of the requested value.
+>
+> If the value is not found, the function returns an error and leaves
+> the output parameter unchanged.
 
 ---
 
@@ -195,6 +206,7 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 | Insertion (`push`)   | O(1) amortized  |
 | Insertion (`insert`) | O(n)            |
 | Removal (`erase`)    | O(n) worst-case |
+| Search (`find`)      | O(n) worst-case |
 | Removal (`pop`)      | O(1)            |
 | Clear (`clear`)      | O(1)            |
 | Reserve (`reserve`)  | O(n) worst-case |

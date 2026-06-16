@@ -247,4 +247,29 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value);
  */
 int atlas_array_erase(AtlasArray *arr, size_t index);
 
+/**
+ * @brief Searches for the first occurrence of a value.
+ *
+ * Performs a linear search through the array and returns the
+ * index of the first element whose value matches the requested
+ * value.
+ *
+ * The search is performed from the beginning of the array
+ * towards the end, ensuring that the first occurrence is
+ * reported when duplicate values exist.
+ *
+ * If the value is found, its index is written to the output
+ * parameter.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index_out Output parameter that receives the index
+ * of the first matching element.
+ * @param value Value to search for.
+ *
+ * @return 0 if the value is found, or -1 if the array pointer
+ * is NULL, the output pointer is NULL, or the value does not
+ * exist in the array.
+ */
+int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
+
 #endif

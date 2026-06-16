@@ -371,3 +371,32 @@ int atlas_array_erase(AtlasArray *arr, size_t index) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_find:
+ * Performs a linear search through the array looking for the
+ * first occurrence of the requested value.
+ *
+ * Elements are inspected from the beginning of the array
+ * towards the end. When a match is found, its index is stored
+ * in the output parameter and the search terminates
+ * immediately.
+ *
+ * If no matching value exists, the function returns an error
+ * and leaves the output parameter unchanged.
+ */
+int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
+
+    if (!arr || !index_out) {
+        return -1;
+    }
+
+    for (size_t i = 0; i < arr->size; i++) {
+        if (arr->data[i] == value) {
+            *index_out = i;
+            return 0;
+        }
+    }
+
+    return -1;
+}
