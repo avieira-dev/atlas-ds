@@ -182,6 +182,155 @@ int main(void) {
     atlas_array_destroy(&insert_end);
 
     // =========================================================
+    // Erase Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running erase tests...\n");
+
+    // ---------------------------------------------------------
+    // Erase in middle
+    // ---------------------------------------------------------
+    AtlasArray *erase_middle = atlas_array_create(5);
+
+    if (!erase_middle) {
+        test_fail(&arr, "Failed to create middle erase test array.");
+        return 1;
+    }
+
+    atlas_array_push(erase_middle, 10);
+    atlas_array_push(erase_middle, 20);
+    atlas_array_push(erase_middle, 30);
+    atlas_array_push(erase_middle, 40);
+    atlas_array_push(erase_middle, 50);
+
+    if (atlas_array_erase(erase_middle, 2) != 0) {
+        atlas_array_destroy(&erase_middle);
+        test_fail(&arr, "Erase in middle failed.");
+        return 1;
+    }
+
+    int expected_middle[] = {10, 20, 40, 50};
+
+    for (size_t i = 0; i < 4; i++) {
+        int value = 0;
+
+        if (atlas_array_get(erase_middle, i, &value) != 0 || value != expected_middle[i]) {
+            atlas_array_destroy(&erase_middle);
+            test_fail(&arr, "Erase in middle produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    if (atlas_array_size(erase_middle) != 4) {
+        atlas_array_destroy(&erase_middle);
+        test_fail(&arr, "Erase in middle did not update size correctly.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Erase in middle validated successfully.\n");
+
+    atlas_array_destroy(&erase_middle);
+
+    // ---------------------------------------------------------
+    // Erase at beginning
+    // ---------------------------------------------------------
+    AtlasArray *erase_begin = atlas_array_create(3);
+
+    if (!erase_begin) {
+        test_fail(&arr, "Failed to create beginning erase test array.");
+        return 1;
+    }
+
+    atlas_array_push(erase_begin, 10);
+    atlas_array_push(erase_begin, 20);
+    atlas_array_push(erase_begin, 30);
+
+    if (atlas_array_erase(erase_begin, 0) != 0) {
+        atlas_array_destroy(&erase_begin);
+        test_fail(&arr, "Erase at beginning failed.");
+        return 1;
+    }
+
+    int expected_begin_erase[] = {20, 30};
+
+    for (size_t i = 0; i < 2; i++) {
+        int value = 0;
+
+        if (atlas_array_get(erase_begin, i, &value) != 0 || value != expected_begin_erase[i]) {
+            atlas_array_destroy(&erase_begin);
+            test_fail(&arr, "Erase at beginning produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    printf("\033[0;32m[OK]\033[0m Erase at beginning validated successfully.\n");
+
+    atlas_array_destroy(&erase_begin);
+
+    // ---------------------------------------------------------
+    // Erase at end
+    // ---------------------------------------------------------
+    AtlasArray *erase_end = atlas_array_create(3);
+
+    if (!erase_end) {
+        test_fail(&arr, "Failed to create end erase test array.");
+        return 1;
+    }
+
+    atlas_array_push(erase_end, 10);
+    atlas_array_push(erase_end, 20);
+    atlas_array_push(erase_end, 30);
+
+    if (atlas_array_erase(erase_end, 2) != 0) {
+        atlas_array_destroy(&erase_end);
+        test_fail(&arr, "Erase at end failed.");
+        return 1;
+    }
+
+    int expected_end_erase[] = {10, 20};
+
+    for (size_t i = 0; i < 2; i++) {
+        int value = 0;
+
+        if (atlas_array_get(erase_end, i, &value) != 0 || value != expected_end_erase[i]) {
+            atlas_array_destroy(&erase_end);
+            test_fail(&arr, "Erase at end produced incorrect ordering.");
+            return 1;
+        }
+    }
+
+    printf("\033[0;32m[OK]\033[0m Erase at end validated successfully.\n");
+
+    atlas_array_destroy(&erase_end);
+
+    // ---------------------------------------------------------
+    // Erase only element
+    // ---------------------------------------------------------
+    AtlasArray *erase_single = atlas_array_create(1);
+
+    if (!erase_single) {
+        test_fail(&arr, "Failed to create single element erase test array.");
+        return 1;
+    }
+
+    atlas_array_push(erase_single, 10);
+
+    if (atlas_array_erase(erase_single, 0) != 0) {
+        atlas_array_destroy(&erase_single);
+        test_fail(&arr, "Erase single element failed.");
+        return 1;
+    }
+
+    if (atlas_array_size(erase_single) != 0) {
+        atlas_array_destroy(&erase_single);
+        test_fail(&arr, "Erase single element did not empty array.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Erase single element validated successfully.\n");
+
+    atlas_array_destroy(&erase_single);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -595,6 +744,20 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_back(..., NULL) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_back(..., NULL) failed.");
+        return 1;
+    }
+
+    if (atlas_array_erase(arr, atlas_array_size(arr)) == -1) {
+        printf("\033[0;32m[OK]\033[0m Invalid erase index rejected correctly.\n");
+    } else {
+        test_fail(&arr, "Invalid erase index was incorrectly accepted.");
+        return 1;
+    }
+
+    if (atlas_array_erase(NULL, 0) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_erase(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_erase(NULL, ...) failed.");
         return 1;
     }
 

@@ -69,6 +69,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Safe lifecycle management (`create` / `destroy`)
 - Element insertion using append semantics (`push`)
 - Indexed element insertion using `insert`
+- Indexed element removal using `erase`
 - Indexed element mutation using `set`
 - Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
@@ -92,6 +93,8 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 int atlas_array_push(AtlasArray *arr, int value);
 
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
+
+int atlas_array_erase(AtlasArray *arr, size_t index);
 
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -132,6 +135,12 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > Valid insertion indices range from `0` to `size` (inclusive).  
 > An index equal to `size` behaves similarly to `push()`, inserting  
 > the new element at the end of the array.
+
+> [!NOTE]  
+> The `erase()` operation preserves element ordering by shifting all
+> elements located after the removed position one slot to the left.
+> Valid removal indices range from `0` to `size - 1`.
+> The allocated capacity remains unchanged after the operation.
 
 ---
 
@@ -185,6 +194,7 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 | Empty (`empty`)      | O(1)            |
 | Insertion (`push`)   | O(1) amortized  |
 | Insertion (`insert`) | O(n)            |
+| Removal (`erase`)    | O(n) worst-case |
 | Removal (`pop`)      | O(1)            |
 | Clear (`clear`)      | O(1)            |
 | Reserve (`reserve`)  | O(n) worst-case |

@@ -229,4 +229,22 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
  */
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
+/**
+ * @brief Removes the element at the specified index.
+ *
+ * Removes the element located at the given position and shifts
+ * all subsequent elements one position to the left to preserve
+ * their order.
+ *
+ * The size of the array is decreased by one after the removal.
+ * The allocated capacity remains unchanged.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index Zero-based position of the element to remove.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or the index is out of bounds.
+ */
+int atlas_array_erase(AtlasArray *arr, size_t index);
+
 #endif

@@ -68,6 +68,7 @@ Current capabilities:
 - Bounds-checked element access
 - Indexed element mutation
 - Indexed insertion via insert()
+- Indexed element removal via erase()
 - Logical reset using clear()
 - Buffer reuse without reallocation
 - Stack-like element removal via pop()
@@ -91,6 +92,8 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 int atlas_array_push(AtlasArray *arr, int value);
 
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
+
+int atlas_array_erase(AtlasArray *arr, size_t index);
 
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -144,6 +147,8 @@ int main(void) {
     atlas_array_push(arr, 30); // no realloc needed due to reserve()
 
     atlas_array_insert(arr, 1, 15);
+
+    atlas_array_erase(arr, 2);
 
     int first = 0;
     int last = 0;

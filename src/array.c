@@ -345,3 +345,29 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_erase:
+ * Removes the element at the specified index while preserving
+ * the order of the remaining elements. Elements located after
+ * the removal point are shifted one position to the left.
+ *
+ * The internal buffer is not resized and the allocated
+ * capacity remains unchanged after the operation.
+ */
+int atlas_array_erase(AtlasArray *arr, size_t index) {
+
+    if (!arr || index >= arr->size) {
+        return -1;
+    }
+
+    if (index <= arr->size - 2) {
+        for (size_t i = index; i < arr->size - 1; i++) {
+            arr->data[i] = arr->data[i + 1];
+        }
+    }
+
+    arr->size--;
+
+    return 0;
+}
