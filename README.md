@@ -70,6 +70,7 @@ Current capabilities:
 - Indexed insertion via insert()
 - Indexed element removal via erase()
 - Linear search via find()
+- Value existence checks via contains()
 - Logical reset using clear()
 - Buffer reuse without reallocation
 - Stack-like element removal via pop()
@@ -97,6 +98,8 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 int atlas_array_erase(AtlasArray *arr, size_t index);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
+
+int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
 
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -135,6 +138,7 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 #include <atlas/array.h>
 
 #include <stdio.h>
+#include <stdbool.h>
 
 int main(void) {
 
@@ -159,6 +163,14 @@ int main(void) {
 
     if (atlas_array_find(arr, &found_index, 20) == 0) {
         printf("Found at index %zu\n", found_index);
+    }
+
+    bool contains = false;
+
+    atlas_array_contains(arr, &contains, 15);
+
+    if (contains) {
+        printf("Value exists in array\n");
     }
 
     int first = 0;

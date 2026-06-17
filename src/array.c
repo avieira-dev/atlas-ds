@@ -400,3 +400,28 @@ int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
 
     return -1;
 }
+
+/*
+ * Implementation of atlas_array_contains:
+ * Checks whether a given value exists in the array.
+ *
+ * Internally, the operation reuses atlas_array_find() to perform
+ * the search. The result is reported through the output parameter
+ * as a boolean value rather than returning the position of the
+ * matching element.
+ *
+ * A value that is not present in the array is considered a valid
+ * outcome and does not constitute an error.
+ */
+int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
+
+    if (!arr || !contains) {
+        return -1;
+    }
+
+    size_t unused_index = 0;
+
+    *contains = atlas_array_find(arr, &unused_index, value) == 0;
+
+    return 0;
+}

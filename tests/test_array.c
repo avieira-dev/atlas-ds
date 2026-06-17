@@ -383,6 +383,56 @@ int main(void) {
     atlas_array_destroy(&find_arr);
 
     // =========================================================
+    // Contains Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running contains tests...\n");
+
+    AtlasArray *contains_arr = atlas_array_create(5);
+
+    if (!contains_arr) {
+        test_fail(&arr, "Failed to create contains test array.");
+        return 1;
+    }
+
+    atlas_array_push(contains_arr, 10);
+    atlas_array_push(contains_arr, 20);
+    atlas_array_push(contains_arr, 30);
+    atlas_array_push(contains_arr, 20);
+    atlas_array_push(contains_arr, 40);
+
+    bool contains = false;
+
+    if (atlas_array_contains(contains_arr, &contains, 20) != 0) {
+        atlas_array_destroy(&contains_arr);
+        test_fail(&arr, "contains failed for existing value.");
+        return 1;
+    }
+
+    if (!contains) {
+        atlas_array_destroy(&contains_arr);
+        test_fail(&arr, "contains returned false for existing value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Existing value detected successfully.\n");
+
+    if (atlas_array_contains(contains_arr, &contains, 99) != 0) {
+        atlas_array_destroy(&contains_arr);
+        test_fail(&arr, "contains failed for missing value.");
+        return 1;
+    }
+
+    if (contains) {
+        atlas_array_destroy(&contains_arr);
+        test_fail(&arr, "contains returned true for missing value.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Missing value handled correctly.\n");
+
+    atlas_array_destroy(&contains_arr);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");

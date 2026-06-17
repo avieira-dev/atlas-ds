@@ -71,6 +71,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Indexed element insertion using `insert`
 - Indexed element removal using `erase`
 - Linear search using `find`
+- Membership queries using `contains`
 - Indexed element mutation using `set`
 - Element removal using stack-like semantics (`pop`)
 - Bounds-checked indexed access
@@ -99,6 +100,8 @@ int atlas_array_erase(AtlasArray *arr, size_t index);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
+int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
+
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
@@ -120,38 +123,36 @@ int atlas_array_front(const AtlasArray *arr, int *out_value);
 int atlas_array_back(const AtlasArray *arr, int *out_value);
 ```
 
-> [!IMPORTANT]
+> [!IMPORTANT]  
 > The current implementation supports only the `int` type.
 
-> [!NOTE]
+> [!NOTE]  
 > Generic support using `void*` and element size abstraction is planned for future versions of AtlasDS.
 
-> [!NOTE]
-> The `front()` and `back()` functions distinguish between invalid input
-> and an empty array. Passing a NULL pointer results in an error (`-1`),
-> while querying an empty array is considered a valid operation and returns
-> success (`0`). In the latter case, the output parameter is left unchanged.
+> [!NOTE]  
+> The `front()` and `back()` functions distinguish between invalid input and an empty array.  
+> Passing a NULL pointer results in an error (`-1`), while querying an empty array is considered a valid operation and returns success (`0`). In the latter case, the output parameter is left unchanged.
 
 > [!NOTE]  
-> The `insert()` operation preserves element ordering by shifting all  
-> elements at and after the insertion index one position to the right.  
-> Valid insertion indices range from `0` to `size` (inclusive).  
-> An index equal to `size` behaves similarly to `push()`, inserting  
-> the new element at the end of the array.
+> The `insert()` operation preserves element ordering by shifting all elements at and after the insertion index one position to the right.    
+> Valid insertion indices range from `0` to `size` (inclusive).    
+> An index equal to `size` behaves similarly to `push()`, inserting the new element at the end of the array.
 
 > [!NOTE]  
-> The `erase()` operation preserves element ordering by shifting all
-> elements located after the removed position one slot to the left.
-> Valid removal indices range from `0` to `size - 1`.
+> The `erase()` operation preserves element ordering by shifting all elements located after the removed position one slot to the left.  
+> Valid removal indices range from `0` to `size - 1`.  
 > The allocated capacity remains unchanged after the operation.
 
 > [!NOTE]  
-> The `find()` operation performs a linear search from the beginning
-> of the array towards the end, returning the index of the first
-> occurrence of the requested value.
->
-> If the value is not found, the function returns an error and leaves
-> the output parameter unchanged.
+> The `find()` operation performs a linear search from the beginning of the array towards the end, returning the index of the first occurrence of the requested value.    
+> If the value is not found, the function returns an error and leaves the output parameter unchanged.
+
+> [!NOTE]  
+> The `contains()` operation determines whether a value exists
+> in the array.  
+> Internally, it reuses `find()` and reports the result through
+> a boolean output parameter.  
+> A missing value is considered a valid outcome and results in `false` rather than an error.
 
 ---
 
@@ -196,23 +197,24 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 
 ## Complexity
 
-| **Operation**        | **Complexity**  |
-|:-------------------- |:----------------|
-| Access (`get`)       | O(1)            |
-| Mutation (`set`)     | O(1)            |
-| Front (`front`)      | O(1)            |
-| Back (`back`)        | O(1)            |
-| Empty (`empty`)      | O(1)            |
-| Insertion (`push`)   | O(1) amortized  |
-| Insertion (`insert`) | O(n)            |
-| Removal (`erase`)    | O(n) worst-case |
-| Search (`find`)      | O(n) worst-case |
-| Removal (`pop`)      | O(1)            |
-| Clear (`clear`)      | O(1)            |
-| Reserve (`reserve`)  | O(n) worst-case |
-| Resizing             | O(n)            |
-| Size query           | O(1)            |
-| Capacity query       | O(1)            |
+| **Operation**           | **Complexity**  |
+|:------------------------|:----------------|
+| Access (`get`)          | O(1)            |
+| Mutation (`set`)        | O(1)            |
+| Front (`front`)         | O(1)            |
+| Back (`back`)           | O(1)            |
+| Empty (`empty`)         | O(1)            |
+| Insertion (`push`)      | O(1) amortized  |
+| Insertion (`insert`)    | O(n)            |
+| Removal (`erase`)       | O(n) worst-case |
+| Search (`find`)         | O(n) worst-case |
+| Membership (`contains`) | O(n) worst-case |
+| Removal (`pop`)         | O(1)            |
+| Clear (`clear`)         | O(1)            |
+| Reserve (`reserve`)     | O(n) worst-case |
+| Resizing                | O(n)            |
+| Size query              | O(1)            |
+| Capacity query          | O(1)            |
 
 ---
 

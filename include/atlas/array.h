@@ -272,4 +272,26 @@ int atlas_array_erase(AtlasArray *arr, size_t index);
  */
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
+/**
+ * @brief Checks whether a value exists in the array.
+ *
+ * Performs a linear search through the array looking for the
+ * specified value.
+ *
+ * If the value is found, the output parameter is set to true.
+ * Otherwise, it is set to false.
+ *
+ * This operation does not expose the position of the element.
+ * Use atlas_array_find() when the index of the first occurrence
+ * is required.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param contains Output parameter indicating whether the value exists.
+ * @param value Value to search for.
+ *
+ * @return 0 on success, or -1 if the array pointer or output
+ * parameter is NULL.
+ */
+int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
+
 #endif
