@@ -69,6 +69,7 @@ Current capabilities:
 - Indexed element mutation
 - Indexed insertion via insert()
 - Indexed element removal via erase()
+- Indexed element swapping via swap()
 - Linear search via find()
 - Value existence checks via contains()
 - Logical reset using clear()
@@ -80,7 +81,7 @@ Current capabilities:
 - First element access via front()
 - Last element access via back()
 - Manual capacity management via reserve()
-- Capacity reduction via shrink_to_fit()
+- Manual capacity reduction via shrink_to_fit()
 - Safe NULL handling
 - Stack-like push/pop behavior
 - Automated tests using CMake
@@ -97,6 +98,8 @@ int atlas_array_push(AtlasArray *arr, int value);
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
 int atlas_array_erase(AtlasArray *arr, size_t index);
+
+int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
@@ -161,6 +164,8 @@ int main(void) {
 
     atlas_array_erase(arr, 2);
 
+    atlas_array_swap(arr, 0, 1);
+
     size_t found_index = 0;
 
     if (atlas_array_find(arr, &found_index, 20) == 0) {
@@ -202,6 +207,7 @@ int main(void) {
 
     atlas_array_clear(arr);
 
+    // Release unused memory and keep minimum capacity
     atlas_array_shrink_to_fit(arr);
 
     bool empty_array = false;

@@ -433,6 +433,72 @@ int main(void) {
     atlas_array_destroy(&contains_arr);
 
     // =========================================================
+    // Swap Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running swap tests...\n");
+
+    AtlasArray *swap_arr = atlas_array_create(4);
+
+    if (!swap_arr) {
+        test_fail(&arr, "Failed to create temporary array for swap tests.");
+        return 1;
+    }
+
+    atlas_array_push(swap_arr, 10);
+    atlas_array_push(swap_arr, 20);
+    atlas_array_push(swap_arr, 30);
+    atlas_array_push(swap_arr, 40);
+
+    if (atlas_array_swap(swap_arr, 0, 3) != 0) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap failed on valid indices.");
+        return 1;
+    }
+
+    int value = 0;
+
+    atlas_array_get(swap_arr, 0, &value);
+    if (value != 40) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap did not update first position correctly.");
+        return 1;
+    }
+
+    atlas_array_get(swap_arr, 3, &value);
+    if (value != 10) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap did not update second position correctly.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Element exchange validated successfully.\n");
+
+    size_t size_before_swap = atlas_array_size(swap_arr);
+    size_t capacity_before_swap = atlas_array_capacity(swap_arr);
+
+    if (atlas_array_swap(swap_arr, 1, 1) != 0) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap failed when using identical indices.");
+        return 1;
+    }
+
+    if (atlas_array_size(swap_arr) != size_before_swap) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap changed array size.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(swap_arr) != capacity_before_swap) {
+        atlas_array_destroy(&swap_arr);
+        test_fail(&arr, "swap changed array capacity.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Swap idempotency validated successfully.\n");
+
+    atlas_array_destroy(&swap_arr);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -933,6 +999,20 @@ int main(void) {
     }
 
     printf("\033[0;32m[OK]\033[0m atlas_array_shrink_to_fit(NULL) rejected correctly.\n");
+
+    if (atlas_array_swap(NULL, 0, 1) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_swap(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_swap(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_swap(arr, 999, 0) == -1) {
+        printf("\033[0;32m[OK]\033[0m Invalid swap index rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_swap(..., invalid, ...) failed.");
+        return 1;
+    }
 
     // =========================================================
     // Cleanup Tests

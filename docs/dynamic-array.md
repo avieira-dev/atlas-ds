@@ -70,6 +70,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Element insertion using append semantics (`push`)
 - Indexed element insertion using `insert`
 - Indexed element removal using `erase`
+- Indexed element swapping using `swap`
 - Linear search using `find`
 - Membership queries using `contains`
 - Indexed element mutation using `set`
@@ -98,6 +99,8 @@ int atlas_array_push(AtlasArray *arr, int value);
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
 int atlas_array_erase(AtlasArray *arr, size_t index);
+
+int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
@@ -145,6 +148,10 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > The `erase()` operation preserves element ordering by shifting all elements located after the removed position one slot to the left.  
 > Valid removal indices range from `0` to `size - 1`.  
 > The allocated capacity remains unchanged after the operation.
+
+> [!NOTE]  
+> The `swap()` operation exchanges the values stored at two valid indices while preserving the current size and capacity.  
+> If both indices are equal, the operation succeeds without modifying the array.
 
 > [!NOTE]  
 > The `find()` operation performs a linear search from the beginning of the array towards the end, returning the index of the first occurrence of the requested value.    
@@ -215,6 +222,7 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 | Insertion (`push`)       | O(1) amortized  |
 | Insertion (`insert`)     | O(n)            |
 | Removal (`erase`)        | O(n) worst-case |
+| Swap (`swap`)            | O(1)            |
 | Search (`find`)          | O(n) worst-case |
 | Membership (`contains`)  | O(n) worst-case |
 | Removal (`pop`)          | O(1)            |

@@ -314,4 +314,25 @@ int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
  */
 int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
 
+/**
+ * @brief Swaps the values stored at two positions in the array.
+ *
+ * Exchanges the elements located at the specified indices while
+ * preserving the overall structure of the array.
+ *
+ * The operation does not modify the array size or capacity and
+ * executes in constant time.
+ *
+ * If both indices are equal, the function performs no changes
+ * and returns success.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ * @param index_a Index of the first element.
+ * @param index_b Index of the second element.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or either index is out of bounds.
+ */
+int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
+
 #endif

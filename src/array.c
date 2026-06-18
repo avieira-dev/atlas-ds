@@ -452,3 +452,33 @@ int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_swap:
+ * Exchanges the values stored at two valid positions within
+ * the array.
+ *
+ * The operation preserves the current size and capacity and
+ * requires only a temporary variable to perform the exchange.
+ *
+ * If both indices refer to the same element, the function
+ * completes successfully without modifying the array.
+ *
+ * Invalid indices or a NULL array pointer result in an error
+ * and leave the array unchanged.
+ */
+int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
+
+    if (!arr || index_a >= arr->size || index_b >= arr->size) {
+        return -1;
+    }
+
+    if (index_a != index_b) {
+        int value_temp = arr->data[index_a];
+
+        arr->data[index_a] = arr->data[index_b];
+        arr->data[index_b] = value_temp;
+    }
+
+    return 0;
+}
