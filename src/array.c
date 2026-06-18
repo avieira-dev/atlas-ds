@@ -240,6 +240,33 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
 }
 
 /*
+ * Implementation of atlas_array_shrink_to_fit:
+ * Reduces the internal buffer to the smallest capacity capable
+ * of storing the current elements.
+ *
+ * When the array contains elements, the capacity becomes equal
+ * to the current size. Empty arrays retain a minimum capacity
+ * of one element.
+ *
+ * If the current capacity already matches the target capacity,
+ * the operation completes without performing a reallocation.
+ */
+int atlas_array_shrink_to_fit(AtlasArray *arr) {
+
+    if (!arr) {
+        return -1;
+    }
+
+    size_t new_capacity = arr->size == 0 ? 1 : arr->size;
+
+    if (atlas_array_resize(arr, new_capacity) != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
  * Implementation of atlas_array_clear:
  * Removes all logical elements from the array by resetting
  * its size to zero. The allocated memory buffer remains intact,

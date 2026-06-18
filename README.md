@@ -80,6 +80,7 @@ Current capabilities:
 - First element access via front()
 - Last element access via back()
 - Manual capacity management via reserve()
+- Capacity reduction via shrink_to_fit()
 - Safe NULL handling
 - Stack-like push/pop behavior
 - Automated tests using CMake
@@ -112,6 +113,8 @@ size_t atlas_array_size(const AtlasArray *arr);
 size_t atlas_array_capacity(const AtlasArray *arr);
 
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
+
+int atlas_array_shrink_to_fit(AtlasArray *arr);
 
 int atlas_array_clear(AtlasArray *arr);
 
@@ -148,12 +151,11 @@ int main(void) {
         return 1;
     }
 
-    // Optional: preallocate memory to reduce reallocations
     atlas_array_reserve(arr, 10);
 
     atlas_array_push(arr, 10);
     atlas_array_push(arr, 20);
-    atlas_array_push(arr, 30); // no realloc needed due to reserve()
+    atlas_array_push(arr, 30);
 
     atlas_array_insert(arr, 1, 15);
 
@@ -200,6 +202,8 @@ int main(void) {
 
     atlas_array_clear(arr);
 
+    atlas_array_shrink_to_fit(arr);
+
     bool empty_array = false;
 
     if (atlas_array_empty(arr, &empty_array) != 0) {
@@ -208,7 +212,6 @@ int main(void) {
     }
 
     if (empty_array) {
-        // Array can be reused without reallocating memory
         atlas_array_push(arr, 99);
     }
 

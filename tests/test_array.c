@@ -528,6 +528,42 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Reserve idempotency verified successfully.\n");
 
     // =========================================================
+    // Shrink-to-fit Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running shrink_to_fit tests...\n");
+
+    if (atlas_array_reserve(arr, 16) != 0) {
+        test_fail(&arr, "Failed to reserve capacity before shrink_to_fit test.");
+        return 1;
+    }
+
+    if (atlas_array_shrink_to_fit(arr) != 0) {
+        test_fail(&arr, "shrink_to_fit failed.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != atlas_array_size(arr)) {
+        test_fail(&arr, "shrink_to_fit did not reduce capacity to size.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m shrink_to_fit reduced capacity successfully (%zu).\n", atlas_array_capacity(arr));
+
+    size_t capacity_before = atlas_array_capacity(arr);
+
+    if (atlas_array_shrink_to_fit(arr) != 0) {
+        test_fail(&arr, "shrink_to_fit idempotency failed.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != capacity_before) {
+        test_fail(&arr, "shrink_to_fit changed capacity unnecessarily.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m shrink_to_fit idempotency validated successfully.\n");
+
+    // =========================================================
     // Element Retrieval Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running element retrieval tests...\n");
@@ -620,6 +656,18 @@ int main(void) {
     }
 
     printf("\033[0;32m[OK]\033[0m Clear idempotency validated successfully.\n");
+
+    if (atlas_array_shrink_to_fit(arr) != 0) {
+        test_fail(&arr, "shrink_to_fit on empty array failed.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != 1) {
+        test_fail(&arr, "shrink_to_fit did not reduce empty array capacity to 1.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m shrink_to_fit reduced empty array capacity to minimum (1).\n");
 
     // =========================================================
     // Empty Tests
@@ -878,6 +926,13 @@ int main(void) {
         test_fail(&arr, "atlas_array_find(..., NULL, ...) failed.");
         return 1;
     }
+
+    if (atlas_array_shrink_to_fit(NULL) != -1) {
+        test_fail(&arr, "atlas_array_shrink_to_fit(NULL) should fail.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m atlas_array_shrink_to_fit(NULL) rejected correctly.\n");
 
     // =========================================================
     // Cleanup Tests

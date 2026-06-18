@@ -77,6 +77,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Bounds-checked indexed access
 - Runtime size and capacity tracking
 - Manual capacity control via `reserve`
+- Capacity reduction via `shrink_to_fit`
 - Logical reset operations using `clear`
 - Empty-state queries using `empty`
 - First-element access using `front`
@@ -113,6 +114,8 @@ size_t atlas_array_size(const AtlasArray *arr);
 size_t atlas_array_capacity(const AtlasArray *arr);
 
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
+
+int atlas_array_shrink_to_fit(AtlasArray *arr);
 
 int atlas_array_clear(AtlasArray *arr);
 
@@ -153,6 +156,11 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > Internally, it reuses `find()` and reports the result through
 > a boolean output parameter.  
 > A missing value is considered a valid outcome and results in `false` rather than an error.
+
+> [!NOTE]  
+> The `shrink_to_fit()` operation reduces the allocated capacity to match the current number of stored elements.  
+> If the array is empty, the capacity is reduced to the minimum supported value of `1`.  
+> If the current capacity already matches the target capacity, no reallocation is performed.
 
 ---
 
@@ -197,24 +205,25 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 
 ## Complexity
 
-| **Operation**           | **Complexity**  |
-|:------------------------|:----------------|
-| Access (`get`)          | O(1)            |
-| Mutation (`set`)        | O(1)            |
-| Front (`front`)         | O(1)            |
-| Back (`back`)           | O(1)            |
-| Empty (`empty`)         | O(1)            |
-| Insertion (`push`)      | O(1) amortized  |
-| Insertion (`insert`)    | O(n)            |
-| Removal (`erase`)       | O(n) worst-case |
-| Search (`find`)         | O(n) worst-case |
-| Membership (`contains`) | O(n) worst-case |
-| Removal (`pop`)         | O(1)            |
-| Clear (`clear`)         | O(1)            |
-| Reserve (`reserve`)     | O(n) worst-case |
-| Resizing                | O(n)            |
-| Size query              | O(1)            |
-| Capacity query          | O(1)            |
+| **Operation**            | **Complexity**  |
+|:-------------------------|:----------------|
+| Access (`get`)           | O(1)            |
+| Mutation (`set`)         | O(1)            |
+| Front (`front`)          | O(1)            |
+| Back (`back`)            | O(1)            |
+| Empty (`empty`)          | O(1)            |
+| Insertion (`push`)       | O(1) amortized  |
+| Insertion (`insert`)     | O(n)            |
+| Removal (`erase`)        | O(n) worst-case |
+| Search (`find`)          | O(n) worst-case |
+| Membership (`contains`)  | O(n) worst-case |
+| Removal (`pop`)          | O(1)            |
+| Clear (`clear`)          | O(1)            |
+| Reserve (`reserve`)      | O(n) worst-case |
+| Shrink (`shrink_to_fit`) | O(n) worst-case |
+| Resizing                 | O(n)            |
+| Size query               | O(1)            |
+| Capacity query           | O(1)            |
 
 ---
 

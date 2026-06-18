@@ -161,6 +161,26 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 int atlas_array_clear(AtlasArray *arr);
 
 /**
+ * @brief Reduces the allocated capacity to match the current size.
+ *
+ * Shrinks the internal buffer to eliminate unused capacity and
+ * minimize memory consumption.
+ *
+ * If the array contains elements, the new capacity becomes equal
+ * to the current size. If the array is empty, the capacity is
+ * reduced to the minimum supported value of 1.
+ *
+ * If the current capacity already matches the target capacity,
+ * no reallocation is performed.
+ *
+ * @param arr Pointer to the AtlasArray instance.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or memory reallocation fails.
+ */
+int atlas_array_shrink_to_fit(AtlasArray *arr);
+
+/**
  * @brief Checks whether the dynamic array is empty.
  *
  * Evaluates the current logical size of the array and stores
