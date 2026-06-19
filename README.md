@@ -235,13 +235,15 @@ Each module will include an implementation, usage examples, documentation, and a
 
 | Structure | Status |
 |---|---|
-| Dynamic Array | 🚧 In Progress |
-| Linked Lists | 🔲 Planned |
+| Dynamic Array (int) | 🚧 In Progress |
+| Dynamic Array (void*) | 🔲 Planned |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
-| Hash Tables | 🔲 Planned |
+| Deque | 🔲 Planned |
+| Linked Lists | 🔲 Planned |
 | Binary Search Trees | 🔲 Planned |
 | Heaps / Priority Queues | 🔲 Planned |
+| Hash Tables | 🔲 Planned |
 | Graph Representations | 🔲 Planned |
 
 ---
