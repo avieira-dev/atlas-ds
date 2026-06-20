@@ -482,3 +482,48 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_copy:
+ * Copies all elements from the source array into the
+ * destination array.
+ *
+ * The operation preserves the source array and replaces
+ * the contents of the destination array.
+ *
+ * If the destination capacity is insufficient, the internal
+ * buffer is expanded before copying begins.
+ *
+ * Empty source arrays are treated as valid input and cause
+ * the destination array to become empty while preserving its
+ * current capacity.
+ *
+ * Self-copy operations are rejected to prevent ambiguous
+ * behavior.
+ *
+ * In the event of a memory allocation failure, the destination
+ * array remains unchanged.
+ */
+int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
+
+    if (!src || !dest || src == dest) {
+        return -1;
+    }
+
+    if (dest->capacity < src->size) {
+        if (atlas_array_resize(dest, src->size) != 0) {
+            return -1;
+        }
+    }
+
+    size_t i;
+
+    for (i = 0; i < src->size; i++) {
+        dest->data[i] = src->data[i];
+
+    }
+
+    dest->size = src->size;
+
+    return 0;
+}

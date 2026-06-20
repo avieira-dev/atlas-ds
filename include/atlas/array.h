@@ -335,4 +335,29 @@ int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
  */
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
+/**
+ * @brief Copies all elements from one array into another.
+ *
+ * Replaces the contents of the destination array with a copy of
+ * the elements stored in the source array.
+ *
+ * The destination array is resized only when its current capacity
+ * is insufficient to store all elements from the source array.
+ * Existing elements in the destination array are overwritten.
+ *
+ * If the source array is empty, the destination array becomes
+ * empty. Its current capacity is preserved.
+ *
+ * Self-copy operations are not permitted.
+ *
+ * @param src Pointer to the source array.
+ * @param dest Pointer to the destination array.
+ *
+ * @return 0 on success, or -1 if:
+ *         - either pointer is NULL;
+ *         - src and dest refer to the same array;
+ *         - memory reallocation fails.
+ */
+int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
+
 #endif

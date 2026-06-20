@@ -499,6 +499,108 @@ int main(void) {
     atlas_array_destroy(&swap_arr);
 
     // =========================================================
+    // Copy Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running copy tests...\n");
+
+    AtlasArray *copy_src = atlas_array_create(4);
+    AtlasArray *copy_dest = atlas_array_create(1);
+
+    if (!copy_src || !copy_dest) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "Failed to create copy test arrays.");
+        return 1;
+    }
+
+    atlas_array_push(copy_src, 10);
+    atlas_array_push(copy_src, 20);
+    atlas_array_push(copy_src, 30);
+    atlas_array_push(copy_src, 40);
+
+    if (atlas_array_copy(copy_src, copy_dest) != 0) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "copy failed.");
+        return 1;
+    }
+
+    if (atlas_array_size(copy_dest) != 4) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "copy did not update destination size correctly.");
+        return 1;
+    }
+
+    for (size_t i = 0; i < 4; i++) {
+        int src_value = 0;
+        int dest_value = 0;
+
+        atlas_array_get(copy_src, i, &src_value);
+        atlas_array_get(copy_dest, i, &dest_value);
+
+        if (src_value != dest_value) {
+            atlas_array_destroy(&copy_src);
+            atlas_array_destroy(&copy_dest);
+            test_fail(&arr, "copy produced incorrect data.");
+            return 1;
+        }
+    }
+
+    printf("\033[0;32m[OK]\033[0m Array copy validated successfully.\n");
+
+    if (atlas_array_set(copy_dest, 0, 999) != 0) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "Failed to modify destination after copy.");
+        return 1;
+    }
+
+    int original_value = 0;
+
+    atlas_array_get(copy_src, 0, &original_value);
+
+    if (original_value != 10) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "copy modified source array.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Source array preserved successfully.\n");
+
+    AtlasArray *empty_src = atlas_array_create(2);
+
+    if (!empty_src) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        test_fail(&arr, "Failed to create empty source array.");
+        return 1;
+    }
+
+    if (atlas_array_copy(empty_src, copy_dest) != 0) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        atlas_array_destroy(&empty_src);
+        test_fail(&arr, "copy from empty source failed.");
+        return 1;
+    }
+
+    if (atlas_array_size(copy_dest) != 0) {
+        atlas_array_destroy(&copy_src);
+        atlas_array_destroy(&copy_dest);
+        atlas_array_destroy(&empty_src);
+        test_fail(&arr, "copy from empty source did not clear destination size.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Empty source copy validated successfully.\n");
+
+    atlas_array_destroy(&empty_src);
+    atlas_array_destroy(&copy_src);
+    atlas_array_destroy(&copy_dest);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -974,6 +1076,27 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m atlas_array_erase(NULL, ...) rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_erase(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_copy(NULL, arr) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_copy(NULL, ...) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_copy(NULL, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_copy(arr, NULL) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_copy(..., NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_copy(..., NULL) failed.");
+        return 1;
+    }
+
+    if (atlas_array_copy(arr, arr) == -1) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_copy(arr, arr) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_copy(arr, arr) failed.");
         return 1;
     }
 
