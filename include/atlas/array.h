@@ -1,3 +1,11 @@
+/*
+ * AtlasDS
+ * Dynamic Array Public API
+ *
+ * Copyright (c) 2026 Alexandre Vieira
+ * Licensed under the MIT License.
+ */
+
 #ifndef ATLAS_ARRAY_H
 #define ATLAS_ARRAY_H
 
