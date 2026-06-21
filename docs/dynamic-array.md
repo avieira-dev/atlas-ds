@@ -72,6 +72,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Indexed element removal using `erase`
 - Indexed element swapping using `swap`
 - Array-to-array copying using `copy`
+- Independent array duplication using `clone`
 - Linear search using `find`
 - Membership queries using `contains`
 - Indexed element mutation using `set`
@@ -79,7 +80,7 @@ The current implementation focuses on fundamental low-level concepts, including:
 - Bounds-checked indexed access
 - Runtime size and capacity tracking
 - Manual capacity control via `reserve`
-- Capacity reduction via `shrink_to_fit`
+- Manual capacity reduction via `shrink_to_fit`
 - Logical reset operations using `clear`
 - Empty-state queries using `empty`
 - First-element access using `front`
@@ -104,6 +105,8 @@ int atlas_array_erase(AtlasArray *arr, size_t index);
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
+
+AtlasArray *atlas_array_clone(const AtlasArray *src);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
@@ -133,7 +136,8 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 ```
 
 > [!IMPORTANT]  
-> The current implementation supports only the `int` type.
+> The current Dynamic Array module is feature-complete for the `int` type.  
+> Generic support using `void*` is planned as the next evolution of the implementation.
 
 > [!NOTE]  
 > Generic support using `void*` and element size abstraction is planned for future versions of AtlasDS.
@@ -162,6 +166,12 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > The source array is never modified.  
 > Self-copy operations (`src == dest`) are considered invalid and result in an error.  
 > When the source array is empty, the destination size becomes `0` while its existing capacity is preserved.
+
+> [!NOTE]  
+> The `clone()` operation creates a new array that is an independent duplicate of the source array.  
+> All elements, size information, and capacity information are preserved.  
+> The cloned array owns its memory independently, allowing either array to be modified or destroyed without affecting the other.  
+> If allocation or copying fails, the operation returns `NULL`.
 
 > [!NOTE]  
 > The `find()` operation performs a linear search from the beginning of the array towards the end, returning the index of the first occurrence of the requested value.    
@@ -234,6 +244,7 @@ AtlasDS intentionally exposes these responsibilities to help developers better u
 | Removal (`erase`)        | O(n) worst-case |
 | Swap (`swap`)            | O(1)            |
 | Copy (`copy`)            | O(n)            |
+| Clone (`clone`)          | O(n)            |
 | Search (`find`)          | O(n) worst-case |
 | Membership (`contains`)  | O(n) worst-case |
 | Removal (`pop`)          | O(1)            |

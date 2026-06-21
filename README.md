@@ -71,6 +71,7 @@ Current capabilities:
 - Indexed element removal via erase()
 - Indexed element swapping via swap()
 - Array-to-array copying via copy()
+- Independent array duplication via clone()
 - Linear search via find()
 - Value existence checks via contains()
 - Logical reset using clear()
@@ -103,6 +104,8 @@ int atlas_array_erase(AtlasArray *arr, size_t index);
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
+
+AtlasArray *atlas_array_clone(const AtlasArray *src);
 
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
@@ -178,6 +181,14 @@ int main(void) {
 
     atlas_array_copy(arr, backup);
 
+    AtlasArray *snapshot = atlas_array_clone(arr);
+
+    if (!snapshot) {
+        atlas_array_destroy(&backup);
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
     size_t found_index = 0;
 
     if (atlas_array_find(arr, &found_index, 20) == 0) {
@@ -233,6 +244,7 @@ int main(void) {
         atlas_array_push(arr, 99);
     }
 
+    atlas_array_destroy(&snapshot);
     atlas_array_destroy(&backup);
     atlas_array_destroy(&arr);
 
@@ -248,7 +260,7 @@ Each module will include an implementation, usage examples, documentation, and a
 
 | Structure | Status |
 |---|---|
-| Dynamic Array (int) | 🚧 In Progress |
+| Dynamic Array (int) | ✅ Complete |
 | Dynamic Array (void*) | 🔲 Planned |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |

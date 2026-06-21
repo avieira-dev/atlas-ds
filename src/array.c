@@ -535,3 +535,41 @@ int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
 
     return 0;
 }
+
+/*
+ * Implementation of atlas_array_clone:
+ * Creates a new array that is an independent duplicate
+ * of the source array.
+ *
+ * The operation preserves all elements, size information,
+ * and capacity information from the source structure.
+ *
+ * Internally, the clone is created through a new allocation
+ * and populated using the array copy mechanism.
+ *
+ * The resulting array owns its memory independently, allowing
+ * both arrays to be modified or destroyed without affecting
+ * each other.
+ *
+ * If any allocation or copy step fails, all temporary
+ * resources are released and NULL is returned.
+ */
+AtlasArray *atlas_array_clone(const AtlasArray *src) {
+
+    if (!src) {
+        return NULL;
+    }
+
+    AtlasArray *clone = atlas_array_create(src->capacity);
+
+    if (!clone) {
+        return NULL;
+    }
+
+    if (atlas_array_copy(src, clone) != 0) {
+        atlas_array_destroy(&clone);
+        return NULL;
+    }
+
+    return clone;
+}

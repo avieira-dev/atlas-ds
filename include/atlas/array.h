@@ -361,11 +361,30 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
  * @param src Pointer to the source array.
  * @param dest Pointer to the destination array.
  *
- * @return 0 on success, or -1 if:
- *         - either pointer is NULL;
- *         - src and dest refer to the same array;
- *         - memory reallocation fails.
+ * @return 0 on success, or -1 if either pointer is NULL, src and dest refer to the same array 
+ * or memory reallocation fails.
  */
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
+
+/**
+ * @brief Creates an independent copy of an existing array.
+ *
+ * Allocates a new AtlasArray instance and duplicates all
+ * elements, metadata, and capacity information from the
+ * source array.
+ *
+ * The cloned array preserves both the size and capacity of
+ * the source array while maintaining its own independent
+ * storage.
+ *
+ * Modifications performed on the cloned array do not affect
+ * the source array, and vice versa.
+ *
+ * @param src Pointer to the source array.
+ *
+ * @return Pointer to the newly allocated clone on success, or NULL if src is NULL 
+ * or memory allocation fails.
+ */
+AtlasArray *atlas_array_clone(const AtlasArray *src);
 
 #endif

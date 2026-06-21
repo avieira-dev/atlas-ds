@@ -601,6 +601,122 @@ int main(void) {
     atlas_array_destroy(&copy_dest);
 
     // =========================================================
+    // Clone Tests
+    // =========================================================
+    printf("\n\033[0;33m[INFO]\033[0m Running clone tests...\n");
+
+    AtlasArray *clone_src = atlas_array_create(6);
+
+    if (!clone_src) {
+        test_fail(&arr, "Failed to create clone source array.");
+        return 1;
+    }
+
+    atlas_array_push(clone_src, 10);
+    atlas_array_push(clone_src, 20);
+    atlas_array_push(clone_src, 30);
+    atlas_array_push(clone_src, 40);
+
+    AtlasArray *clone = atlas_array_clone(clone_src);
+
+    if (!clone) {
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Failed to clone array.");
+        return 1;
+    }
+
+    if (atlas_array_size(clone) != atlas_array_size(clone_src)) {
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Clone size mismatch.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(clone) != atlas_array_capacity(clone_src)) {
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Clone capacity mismatch.");
+        return 1;
+    }
+
+    for (size_t i = 0; i < atlas_array_size(clone_src); i++) {
+        int src_value = 0;
+        int clone_value = 0;
+
+        atlas_array_get(clone_src, i, &src_value);
+        atlas_array_get(clone, i, &clone_value);
+
+        if (src_value != clone_value) {
+            atlas_array_destroy(&clone);
+            atlas_array_destroy(&clone_src);
+            test_fail(&arr, "Clone contents mismatch.");
+            return 1;
+        }
+    }   
+
+    printf("\033[0;32m[OK]\033[0m Clone contents validated successfully.\n");
+
+    atlas_array_set(clone, 0, 999);
+
+    int clone_original_value = 0;
+
+    atlas_array_get(clone_src, 0, &clone_original_value);
+
+    if (clone_original_value != 10) {
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Clone is not independent from source.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clone independence validated successfully.\n");
+
+    AtlasArray *empty_clone_src = atlas_array_create(8);
+
+    if (!empty_clone_src) {
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Failed to create empty clone source.");
+        return 1;
+    }
+
+    AtlasArray *empty_clone = atlas_array_clone(empty_clone_src);
+
+    if (!empty_clone) {
+        atlas_array_destroy(&empty_clone_src);
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Failed to clone empty array.");
+        return 1;
+    }
+
+    if (atlas_array_size(empty_clone) != 0) {
+        atlas_array_destroy(&empty_clone);
+        atlas_array_destroy(&empty_clone_src);
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Empty clone size mismatch.");
+        return 1;
+    }
+
+    if (atlas_array_capacity(empty_clone) !=
+        atlas_array_capacity(empty_clone_src)) {
+        atlas_array_destroy(&empty_clone);
+        atlas_array_destroy(&empty_clone_src);
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&clone_src);
+        test_fail(&arr, "Empty clone capacity mismatch.");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Empty clone validated successfully.\n");
+
+    atlas_array_destroy(&empty_clone);
+    atlas_array_destroy(&empty_clone_src);
+    atlas_array_destroy(&clone);
+    atlas_array_destroy(&clone_src);
+
+    // =========================================================
     // Set Validation Tests
     // =========================================================
     printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
@@ -1134,6 +1250,13 @@ int main(void) {
         printf("\033[0;32m[OK]\033[0m Invalid swap index rejected correctly.\n");
     } else {
         test_fail(&arr, "atlas_array_swap(..., invalid, ...) failed.");
+        return 1;
+    }
+
+    if (atlas_array_clone(NULL) == NULL) {
+        printf("\033[0;32m[OK]\033[0m atlas_array_clone(NULL) rejected correctly.\n");
+    } else {
+        test_fail(&arr, "atlas_array_clone(NULL) should return NULL.");
         return 1;
     }
 
