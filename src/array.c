@@ -12,9 +12,9 @@
 
 struct atlas_array {
 
-    int *data; // Contiguous storage buffer
     size_t size; // Current number of elements in the array
     size_t capacity; // Current capacity supported by the dynamic array
+    int *data; // Contiguous storage buffer
 };
 
 // =====================
@@ -71,13 +71,8 @@ AtlasArray *atlas_array_create(size_t initial_capacity) {
         return NULL;
     }
 
+    array->capacity = initial_capacity == 0 ? ATLAS_ARRAY_STANDARD_CAPACITY : initial_capacity;
     array->size = 0;
-
-    if (initial_capacity == 0) {
-        array->capacity = STANDARD_CAPACITY;
-    } else {
-        array->capacity = initial_capacity;
-    }
 
     int *ptr_data = malloc(sizeof(int) * array->capacity);
 

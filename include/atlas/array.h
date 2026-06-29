@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define STANDARD_CAPACITY 1
+#define ATLAS_ARRAY_STANDARD_CAPACITY 1
 
 /**
  * @brief Opaque structure representing a dynamic array.
