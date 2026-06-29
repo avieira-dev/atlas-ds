@@ -76,8 +76,7 @@ Makefile
 .DS_Store
 Thumbs.db
 
-
 # =====================
-# Personal Notes
+# Personal Scratch Space
 # =====================
-notes.txt
+scratch/

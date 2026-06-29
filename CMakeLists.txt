@@ -13,16 +13,12 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # ====================
-# Source Files
-# ====================
-file(GLOB_RECURSE ATLAS_SOURCES
-    src/*.c
-)
-
-# ====================
 # Library
 # ====================
-add_library(atlasds STATIC ${ATLAS_SOURCES})
+add_library(atlasds STATIC
+    src/array.c
+    src/array_void.c
+)
 
 # ====================
 # Include Directories
@@ -33,6 +29,15 @@ target_include_directories(atlasds
 )
 
 # ====================
+# Build Options
+# ====================
+option(ATLAS_BUILD_SCRATCH "Build personal scratch programs" OFF)
+
+# ====================
 # Subdirectories
 # ====================
 add_subdirectory(tests)
+
+if(ATLAS_BUILD_SCRATCH)
+    add_subdirectory(scratch)
+endif()

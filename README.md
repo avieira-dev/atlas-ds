@@ -140,6 +140,30 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > [!NOTE]
 > Generic support using `void*` and element size tracking is planned for future versions.
 
+### Generic Dynamic Array (`void*` implementation)
+
+Current capabilities:
+
+- Generic type-agnostic storage via `void*`
+- Element size tracking in bytes (`type_size`)
+- Manual memory allocation and safe cleanup
+- Defensive validation of pointers and initialization states
+- Prevention of dangling pointers via double-pointer destruction
+
+Implemented public API:
+
+```c
+AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity);
+
+int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
+```
+
+> [!IMPORTANT]  
+> The generic implementation stores raw bytes and does not perform any type checking. The caller is responsible for providing the correct element size and data type.
+
+> [!NOTE]  
+> If `initial_capacity` is `0`, the array is created with a capacity of `ATLAS_ARRAY_VOID_STANDARD_CAPACITY` elements.
+
 ---
 
 ## Quick Example
@@ -209,9 +233,6 @@ int main(void) {
     atlas_array_front(arr, &first);
     atlas_array_back(arr, &last);
 
-    size_t size = atlas_array_size(arr);
-    size_t capacity = atlas_array_capacity(arr);
-
     int retrieved_value = 0;
 
     atlas_array_set(arr, 1, 50);
@@ -261,7 +282,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Structure | Status |
 |---|---|
 | Dynamic Array (int) | ✅ Complete |
-| Dynamic Array (void*) | 🔲 Planned |
+| Dynamic Array (void*) | 🔄 In Development |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
 | Deque | 🔲 Planned |

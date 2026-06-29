@@ -2,10 +2,10 @@
 
 This is the official documentation for AtlasDS.
 
-AtlasDS is a low-level data structure library written in pure C, focused on exposing internal behavior such as memory layout, pointer relationships, and structural invariants.
+AtlasDS is a low-level data structures library written in pure C, focused on exposing the internal mechanics of fundamental data structures, including memory layout, pointer relationships, allocation strategies, and structural invariants.
 
 > [!NOTE]  
-> For a general overview and installation instructions, see the [README](../README.md).
+> For a general overview, build instructions, and project integration, see the [README](../README.md).
 
 ---
 
@@ -22,20 +22,25 @@ AtlasDS is a low-level data structure library written in pure C, focused on expo
 
 ## Documentation Structure
 
-This documentation is organized by modules. Each data structure module contains:
+The documentation is organized by data structure modules. As AtlasDS evolves, each module is expanded with implementation details and practical usage information.
+
+Each module typically includes:
 
 - **Overview**
-- **Internal design**
+- **Conceptual design**
 - **Memory behavior**
 - **API reference**
+- **Complexity analysis**
 - **Usage examples**
 
 ---
 
 ## Available Modules
 
-- [Dynamic Array](dynamic-array.md)
-- _More modules coming soon_
+- [Dynamic Array (`int`)](dynamic-array.md)
+- [Generic Dynamic Array (`void*`)](dynamic-array-void.md)
+
+_More modules will be added as AtlasDS grows._
 
 ---
 
@@ -44,24 +49,32 @@ This documentation is organized by modules. Each data structure module contains:
 AtlasDS follows a few core principles:
 
 - Explicit memory management
-- Transparent implementation
-- No hidden abstractions (behavior is explicit and predictable)
+- Transparent implementations
+- Predictable runtime behavior
+- No hidden abstractions
 
 ---
 
 ## Project Status
 
 > [!IMPORTANT]  
-> The project is **under active development**. APIs may change as the library evolves.
+> AtlasDS is **under active development**. New data structures and APIs are added incrementally, and existing interfaces may evolve over time.
 
 ---
 
 ## Conventions
 
-AtlasDS uses a consistent `atlas_` prefix for all public APIs to avoid naming collisions and improve clarity.
+AtlasDS uses a consistent `atlas_` prefix for all public symbols to avoid naming collisions and improve API clarity.
+
+Documentation follows the same philosophy as the library itself: every behavior should be explicit, predictable, and easy to understand.
 
 ---
 
 ## Where to Start
 
-Start with the **[Dynamic Array](dynamic-array.md)** module
+If you are new to AtlasDS, begin with one of the Dynamic Array modules:
+
+- **[Dynamic Array (`int`)](dynamic-array.md)** — fixed-type implementation focused on integer storage.
+- **[Generic Dynamic Array (`void*`)](dynamic-array-void.md)** — type-agnostic implementation based on raw memory manipulation.
+
+These modules introduce the core design patterns used throughout the library.
