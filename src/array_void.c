@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 struct atlas_array_void {
+    
     size_t type_size; // Size in bytes of each element
     size_t size;      // Current number of elements in the array
     size_t capacity;  // Current capacity supported by the dynamic array
