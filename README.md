@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/images/atlas-ds-001.png" alt="AtlasDS logo" width="200"/>
+
 <h1>AtlasDS</h1>
 
 <p>A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.</p>
