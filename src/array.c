@@ -7,6 +7,7 @@
  */
 
 #include "atlas/array.h"
+#include "atlas/status.h"
 
 #include <stdlib.h>
 
@@ -36,21 +37,21 @@ struct atlas_array {
 static int atlas_array_resize(AtlasArray *arr, size_t new_capacity) {
 
     if (!arr || new_capacity == 0 || new_capacity < arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (new_capacity != arr->capacity) {
         int *temp = realloc(arr->data, sizeof(int) * new_capacity);
 
         if (!temp) {
-            return -1;
+            return ATLAS_ERROR;
         }
 
         arr->data = temp;
         arr->capacity = new_capacity;
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 // =====================
@@ -119,21 +120,21 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array) {
 int atlas_array_push(AtlasArray *arr, int value) {
 
     if (!arr) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (arr->size == arr->capacity) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_resize(arr, new_capacity) != 0) {
-            return -1;
+        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
         }
     }
 
     arr->data[arr->size] = value;
     arr->size++;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -144,12 +145,12 @@ int atlas_array_push(AtlasArray *arr, int value) {
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value) {
 
     if (!arr || !out_value || index >= arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     *out_value = arr->data[index];
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -161,12 +162,12 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value) {
 int atlas_array_set(AtlasArray *arr, size_t index, int new_value) {
 
     if (!arr || index >= arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     arr->data[index] = new_value;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -206,7 +207,7 @@ size_t atlas_array_capacity(const AtlasArray *arr) {
 int atlas_array_pop(AtlasArray *arr, int *out_value) {
 
     if (!arr || !out_value || arr->size == 0) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     size_t last_index = arr->size - 1;
@@ -214,7 +215,7 @@ int atlas_array_pop(AtlasArray *arr, int *out_value) {
     
     arr->size--;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -230,16 +231,16 @@ int atlas_array_pop(AtlasArray *arr, int *out_value) {
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
 
     if (!arr) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (new_capacity > arr->capacity) {
-        if (atlas_array_resize(arr, new_capacity) != 0) {
-            return -1;
+        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
         }
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -257,16 +258,16 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
 int atlas_array_shrink_to_fit(AtlasArray *arr) {
 
     if (!arr) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     size_t new_capacity = arr->size == 0 ? 1 : arr->size;
 
-    if (atlas_array_resize(arr, new_capacity) != 0) {
-        return -1;
+    if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+        return ATLAS_ERROR;
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -278,12 +279,12 @@ int atlas_array_shrink_to_fit(AtlasArray *arr) {
 int atlas_array_clear(AtlasArray *arr) {
 
     if (!arr) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     arr->size = 0;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -295,12 +296,12 @@ int atlas_array_clear(AtlasArray *arr) {
 int atlas_array_empty(const AtlasArray *arr, bool *empty) {
 
     if (!arr || !empty) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     *empty = (arr->size == 0);
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -312,14 +313,14 @@ int atlas_array_empty(const AtlasArray *arr, bool *empty) {
 int atlas_array_front(const AtlasArray *arr, int *out_value) {
 
     if (!arr || !out_value) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (arr->size > 0) {
         *out_value = arr->data[0];
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -331,14 +332,14 @@ int atlas_array_front(const AtlasArray *arr, int *out_value) {
 int atlas_array_back(const AtlasArray *arr, int *out_value) {
 
     if (!arr || !out_value) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (arr->size > 0) {
         *out_value = arr->data[arr->size - 1];
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -353,14 +354,14 @@ int atlas_array_back(const AtlasArray *arr, int *out_value) {
 int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
 
     if (!arr || index > arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (arr->capacity == arr->size) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_resize(arr, new_capacity) != 0) {
-            return -1;
+        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
         }
     }
 
@@ -373,7 +374,7 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
     arr->data[index] = value;
     arr->size++;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -388,7 +389,7 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
 int atlas_array_erase(AtlasArray *arr, size_t index) {
 
     if (!arr || index >= arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (index <= arr->size - 2) {
@@ -399,7 +400,7 @@ int atlas_array_erase(AtlasArray *arr, size_t index) {
 
     arr->size--;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -418,17 +419,17 @@ int atlas_array_erase(AtlasArray *arr, size_t index) {
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
 
     if (!arr || !index_out) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     for (size_t i = 0; i < arr->size; i++) {
         if (arr->data[i] == value) {
             *index_out = i;
-            return 0;
+            return ATLAS_SUCCESS;
         }
     }
 
-    return -1;
+    return ATLAS_ERROR;
 }
 
 /*
@@ -446,14 +447,14 @@ int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
 int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
 
     if (!arr || !contains) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     size_t unused_index = 0;
 
-    *contains = atlas_array_find(arr, &unused_index, value) == 0;
+    *contains = atlas_array_find(arr, &unused_index, value) == ATLAS_SUCCESS;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -473,7 +474,7 @@ int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
 
     if (!arr || index_a >= arr->size || index_b >= arr->size) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (index_a != index_b) {
@@ -483,7 +484,7 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
         arr->data[index_b] = value_temp;
     }
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -510,12 +511,12 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
 
     if (!src || !dest || src == dest) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     if (dest->capacity < src->size) {
-        if (atlas_array_resize(dest, src->size) != 0) {
-            return -1;
+        if (atlas_array_resize(dest, src->size) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
         }
     }
 
@@ -528,7 +529,7 @@ int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
 
     dest->size = src->size;
 
-    return 0;
+    return ATLAS_SUCCESS;
 }
 
 /*
@@ -561,7 +562,7 @@ AtlasArray *atlas_array_clone(const AtlasArray *src) {
         return NULL;
     }
 
-    if (atlas_array_copy(src, clone) != 0) {
+    if (atlas_array_copy(src, clone) != ATLAS_SUCCESS) {
         atlas_array_destroy(&clone);
         return NULL;
     }
