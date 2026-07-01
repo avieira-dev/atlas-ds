@@ -187,12 +187,125 @@ static int test_pop_null(void) {
     return 0;
 }
 
+static int test_get_set_int(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+
+    if (atlas_array_void_set(array, 0, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (out != 20) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_get_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(NULL, 0, &out) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(array, 0, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    int value = 10;
+
+    atlas_array_void_push(array, &value);
+
+    if (atlas_array_void_get(array, 1, &out) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_set_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 20;
+
+    if (atlas_array_void_set(NULL, 0, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_set(array, 0, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_set(array, 0, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    int original = 10;
+
+    atlas_array_void_push(array, &original);
+
+    if (atlas_array_void_set(array, 1, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
 
     printf("\n");
     printf("\033[1;33m=========================================================\033[0m\n");
     printf("\033[1;33mAtlasDS - Generic Dynamic Array Tests\033[0m\n");
     printf("\033[1;33m=========================================================\033[0m\n\n");
+
+    printf("\033[0;33m[INFO]\033[0m Starting AtlasDS generic dynamic array tests...\n\n");
 
     // =========================================================
     // Lifecycle
@@ -240,6 +353,18 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Double push/pop test passed.\n\n");
 
     // =========================================================
+    // Get / Set
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running get/set tests...\n");
+
+    if (test_get_set_int()) {
+        printf("\033[0;31m[ERROR]\033[0m test_get_set_int failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Get/Set test passed.\n\n");
+
+    // =========================================================
     // Error Handling
     // =========================================================
     printf("\033[0;33m[INFO]\033[0m Running error handling tests...\n");
@@ -265,7 +390,21 @@ int main(void) {
 
     printf("\033[0;32m[OK]\033[0m Pop NULL validation passed.\n\n");
 
-    printf("\033[0;32m[SUCCESS]\033[0m All Generic Dynamic Array tests passed successfully!\n\n");
+    if (test_get_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_get_invalid failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Get validation passed.\n");
+
+    if (test_set_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_set_invalid failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Set validation passed.\n");
+
+    printf("\n\033[0;33m[INFO]\033[0m All Generic Dynamic Array tests passed successfully!\n\n");
 
     return 0;
 }

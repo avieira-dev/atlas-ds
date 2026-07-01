@@ -65,8 +65,11 @@ Current capabilities include:
 - Defensive NULL validation
 - Memory leak prevention during allocation failures
 - Automatic capacity growth during insertion
+- Indexed element access (`get`)
+- Indexed element mutation (`set`)
 - Stack-like insertion (`push`)
 - Stack-like removal (`pop`)
+- Bounds-checked indexed access
 - Automated tests
 
 ### Currently Implemented API
@@ -77,6 +80,10 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
+
+int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
 
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 ```
@@ -89,6 +96,9 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 
 > [!NOTE]  
 > The `destroy()` function uses a double pointer to safely invalidate the caller's pointer after releasing the allocated memory.
+
+> [!NOTE]    
+> Both `get()` and `set()` validate the requested index against the current logical size (`size`), not the allocated capacity, preventing access to uninitialized memory.
 
 ---
 
@@ -104,6 +114,7 @@ Implemented safety mechanisms include:
 - Memory leak prevention during initialization
 - Ordered NULL pointer validation during destruction
 - Empty-array validation for pop operations
+- Bounds-checked access for indexed operations (`get` / `set`)
 - Safe automatic resizing
 
 > [!NOTE]  
@@ -121,6 +132,8 @@ Core responsibilities include:
 - Allocation (`malloc`)
 - Reallocation (`realloc`)
 - Deallocation (`free`)
+- Providing a valid index and output buffer when using `get()`
+- Providing a valid index and source object address when using `set()`
 - Providing a valid destination buffer when using `pop()`
 - Providing valid object addresses when using `push()`
 
@@ -141,6 +154,8 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 |:-------------------------|:----------------|
 | Creation (`create`)      | O(n)            |
 | Destruction (`destroy`)  | O(1)            |
+| Access (`get`)           | O(1)            |
+| Mutation (`set`)         | O(1)            |
 | Insertion (`push`)       | O(1) amortized  |
 | Removal (`pop`)          | O(1)            |
 

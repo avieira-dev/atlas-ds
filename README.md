@@ -86,7 +86,7 @@ Current capabilities:
 - Capacity reduction via shrink_to_fit()
 - Safe NULL handling
 - Stack-like push/pop behavior
-- Automated tests using CMake
+- Automated tests covering all implemented public APIs
 
 Implemented public API:
 
@@ -146,11 +146,13 @@ Current capabilities:
 - Dynamic allocation and destruction
 - Automatic runtime resizing
 - Contiguous raw memory storage
+- Indexed element access via `get()`
+- Indexed element mutation via `set()`
 - Stack-like insertion via `push()`
 - Stack-like removal via `pop()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
-- Automated tests using CMake
+- Automated tests covering all implemented public APIs
 
 Implemented public API:
 
@@ -160,6 +162,10 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
+
+int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
 
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 ```
@@ -175,6 +181,8 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 ## Quick Example
 
 > The API may evolve as the project is under active development.
+
+### Dynamic Array Example (`int` implementation)
 
 ```c
 #include <atlas/array.h>
@@ -274,6 +282,58 @@ int main(void) {
     atlas_array_destroy(&snapshot);
     atlas_array_destroy(&backup);
     atlas_array_destroy(&arr);
+
+    return 0;
+}
+```
+
+### Generic Dynamic Array Example
+
+
+```c
+#include <atlas/array_void.h>
+
+#include <stdio.h>
+
+int main(void) {
+
+    AtlasArrayVoid *arr = atlas_array_void_create(sizeof(int), 2);
+
+    if (!arr) {
+        return 1;
+    }
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+
+    atlas_array_void_push(arr, &a);
+    atlas_array_void_push(arr, &b);
+    atlas_array_void_push(arr, &c);
+
+    int retrieved_value = 0;
+
+    if (atlas_array_void_get(arr, 1, &retrieved_value) != 0) {
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    printf("Value at index 1: %d\n", retrieved_value);
+
+    int new_value = 50;
+
+    atlas_array_void_set(arr, 1, &new_value);
+
+    int removed_value = 0;
+
+    if (atlas_array_void_pop(arr, &removed_value) != 0) {
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    printf("Popped value: %d\n", removed_value);
+
+    atlas_array_void_destroy(&arr);
 
     return 0;
 }

@@ -69,6 +69,38 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
 
 /**
+ * @brief Retrieves a copy of an element stored in the generic dynamic array.
+ *
+ * Copies the bytes of the element at the specified index into the
+ * user-provided output buffer. The stored element itself is not modified.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index Zero-based index of the element to retrieve.
+ * @param out_value Pointer to the destination buffer that will receive
+ * the copied element.
+ *
+ * @return 0 on success, or -1 if the array pointer, output pointer
+ * is NULL, or if the index is out of bounds.
+ */
+int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
+
+/**
+ * @brief Replaces the value of an existing element in the generic dynamic array.
+ *
+ * Copies the bytes of the specified element into the array position
+ * identified by the given index, overwriting the previously stored value.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index Zero-based index of the element to replace.
+ * @param new_value Pointer to the element whose bytes will be copied
+ * into the array. The pointed object is not modified.
+ *
+ * @return 0 on success, or -1 if the array pointer, value pointer
+ * is NULL, or if the index is out of bounds.
+ */
+int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
+
+/**
  * @brief Removes the last element from the generic dynamic array.
  *
  * Copies the bytes of the last stored element into the user-provided

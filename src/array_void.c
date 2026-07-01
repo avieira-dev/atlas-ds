@@ -56,6 +56,22 @@ static int atlas_array_void_resize(AtlasArrayVoid *arr, size_t new_capacity) {
     return ATLAS_SUCCESS;
 }
 
+/*
+ * Internal helper that computes the address of the element
+ * stored at the specified index within the contiguous
+ * storage buffer.
+ *
+ * The returned pointer refers directly to the internal
+ * storage and must not be freed or retained after any
+ * operation that may reallocate the array.
+ */
+static void *atlas_array_void_get_element_ptr(const AtlasArrayVoid *arr, size_t index) {
+
+    void *out = (char *)arr->data + (index * arr->type_size);
+
+    return out;
+}
+
 // =====================
 // Lifecycle
 // =====================
@@ -138,11 +154,47 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
         }
     }
 
-    char *base = (char *)arr->data;
-    void *destination = base + (arr->size * arr->type_size);
-
-    memcpy(destination, value, arr->type_size);
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, arr->size);
+    memcpy(element_ptr, value, arr->type_size);
     arr->size++;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_get:
+ * Validates the input pointers and requested index, obtains
+ * the address of the requested element within the internal
+ * storage buffer, then copies its bytes into the user-provided
+ * output buffer.
+ */
+int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value) {
+
+    if (!arr || !out_value || index >= arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, index);
+    memcpy(out_value, element_ptr, arr->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_set:
+ * Validates the input pointers and requested index, obtains
+ * the address of the destination element within the internal
+ * storage buffer, then overwrites the stored value by copying
+ * the bytes from the user-provided element.
+ */
+int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value) {
+
+    if (!arr || !new_value || index >= arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, index);
+    memcpy(element_ptr, new_value, arr->type_size);
 
     return ATLAS_SUCCESS;
 }
@@ -162,10 +214,8 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
         return ATLAS_ERROR;
     }
 
-    char *base = (char *)arr->data;
-    void *last_address = base + ((arr->size - 1) * arr->type_size);
-
-    memcpy(out_value, last_address, arr->type_size);
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, (arr->size - 1));
+    memcpy(out_value, element_ptr, arr->type_size);
     arr->size--;
 
     return ATLAS_SUCCESS;
