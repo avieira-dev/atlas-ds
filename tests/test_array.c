@@ -1287,7 +1287,7 @@ int main(void) {
         return 1;
     }
 
-    printf("\n\033[0;33m[INFO]\033[0m All tests completed successfully.\n\n");
+    printf("\n\033[0;32m[SUCCESS]\033[0m All Dynamic Array tests passed successfully!\n\n");
 
     return 0;
 }
