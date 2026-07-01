@@ -18,7 +18,12 @@ static void test_fail(AtlasArray **arr, const char *message) {
 
 int main(void) {
 
-    printf("\n\033[0;33m[INFO]\033[0m Starting AtlasDS dynamic array tests...\n");
+    printf("\n");
+    printf("\033[1;33m=========================================================\033[0m\n");
+    printf("\033[1;33mAtlasDS - Dynamic Array Tests\033[0m\n");
+    printf("\033[1;33m=========================================================\033[0m\n\n");
+
+    printf("\033[0;33m[INFO]\033[0m Starting AtlasDS dynamic array tests...\n");
 
     // =========================================================
     // Creation Tests
