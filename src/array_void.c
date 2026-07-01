@@ -220,3 +220,54 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_array_void_size:
+ * Validates the input pointers and stores the current
+ * logical size of the array in the user-provided output
+ * variable.
+ */
+int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value) {
+
+    if (!arr || !out_value) {
+        return ATLAS_ERROR;
+    }
+
+    *out_value = arr->size;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_capacity:
+ * Validates the input pointers and stores the current
+ * storage capacity of the array in the user-provided
+ * output variable.
+ */
+int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value) {
+
+    if (!arr || !out_value) {
+        return ATLAS_ERROR;
+    }
+
+    *out_value = arr->capacity;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_empty:
+ * Validates the input pointers and stores whether the
+ * array currently contains no elements in the
+ * user-provided output variable.
+ */
+int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
+
+    if (!arr || !out_value) {
+        return ATLAS_ERROR;
+    }
+
+    *out_value = (arr->size == 0);
+
+    return ATLAS_SUCCESS;
+}

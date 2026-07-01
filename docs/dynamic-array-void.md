@@ -65,6 +65,9 @@ Current capabilities include:
 - Defensive NULL validation
 - Memory leak prevention during allocation failures
 - Automatic capacity growth during insertion
+- Size queries (`size`)
+- Capacity queries (`capacity`)
+- Empty-state queries (`empty`)
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
 - Stack-like insertion (`push`)
@@ -86,6 +89,12 @@ int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_valu
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
 
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
+
+int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
+
+int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -99,6 +108,9 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 
 > [!NOTE]    
 > Both `get()` and `set()` validate the requested index against the current logical size (`size`), not the allocated capacity, preventing access to uninitialized memory.
+
+> [!NOTE]  
+> The metadata operations (`size`, `capacity`, and `empty`) are constant-time (`O(1)`) queries that never modify the container and simply expose its current logical state.
 
 ---
 
@@ -114,6 +126,7 @@ Implemented safety mechanisms include:
 - Memory leak prevention during initialization
 - Ordered NULL pointer validation during destruction
 - Empty-array validation for pop operations
+- Safe metadata queries (`size`, `capacity`, `empty`)
 - Bounds-checked access for indexed operations (`get` / `set`)
 - Safe automatic resizing
 
@@ -132,6 +145,7 @@ Core responsibilities include:
 - Allocation (`malloc`)
 - Reallocation (`realloc`)
 - Deallocation (`free`)
+- Providing valid output buffers for metadata queries (`size`, `capacity`, and `empty`)
 - Providing a valid index and output buffer when using `get()`
 - Providing a valid index and source object address when using `set()`
 - Providing a valid destination buffer when using `pop()`
@@ -156,6 +170,9 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 | Destruction (`destroy`)  | O(1)            |
 | Access (`get`)           | O(1)            |
 | Mutation (`set`)         | O(1)            |
+| Size (`size`)            | O(1)            |
+| Capacity (`capacity`)    | O(1)            |
+| Empty (`empty`)          | O(1)            |
 | Insertion (`push`)       | O(1) amortized  |
 | Removal (`pop`)          | O(1)            |
 

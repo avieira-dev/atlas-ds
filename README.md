@@ -146,6 +146,9 @@ Current capabilities:
 - Dynamic allocation and destruction
 - Automatic runtime resizing
 - Contiguous raw memory storage
+- Size queries via `size()`
+- Capacity tracking via `capacity()`
+- Empty-state queries via `empty()`
 - Indexed element access via `get()`
 - Indexed element mutation via `set()`
 - Stack-like insertion via `push()`
@@ -168,6 +171,12 @@ int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_valu
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
 
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
+
+int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
+
+int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -332,6 +341,18 @@ int main(void) {
     }
 
     printf("Popped value: %d\n", removed_value);
+
+    size_t size = 0;
+    size_t capacity = 0;
+    bool empty = false;
+
+    atlas_array_void_size(arr, &size);
+    atlas_array_void_capacity(arr, &capacity);
+    atlas_array_void_empty(arr, &empty);
+
+    printf("Size: %zu\n", size);
+    printf("Capacity: %zu\n", capacity);
+    printf("Empty: %s\n", empty ? "yes" : "no");
 
     atlas_array_void_destroy(&arr);
 

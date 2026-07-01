@@ -10,6 +10,7 @@
 #define ATLAS_ARRAY_VOID_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #define ATLAS_ARRAY_VOID_STANDARD_CAPACITY 1
 
@@ -114,5 +115,43 @@ int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_valu
  * or the array is empty.
  */
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
+
+/**
+ * @brief Retrieves the current number of elements stored in the generic dynamic array.
+ *
+ * Stores the logical size of the array in the user-provided output variable.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the variable that will receive the current size.
+ *
+ * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ */
+int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
+
+/**
+ * @brief Retrieves the current storage capacity of the generic dynamic array.
+ *
+ * Stores the number of elements that can currently be held without
+ * reallocating the internal storage buffer.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the variable that will receive the current capacity.
+ *
+ * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ */
+int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
+
+/**
+ * @brief Checks whether the generic dynamic array is empty.
+ *
+ * Stores true in the output variable if the array contains no elements,
+ * or false otherwise.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the variable that will receive the result.
+ *
+ * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ */
+int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 
 #endif
