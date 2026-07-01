@@ -46,6 +46,9 @@ In practice, the base pointer is first converted to a byte pointer (such as unsi
 
 Data movement between elements is performed through standard memory-copy operations such as `memcpy`, allowing the container to work with any trivially copyable object.
 
+> [!IMPORTANT]  
+> Since pointer arithmetic is not defined for `void*`, AtlasDS internally converts the base pointer to `char*`, allowing address calculations to be performed one byte at a time.
+
 ---
 
 ## Current AtlasDS Implementation
@@ -61,6 +64,10 @@ Current capabilities include:
 - Automatic minimum-capacity fallback
 - Defensive NULL validation
 - Memory leak prevention during allocation failures
+- Automatic capacity growth during insertion
+- Stack-like insertion (`push`)
+- Stack-like removal (`pop`)
+- Automated tests
 
 ### Currently Implemented API
 
@@ -68,6 +75,10 @@ Current capabilities include:
 AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity);
 
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
+
+int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -92,6 +103,8 @@ Implemented safety mechanisms include:
 - Allocation failure handling
 - Memory leak prevention during initialization
 - Ordered NULL pointer validation during destruction
+- Empty-array validation for pop operations
+- Safe automatic resizing
 
 > [!NOTE]  
 > These checks are designed to improve stability and predictability while manipulating raw memory.
@@ -108,6 +121,8 @@ Core responsibilities include:
 - Allocation (`malloc`)
 - Reallocation (`realloc`)
 - Deallocation (`free`)
+- Providing a valid destination buffer when using `pop()`
+- Providing valid object addresses when using `push()`
 
 Incorrect usage may lead to:
 
@@ -126,6 +141,8 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 |:-------------------------|:----------------|
 | Creation (`create`)      | O(n)            |
 | Destruction (`destroy`)  | O(1)            |
+| Insertion (`push`)       | O(1) amortized  |
+| Removal (`pop`)          | O(1)            |
 
 > [!NOTE]  
 > Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization.

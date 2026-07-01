@@ -137,18 +137,20 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
 > [!IMPORTANT]
 > The current implementation supports only the `int` type.
 
-> [!NOTE]
-> Generic support using `void*` and element size tracking is planned for future versions.
-
 ### Generic Dynamic Array (`void*` implementation)
 
 Current capabilities:
 
 - Generic type-agnostic storage via `void*`
 - Element size tracking in bytes (`type_size`)
-- Manual memory allocation and safe cleanup
+- Dynamic allocation and destruction
+- Automatic runtime resizing
+- Contiguous raw memory storage
+- Stack-like insertion via `push()`
+- Stack-like removal via `pop()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
+- Automated tests using CMake
 
 Implemented public API:
 
@@ -156,6 +158,10 @@ Implemented public API:
 AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity);
 
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
+
+int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -330,6 +336,7 @@ After building the project:
 
 ```bash
 ./tests/test_array
+./tests/test_array_void
 ```
 
 Example output:
