@@ -52,4 +52,35 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
  */
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
+/**
+ * @brief Appends a new element to the end of the generic dynamic array.
+ *
+ * Copies the bytes of the specified element into the internal storage buffer.
+ * If the array is full, its capacity is automatically increased before the
+ * element is inserted.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param value Pointer to the element to be copied into the array.
+ * The pointed object is not modified.
+ *
+ * @return 0 on success, or -1 if the array pointer or value pointer
+ * is NULL, or if memory reallocation fails.
+ */
+int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+/**
+ * @brief Removes the last element from the generic dynamic array.
+ *
+ * Copies the bytes of the last stored element into the user-provided
+ * output buffer and removes the element from the array.. The internal storage  * capacity remains unchanged.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the destination buffer that will receive
+ * the removed element.
+ *
+ * @return 0 on success, or -1 if the array pointer, output pointer,
+ * or the array is empty.
+ */
+int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
+
 #endif

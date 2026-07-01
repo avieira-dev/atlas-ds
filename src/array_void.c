@@ -7,16 +7,54 @@
  */
 
 #include "atlas/array_void.h"
+#include "atlas/status.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 struct atlas_array_void {
     
     size_t type_size; // Size in bytes of each element
-    size_t size;      // Current number of elements in the array
-    size_t capacity;  // Current capacity supported by the dynamic array
-    void *data;       // Contiguous storage buffer
+    size_t size; // Current number of elements in the array
+    size_t capacity; // Current capacity supported by the dynamic array
+    void *data; // Contiguous storage buffer
 };
+
+// =====================
+// Internal Helpers
+// =====================
+
+/*
+ * Internal resize helper used to change the capacity
+ * of the dynamic array. Supports both expansion and
+ * shrinking operations while preserving all stored
+ * elements.
+ *
+ * The requested capacity must be greater than zero
+ * and large enough to hold the current logical size.
+ *
+ * If the requested capacity matches the current one,
+ * the function performs no operation and returns success.
+ */
+static int atlas_array_void_resize(AtlasArrayVoid *arr, size_t new_capacity) {
+
+    if (!arr || new_capacity == 0 || new_capacity < arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    if (new_capacity != arr->capacity) {
+        void *temp = realloc(arr->data, arr->type_size * new_capacity);
+
+        if (!temp) {
+            return ATLAS_ERROR;
+        }
+
+        arr->data = temp;
+        arr->capacity = new_capacity;
+    }
+
+    return ATLAS_SUCCESS;
+}
 
 // =====================
 // Lifecycle
@@ -66,7 +104,7 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
 
     if (!ptr_atlas_array_void || !*ptr_atlas_array_void) {
-        return -1;
+        return ATLAS_ERROR;
     }
 
     AtlasArrayVoid *array = *ptr_atlas_array_void;
@@ -76,5 +114,59 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
 
     *ptr_atlas_array_void = NULL;
 
-    return 0;
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_push:
+ * Validates the input pointers and appends a copy of the specified element
+ * to the end of the array. Automatically expands the internal storage when
+ * the current capacity is exhausted, then copies the element bytes into the
+ * correct position and updates the array size.
+ */
+int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
+
+    if (!arr || !value) {
+        return ATLAS_ERROR;
+    }
+
+    if (arr->size == arr->capacity) {
+        size_t new_capacity = arr->capacity * 2;
+
+        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
+        }
+    }
+
+    char *base = (char *)arr->data;
+    void *destination = base + (arr->size * arr->type_size);
+
+    memcpy(destination, value, arr->type_size);
+    arr->size++;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_pop:
+ * Removes the last element from the generic dynamic array and copies
+ * its bytes into the provided output buffer.
+ *
+ * The internal storage capacity remains unchanged. After the element
+ * has been copied to the output buffer, the logical size of the array
+ * is decremented.
+ */
+int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
+
+    if (!arr || !out_value || arr->size == 0) {
+        return ATLAS_ERROR;
+    }
+
+    char *base = (char *)arr->data;
+    void *last_address = base + ((arr->size - 1) * arr->type_size);
+
+    memcpy(out_value, last_address, arr->type_size);
+    arr->size--;
+
+    return ATLAS_SUCCESS;
 }
