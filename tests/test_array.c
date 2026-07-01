@@ -1,3 +1,11 @@
+/*
+ * AtlasDS
+ * Dynamic Array Tests
+ *
+ * Copyright (c) 2026 Alexandre Vieira
+ * Licensed under the MIT License.
+ */
+
 #include "atlas/array.h"
 
 #include <stdio.h>
