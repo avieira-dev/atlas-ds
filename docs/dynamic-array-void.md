@@ -65,6 +65,9 @@ Current capabilities include:
 - Defensive NULL validation
 - Memory leak prevention during allocation failures
 - Automatic capacity growth during insertion
+- Manual capacity reservation (`reserve`)
+- Logical clearing without deallocation (`clear`)
+- Capacity reduction to fit current size (`shrink_to_fit`)
 - Size queries (`size`)
 - Capacity queries (`capacity`)
 - Empty-state queries (`empty`)
@@ -101,6 +104,12 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
 
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
+
+int atlas_array_void_clear(AtlasArrayVoid *arr);
+
+int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 ```
 
 > [!IMPORTANT]  
@@ -121,6 +130,15 @@ int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 > [!NOTE]  
 > The `front()` and `back()` operations return copies of the first and last stored elements, respectively. Both functions validate that the array is not empty before accessing the internal storage.
 
+> [!NOTE]  
+> `reserve()` increases the storage capacity only when the requested capacity is greater than the current one. Requests for smaller or equal capacities perform no operation and still return success.
+
+> [!NOTE]  
+> `clear()` removes all stored elements by resetting the logical size to zero while preserving the allocated storage capacity for future insertions.
+
+> [!NOTE]  
+> `shrink_to_fit()` reduces the allocated storage capacity to match the current logical size. If the array is empty, the capacity becomes `ATLAS_ARRAY_VOID_STANDARD_CAPACITY`.
+
 ---
 
 ## Safety Guarantees
@@ -138,6 +156,9 @@ Implemented safety mechanisms include:
 - Safe metadata queries (`size`, `capacity`, `empty`)
 - Bounds-checked access for indexed operations (`get` / `set`)
 - Safe automatic resizing
+- Idempotent capacity reservation
+- Safe logical clearing without deallocation
+- Safe capacity shrinking
 
 > [!NOTE]  
 > These checks are designed to improve stability and predictability while manipulating raw memory.
@@ -160,6 +181,9 @@ Core responsibilities include:
 - Providing a valid destination buffer when using `pop()`
 - Providing a valid destination buffer when using `front()` or `back()`
 - Providing valid object addresses when using `push()`
+- Providing a valid array when using `reserve()`
+- Providing a valid array when using `clear()`
+- Providing a valid array when using `shrink_to_fit()`
 
 Incorrect usage may lead to:
 
@@ -185,11 +209,14 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 | Empty (`empty`)          | O(1)            |
 | Front (`front`)          | O(1)            |
 | Back (`back`)            | O(1)            |
+| Reserve (`reserve`)      | O(n)*           |
+| Clear (`clear`)          | O(1)            |
+| Shrink (`shrink_to_fit`) | O(n)            |
 | Insertion (`push`)       | O(1) amortized  |
 | Removal (`pop`)          | O(1)            |
 
 > [!NOTE]  
-> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization.
+> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored bytes.
 
 ---
 

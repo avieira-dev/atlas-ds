@@ -536,6 +536,194 @@ static int test_front_back_null(void) {
     return 0;
 }
 
+static int test_reserve(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    if (atlas_array_void_reserve(array, 10) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t capacity = 0;
+
+    if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (capacity != 10) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_reserve_invalid(void) {
+
+    if (atlas_array_void_reserve(NULL, 10) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 5);
+
+    if (!array) {
+        return 1;
+    }
+
+    if (atlas_array_void_reserve(array, 3) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t capacity = 0;
+
+    if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (capacity != 5) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    atlas_array_void_push(array, &value);
+
+    value = 20;
+
+    atlas_array_void_push(array, &value);
+
+    if (atlas_array_void_clear(array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_array_void_size(array, &size) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (size != 0) {
+        return 1;
+    }
+
+    size_t capacity = 0;
+
+    if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (capacity != 2) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_invalid(void) {
+
+    if (atlas_array_void_clear(NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_shrink_to_fit(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 10);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    atlas_array_void_push(array, &value);
+
+    value = 20;
+
+    atlas_array_void_push(array, &value);
+
+    if (atlas_array_void_shrink_to_fit(array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t capacity = 0;
+
+    if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (capacity != 2) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_shrink_to_fit_invalid(void) {
+
+    if (atlas_array_void_shrink_to_fit(NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 10);
+
+    if (!array) {
+        return 1;
+    }
+
+    if (atlas_array_void_shrink_to_fit(array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t capacity = 0;
+
+    if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (capacity != 1) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_metadata_invalid(void) {
 
     size_t size = 0;
@@ -679,6 +867,32 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Front/Back test passed.\n\n");
 
     // =========================================================
+    // Capacity Management
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running capacity management tests...\n");
+
+    if (test_reserve()) {
+        printf("\033[0;31m[ERROR]\033[0m test_reserve failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Reserve test passed.\n");
+
+    if (test_clear()) {
+        printf("\033[0;31m[ERROR]\033[0m test_clear failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clear test passed.\n");
+
+    if (test_shrink_to_fit()) {
+        printf("\033[0;31m[ERROR]\033[0m test_shrink_to_fit failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Shrink-to-fit test passed.\n\n");
+
+    // =========================================================
     // Error Handling
     // =========================================================
     printf("\033[0;33m[INFO]\033[0m Running error handling tests...\n");
@@ -736,6 +950,27 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_metadata_invalid failed.\n");
         return 1;
     }
+
+    if (test_reserve_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_reserve_invalid failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Reserve validation passed.\n");
+
+    if (test_clear_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_clear_invalid failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Clear validation passed.\n");
+
+    if (test_shrink_to_fit_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_shrink_to_fit_invalid failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Shrink-to-fit validation passed.\n");
 
     printf("\033[0;32m[OK]\033[0m Metadata validation passed.\n");
 

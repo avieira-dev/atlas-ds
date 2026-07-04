@@ -261,7 +261,7 @@ int atlas_array_shrink_to_fit(AtlasArray *arr) {
         return ATLAS_ERROR;
     }
 
-    size_t new_capacity = arr->size == 0 ? 1 : arr->size;
+    size_t new_capacity = arr->size == 0 ? ATLAS_ARRAY_STANDARD_CAPACITY : arr->size;
 
     if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
         return ATLAS_ERROR;

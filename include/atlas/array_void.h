@@ -183,4 +183,46 @@ int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
  */
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 
+/**
+ * @brief Ensures that the generic dynamic array has at least the specified capacity.
+ *
+ * Expands the internal storage buffer if the requested capacity is greater
+ * than the current capacity. If the requested capacity is less than or
+ * equal to the current capacity, no changes are made.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param new_capacity Minimum capacity that the array should support.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL or memory
+ * reallocation fails.
+ */
+int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
+
+/**
+ * @brief Removes all elements from the generic dynamic array.
+ *
+ * Clears the logical contents of the array by resetting its size to zero.
+ * The allocated storage capacity remains unchanged, allowing future
+ * insertions without additional memory allocation.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL.
+ */
+int atlas_array_void_clear(AtlasArrayVoid *arr);
+
+/**
+ * @brief Reduces the storage capacity of the generic dynamic array.
+ *
+ * Shrinks the internal storage buffer to match the current logical size.
+ * If the array is empty, the capacity is reduced to
+ * ATLAS_ARRAY_VOID_STANDARD_CAPACITY.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL or memory
+ * reallocation fails.
+ */
+int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
+
 #endif

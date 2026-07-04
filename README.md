@@ -62,30 +62,25 @@ The library also serves as a reference implementation for students and developer
 
 Current capabilities:
 
+- Generic type-agnostic storage via `void*`
+- Element size tracking in bytes (`type_size`)
 - Dynamic allocation and destruction
 - Automatic runtime resizing
-- Contiguous memory storage
-- Bounds-checked element access
-- Indexed element mutation
-- Indexed insertion via insert()
-- Indexed element removal via erase()
-- Indexed element swapping via swap()
-- Array-to-array copying via copy()
-- Independent array duplication via clone()
-- Linear search via find()
-- Value existence checks via contains()
-- Logical reset using clear()
-- Buffer reuse without reallocation
-- Stack-like element removal via pop()
-- Capacity tracking
+- Contiguous raw memory storage
+- Indexed element access via `get()`
+- Indexed element mutation via `set()`
+- Stack-like insertion via `push()`
+- Stack-like removal via `pop()`
 - Size tracking
-- Empty-state queries via empty()
-- First element access via front()
-- Last element access via back()
-- Manual capacity management via reserve()
-- Capacity reduction via shrink_to_fit()
-- Safe NULL handling
-- Stack-like push/pop behavior
+- Capacity tracking
+- Empty-state queries via `empty()`
+- First element access via `front()`
+- Last element access via `back()`
+- Manual capacity management via `reserve()`
+- Logical reset using `clear()`
+- Capacity reduction via `shrink_to_fit()`
+- Defensive validation of pointers and initialization states
+- Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
 
 Implemented public API:
@@ -183,6 +178,12 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
 
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
+
+int atlas_array_void_clear(AtlasArrayVoid *arr);
+
+int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 ```
 
 > [!IMPORTANT]  
@@ -308,6 +309,7 @@ int main(void) {
 ```c
 #include <atlas/array_void.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 int main(void) {
@@ -317,6 +319,8 @@ int main(void) {
     if (!arr) {
         return 1;
     }
+
+    atlas_array_void_reserve(arr, 10);
 
     int a = 10;
     int b = 20;
@@ -370,6 +374,10 @@ int main(void) {
     if (atlas_array_void_back(arr, &last) == 0) {
         printf("Last: %d\n", last);
     }
+
+    atlas_array_void_clear(arr);
+
+    atlas_array_void_shrink_to_fit(arr);
 
     atlas_array_void_destroy(&arr);
 

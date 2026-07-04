@@ -133,6 +133,10 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
     return ATLAS_SUCCESS;
 }
 
+// =====================
+// Operations
+// =====================
+
 /*
  * Implementation of atlas_array_void_push:
  * Validates the input pointers and appends a copy of the specified element
@@ -302,6 +306,67 @@ int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, (arr->size - 1));
     memcpy(out_value, element_ptr, arr->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_reserve:
+ * Ensures that the array has at least the requested
+ * storage capacity. If the requested capacity is
+ * less than or equal to the current capacity,
+ * no reallocation is performed.
+ */
+int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity) {
+
+    if (!arr) {
+        return ATLAS_ERROR;
+    }
+
+    if (new_capacity > arr->capacity) {
+        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
+        }
+    }
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_clear:
+ * Removes all elements from the array by resetting
+ * its logical size. The allocated storage buffer
+ * remains unchanged and can be reused by subsequent
+ * insertions.
+ */
+int atlas_array_void_clear(AtlasArrayVoid *arr) {
+
+    if (!arr) {
+        return ATLAS_ERROR;
+    }
+
+    arr->size = 0;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_shrink_to_fit:
+ * Reduces the storage capacity to match the current
+ * logical size. When the array is empty, the capacity
+ * is reduced to the minimum supported capacity.
+ */
+int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
+
+    if (!arr) {
+        return ATLAS_ERROR;
+    }
+
+    size_t new_capacity = arr->size == 0 ? ATLAS_ARRAY_VOID_STANDARD_CAPACITY : arr->size;
+
+    if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+        return ATLAS_ERROR;
+    }
 
     return ATLAS_SUCCESS;
 }
