@@ -16,7 +16,7 @@ struct atlas_array_void {
     
     size_t type_size; // Size in bytes of each element
     size_t size; // Current number of elements in the array
-    size_t capacity; // Current capacity supported by the dynamic array
+    size_t capacity; // Number of elements that can be stored without reallocation
     void *data; // Contiguous storage buffer
 };
 
@@ -268,6 +268,40 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
     }
 
     *out_value = (arr->size == 0);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_front:
+ * Validates the input pointers and copies the first
+ * stored element into the user-provided output buffer.
+ */
+int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value) {
+
+    if (!arr || !out_value || arr->size == 0) {
+        return ATLAS_ERROR;
+    }
+
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, 0);
+    memcpy(out_value, element_ptr, arr->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_back:
+ * Validates the input pointers and copies the last
+ * stored element into the user-provided output buffer.
+ */
+int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
+
+    if (!arr || !out_value || arr->size == 0) {
+        return ATLAS_ERROR;
+    }
+
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, (arr->size - 1));
+    memcpy(out_value, element_ptr, arr->type_size);
 
     return ATLAS_SUCCESS;
 }

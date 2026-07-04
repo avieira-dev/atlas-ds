@@ -436,6 +436,106 @@ static int test_empty(void) {
     return 0;
 }
 
+static int test_front_back(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int front = 0;
+    int back = 0;
+
+    if (atlas_array_void_front(array, &front) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (atlas_array_void_back(array, &back) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (front != 10 || back != 20) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_front_back_empty(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 0;
+
+    if (atlas_array_void_front(array, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_back(array, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_front_back_null(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 0;
+
+    if (atlas_array_void_front(NULL, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_front(array, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_back(NULL, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_back(array, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_metadata_invalid(void) {
 
     size_t size = 0;
@@ -569,7 +669,14 @@ int main(void) {
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Empty test passed.\n\n");
+    printf("\033[0;32m[OK]\033[0m Empty test passed.\n");
+
+    if (test_front_back()) {
+        printf("\033[0;31m[ERROR]\033[0m test_front_back failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Front/Back test passed.\n\n");
 
     // =========================================================
     // Error Handling
@@ -589,6 +696,20 @@ int main(void) {
     }
 
     printf("\033[0;32m[OK]\033[0m Empty array validation passed.\n");
+
+    if (test_front_back_empty()) {
+        printf("\033[0;31m[ERROR]\033[0m test_front_back_empty failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Front/Back empty validation passed.\n");
+
+    if (test_front_back_null()) {
+        printf("\033[0;31m[ERROR]\033[0m test_front_back_null failed.\n");
+        return 1;
+    }
+
+    printf("\033[0;32m[OK]\033[0m Front/Back NULL validation passed.\n");
 
     if (test_pop_null()) {
         printf("\033[0;31m[ERROR]\033[0m test_pop_null failed.\n");

@@ -72,6 +72,8 @@ Current capabilities include:
 - Indexed element mutation (`set`)
 - Stack-like insertion (`push`)
 - Stack-like removal (`pop`)
+- First element access (`front`)
+- Last element access (`back`)
 - Bounds-checked indexed access
 - Automated tests
 
@@ -95,6 +97,10 @@ int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
 int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
 
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
+
+int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -112,6 +118,9 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 > [!NOTE]  
 > The metadata operations (`size`, `capacity`, and `empty`) are constant-time (`O(1)`) queries that never modify the container and simply expose its current logical state.
 
+> [!NOTE]  
+> The `front()` and `back()` operations return copies of the first and last stored elements, respectively. Both functions validate that the array is not empty before accessing the internal storage.
+
 ---
 
 ## Safety Guarantees
@@ -125,7 +134,7 @@ Implemented safety mechanisms include:
 - Allocation failure handling
 - Memory leak prevention during initialization
 - Ordered NULL pointer validation during destruction
-- Empty-array validation for pop operations
+- Empty-array validation for `pop`, `front`, and `back` operations
 - Safe metadata queries (`size`, `capacity`, `empty`)
 - Bounds-checked access for indexed operations (`get` / `set`)
 - Safe automatic resizing
@@ -149,6 +158,7 @@ Core responsibilities include:
 - Providing a valid index and output buffer when using `get()`
 - Providing a valid index and source object address when using `set()`
 - Providing a valid destination buffer when using `pop()`
+- Providing a valid destination buffer when using `front()` or `back()`
 - Providing valid object addresses when using `push()`
 
 Incorrect usage may lead to:
@@ -173,6 +183,8 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 | Size (`size`)            | O(1)            |
 | Capacity (`capacity`)    | O(1)            |
 | Empty (`empty`)          | O(1)            |
+| Front (`front`)          | O(1)            |
+| Back (`back`)            | O(1)            |
 | Insertion (`push`)       | O(1) amortized  |
 | Removal (`pop`)          | O(1)            |
 

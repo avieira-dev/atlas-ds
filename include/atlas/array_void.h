@@ -105,7 +105,8 @@ int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_valu
  * @brief Removes the last element from the generic dynamic array.
  *
  * Copies the bytes of the last stored element into the user-provided
- * output buffer and removes the element from the array.. The internal storage  * capacity remains unchanged.
+ * output buffer and removes the element from the array. The internal
+ * storage capacity remains unchanged.
  *
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the destination buffer that will receive
@@ -153,5 +154,33 @@ int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
  * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
  */
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
+
+/**
+ * @brief Retrieves a copy of the first element stored in the generic dynamic array.
+ *
+ * Copies the bytes of the first stored element into the user-provided
+ * output buffer.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the destination buffer.
+ *
+ * @return 0 on success, or -1 if the array pointer, output pointer,
+ * or the array is empty.
+ */
+int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
+
+/**
+ * @brief Retrieves a copy of the last element stored in the generic dynamic array.
+ *
+ * Copies the bytes of the last stored element into the user-provided
+ * output buffer.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param out_value Pointer to the destination buffer.
+ *
+ * @return 0 on success, or -1 if the array pointer, output pointer,
+ * or the array is empty.
+ */
+int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 
 #endif

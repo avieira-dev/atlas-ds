@@ -15,7 +15,7 @@
 
 ---
 
-> [!NOTE]
+> [!NOTE]  
 > New data structures will be implemented progressively as the atlas grows.
 
 ## Table of Contents
@@ -134,7 +134,7 @@ int atlas_array_front(const AtlasArray *arr, int *out_value);
 int atlas_array_back(const AtlasArray *arr, int *out_value);
 ```
 
-> [!IMPORTANT]
+> [!IMPORTANT]  
 > The current implementation supports only the `int` type.
 
 ### Generic Dynamic Array (`void*` implementation)
@@ -149,6 +149,8 @@ Current capabilities:
 - Size queries via `size()`
 - Capacity tracking via `capacity()`
 - Empty-state queries via `empty()`
+- First element access via `front()`
+- Last element access via `back()`
 - Indexed element access via `get()`
 - Indexed element mutation via `set()`
 - Stack-like insertion via `push()`
@@ -177,6 +179,10 @@ int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
 int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
 
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
+
+int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
+
+int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -352,7 +358,18 @@ int main(void) {
 
     printf("Size: %zu\n", size);
     printf("Capacity: %zu\n", capacity);
-    printf("Empty: %s\n", empty ? "yes" : "no");
+    printf("Empty: %s\n", empty ? "true" : "false");
+
+    int first = 0;
+    int last = 0;
+
+    if (atlas_array_void_front(arr, &first) == 0) {
+        printf("First: %d\n", first);
+    }
+
+    if (atlas_array_void_back(arr, &last) == 0) {
+        printf("Last: %d\n", last);
+    }
 
     atlas_array_void_destroy(&arr);
 
@@ -457,7 +474,7 @@ your-project/
 └── README.md
 ```
 
-> [!NOTE]
+> [!NOTE]  
 > This is the recommended integration method. Additional integration methods may be supported in future releases.
 
 ---
