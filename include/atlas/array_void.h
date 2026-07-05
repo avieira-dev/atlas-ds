@@ -225,4 +225,37 @@ int atlas_array_void_clear(AtlasArrayVoid *arr);
  */
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 
+/**
+ * @brief Inserts a new element at the specified position in the generic dynamic array.
+ *
+ * Copies the bytes of the specified element into the array at the given index.
+ * If the insertion occurs before the end of the array, the existing elements
+ * are shifted one position to the right to make room for the new element.
+ * If the array is full, its storage is automatically expanded before insertion.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index Zero-based position where the new element will be inserted.
+ * Valid values are in the range [0, size].
+ * @param value Pointer to the element to be copied into the array.
+ *
+ * @return 0 on success, or -1 if the array pointer, value pointer
+ * is NULL, the index is out of bounds, or memory reallocation fails.
+ */
+int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
+
+/**
+ * @brief Removes the element at the specified position from the generic dynamic array.
+ *
+ * Erases the element at the given index by shifting all subsequent elements
+ * one position to the left. The logical size of the array is reduced by one,
+ * while the allocated storage capacity remains unchanged.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index Zero-based index of the element to remove.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or the index is out of bounds.
+ */
+int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
+
 #endif

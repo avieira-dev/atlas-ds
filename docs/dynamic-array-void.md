@@ -73,10 +73,12 @@ Current capabilities include:
 - Empty-state queries (`empty`)
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
-- Stack-like insertion (`push`)
-- Stack-like removal (`pop`)
 - First element access (`front`)
 - Last element access (`back`)
+- Stack-like insertion (`push`)
+- Stack-like removal (`pop`)
+- Indexed insertion (`insert`)
+- Indexed removal (`erase`)
 - Bounds-checked indexed access
 - Automated tests
 
@@ -88,6 +90,10 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
+
+int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -139,6 +145,12 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 > [!NOTE]  
 > `shrink_to_fit()` reduces the allocated storage capacity to match the current logical size. If the array is empty, the capacity becomes `ATLAS_ARRAY_VOID_STANDARD_CAPACITY`.
 
+> [!NOTE]  
+> `insert()` inserts an element at the specified index, shifting all subsequent elements one position to the right while preserving contiguous storage. Insertion at `size` is equivalent to appending a new element.
+
+> [!NOTE]  
+> `erase()` removes the element at the specified index and shifts all subsequent elements one position to the left, preserving contiguous storage.
+
 ---
 
 ## Safety Guarantees
@@ -148,17 +160,19 @@ Since `void*` removes compile-time type information, the implementation includes
 Implemented safety mechanisms include:
 
 - NULL pointer validation
+- Ordered NULL pointer validation during destruction
 - Safe destruction using double pointers
 - Allocation failure handling
 - Memory leak prevention during initialization
-- Ordered NULL pointer validation during destruction
-- Empty-array validation for `pop`, `front`, and `back` operations
-- Safe metadata queries (`size`, `capacity`, `empty`)
-- Bounds-checked access for indexed operations (`get` / `set`)
 - Safe automatic resizing
 - Idempotent capacity reservation
 - Safe logical clearing without deallocation
 - Safe capacity shrinking
+- Safe metadata queries (`size`, `capacity`, `empty`)
+- Bounds-checked access for indexed operations (`get` / `set`)
+- Bounds-checked insertion (`insert`)
+- Bounds-checked removal (`erase`)
+- Empty-array validation for `pop`, `front`, and `back` operations
 
 > [!NOTE]  
 > These checks are designed to improve stability and predictability while manipulating raw memory.
@@ -178,9 +192,11 @@ Core responsibilities include:
 - Providing valid output buffers for metadata queries (`size`, `capacity`, and `empty`)
 - Providing a valid index and output buffer when using `get()`
 - Providing a valid index and source object address when using `set()`
-- Providing a valid destination buffer when using `pop()`
 - Providing a valid destination buffer when using `front()` or `back()`
 - Providing valid object addresses when using `push()`
+- Providing a valid destination buffer when using `pop()`
+- Providing a valid index and source object address when using `insert()`
+- Providing a valid index when using `erase()`
 - Providing a valid array when using `reserve()`
 - Providing a valid array when using `clear()`
 - Providing a valid array when using `shrink_to_fit()`
@@ -202,21 +218,23 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 |:-------------------------|:----------------|
 | Creation (`create`)      | O(n)            |
 | Destruction (`destroy`)  | O(1)            |
-| Access (`get`)           | O(1)            |
-| Mutation (`set`)         | O(1)            |
 | Size (`size`)            | O(1)            |
 | Capacity (`capacity`)    | O(1)            |
 | Empty (`empty`)          | O(1)            |
+| Access (`get`)           | O(1)            |
+| Mutation (`set`)         | O(1)            |
 | Front (`front`)          | O(1)            |
 | Back (`back`)            | O(1)            |
-| Reserve (`reserve`)      | O(n)*           |
-| Clear (`clear`)          | O(1)            |
-| Shrink (`shrink_to_fit`) | O(n)            |
 | Insertion (`push`)       | O(1) amortized  |
 | Removal (`pop`)          | O(1)            |
+| Insertion (`insert`)     | O(n) worst-case |
+| Removal (`erase`)        | O(n) worst-case |
+| Reserve (`reserve`)      | O(n)            |
+| Clear (`clear`)          | O(1)            |
+| Shrink (`shrink_to_fit`) | O(n)            |
 
 > [!NOTE]  
-> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored bytes.
+> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored elements. The `insert()` and `erase()` operations have **O(n)** worst-case complexity because they may need to shift all subsequent elements to preserve contiguous storage.
 
 ---
 

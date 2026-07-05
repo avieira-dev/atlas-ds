@@ -72,6 +72,11 @@ static void *atlas_array_void_get_element_ptr(const AtlasArrayVoid *arr, size_t 
     return out;
 }
 
+static bool atlas_array_void_full(const AtlasArrayVoid *arr) {
+
+    return arr->size == arr->capacity;
+}
+
 // =====================
 // Lifecycle
 // =====================
@@ -150,7 +155,7 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
         return ATLAS_ERROR;
     }
 
-    if (arr->size == arr->capacity) {
+    if (atlas_array_void_full(arr)) {
         size_t new_capacity = arr->capacity * 2;
 
         if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
@@ -367,6 +372,72 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
     if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
         return ATLAS_ERROR;
     }
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_insert:
+ * Validates the input pointers and insertion index.
+ * Expands the internal storage if necessary, shifts
+ * the existing elements one position to the right
+ * when inserting before the end of the array, copies
+ * the new element into the requested position, and
+ * updates the logical size.
+ */
+int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value) {
+
+    if (!arr || !value || index > arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    if (atlas_array_void_full(arr)) {
+        size_t new_capacity = arr->capacity * 2;
+
+        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
+        }
+    }
+
+    if (index < arr->size) {
+        for (size_t i = arr->size; i > index; i--) {
+            void *destination_ptr = atlas_array_void_get_element_ptr(arr, i);
+            void *origin_ptr = atlas_array_void_get_element_ptr(arr, i - 1);
+            memcpy(destination_ptr, origin_ptr, arr->type_size);
+        }
+    }
+
+    void *element_ptr = atlas_array_void_get_element_ptr(arr, index);
+    memcpy(element_ptr, value, arr->type_size);
+
+    arr->size++;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_erase:
+ * Validates the input pointer and removal index,
+ * shifts all elements after the removed position
+ * one slot to the left to preserve contiguous
+ * storage, then decrements the logical size.
+ * The allocated storage capacity remains unchanged.
+ */
+int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
+
+    if (!arr || index >= arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    if (index <= arr->size - 2) {
+        for (size_t i = index; i < arr->size - 1; i++) {
+            void *destination_ptr = atlas_array_void_get_element_ptr(arr, i);
+            void *origin_ptr = atlas_array_void_get_element_ptr(arr, i + 1);
+            memcpy(destination_ptr, origin_ptr, arr->type_size);
+        }
+    }
+
+    arr->size--;
 
     return ATLAS_SUCCESS;
 }

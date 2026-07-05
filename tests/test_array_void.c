@@ -369,7 +369,6 @@ static int test_capacity(void) {
         return 1;
     }
     
-
     if (atlas_array_void_capacity(array, &capacity) != ATLAS_SUCCESS) {
         return 1;
     }
@@ -607,12 +606,10 @@ static int test_clear(void) {
     }
 
     int value = 10;
-
-    atlas_array_void_push(array, &value);
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
 
     value = 20;
-
-    atlas_array_void_push(array, &value);
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
 
     if (atlas_array_void_clear(array) != ATLAS_SUCCESS) {
         return 1;
@@ -663,12 +660,10 @@ static int test_shrink_to_fit(void) {
     }
 
     int value = 10;
-
-    atlas_array_void_push(array, &value);
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
 
     value = 20;
-
-    atlas_array_void_push(array, &value);
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
 
     if (atlas_array_void_shrink_to_fit(array) != ATLAS_SUCCESS) {
         return 1;
@@ -714,6 +709,140 @@ static int test_shrink_to_fit_invalid(void) {
     }
 
     if (capacity != 1) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_insert(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    value = 30;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    value = 20;
+
+    if (atlas_array_void_insert(array, 1, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_SUCCESS || out != 10) return 1;
+    if (atlas_array_void_get(array, 1, &out) != ATLAS_SUCCESS || out != 20) return 1;
+    if (atlas_array_void_get(array, 2, &out) != ATLAS_SUCCESS || out != 30) return 1;
+
+    size_t size = 0;
+
+    if (atlas_array_void_size(array, &size) != ATLAS_SUCCESS || size != 3) return 1;
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_insert_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_insert(NULL, 0, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_insert(array, 0, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_insert(array, 1, &value) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_erase(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    value = 20;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    value = 30;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    if (atlas_array_void_erase(array, 1) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_SUCCESS || out != 10) return 1;
+    if (atlas_array_void_get(array, 1, &out) != ATLAS_SUCCESS || out != 30) return 1;
+
+    size_t size = 0;
+
+    if (atlas_array_void_size(array, &size) != ATLAS_SUCCESS || size != 2) return 1;
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_erase_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    if (atlas_array_void_erase(NULL, 0) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_erase(array, 0) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
+
+    if (atlas_array_void_erase(array, 1) != ATLAS_ERROR) {
         return 1;
     }
 
@@ -785,21 +914,18 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_create_destroy failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Create/Destroy test passed.\n");
 
     if (test_create_invalid_type_size()) {
         printf("\033[0;31m[ERROR]\033[0m test_create_invalid_type_size failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Invalid type_size validation passed.\n");
 
     if (test_destroy_null()) {
         printf("\033[0;31m[ERROR]\033[0m test_destroy_null failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m NULL destroy validation passed.\n\n");
 
     // =========================================================
@@ -811,15 +937,31 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_push_pop_int failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Integer push/pop test passed.\n");
 
     if (test_push_pop_double()) {
         printf("\033[0;31m[ERROR]\033[0m test_push_pop_double failed.\n");
         return 1;
     }
+    printf("\033[0;32m[OK]\033[0m Double push/pop test passed.\n");
 
-    printf("\033[0;32m[OK]\033[0m Double push/pop test passed.\n\n");
+    if (test_push_null()) {
+        printf("\033[0;31m[ERROR]\033[0m test_push_null failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Push NULL validation passed.\n");
+
+    if (test_pop_empty()) {
+        printf("\033[0;31m[ERROR]\033[0m test_pop_empty failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Empty array validation passed.\n");
+
+    if (test_pop_null()) {
+        printf("\033[0;31m[ERROR]\033[0m test_pop_null failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Pop NULL validation passed.\n\n");
 
     // =========================================================
     // Get / Set
@@ -830,8 +972,48 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_get_set_int failed.\n");
         return 1;
     }
+    printf("\033[0;32m[OK]\033[0m Get/Set test passed.\n");
 
-    printf("\033[0;32m[OK]\033[0m Get/Set test passed.\n\n");
+    if (test_get_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_get_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Get validation passed.\n");
+
+    if (test_set_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_set_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Set validation passed.\n\n");
+
+    // =========================================================
+    // Insert / Erase
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running insert/erase tests...\n");
+
+    if (test_insert()) {
+        printf("\033[0;31m[ERROR]\033[0m test_insert failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Insert test passed.\n");
+
+    if (test_insert_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_insert_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Insert validation passed.\n");
+
+    if (test_erase()) {
+        printf("\033[0;31m[ERROR]\033[0m test_erase failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Erase test passed.\n");
+
+    if (test_erase_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_erase_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Erase validation passed.\n\n");
 
     // =========================================================
     // Metadata
@@ -842,29 +1024,43 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_size failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Size test passed.\n");
 
     if (test_capacity()) {
         printf("\033[0;31m[ERROR]\033[0m test_capacity failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Capacity test passed.\n");
 
     if (test_empty()) {
         printf("\033[0;31m[ERROR]\033[0m test_empty failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Empty test passed.\n");
 
     if (test_front_back()) {
         printf("\033[0;31m[ERROR]\033[0m test_front_back failed.\n");
         return 1;
     }
+    printf("\033[0;32m[OK]\033[0m Front/Back test passed.\n");
 
-    printf("\033[0;32m[OK]\033[0m Front/Back test passed.\n\n");
+    if (test_metadata_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_metadata_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Metadata validation passed.\n");
+
+    if (test_front_back_empty()) {
+        printf("\033[0;31m[ERROR]\033[0m test_front_back_empty failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Front/Back empty validation passed.\n");
+
+    if (test_front_back_null()) {
+        printf("\033[0;31m[ERROR]\033[0m test_front_back_null failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Front/Back NULL validation passed.\n\n");
 
     // =========================================================
     // Capacity Management
@@ -875,104 +1071,37 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_reserve failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Reserve test passed.\n");
-
-    if (test_clear()) {
-        printf("\033[0;31m[ERROR]\033[0m test_clear failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Clear test passed.\n");
-
-    if (test_shrink_to_fit()) {
-        printf("\033[0;31m[ERROR]\033[0m test_shrink_to_fit failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Shrink-to-fit test passed.\n\n");
-
-    // =========================================================
-    // Error Handling
-    // =========================================================
-    printf("\033[0;33m[INFO]\033[0m Running error handling tests...\n");
-
-    if (test_push_null()) {
-        printf("\033[0;31m[ERROR]\033[0m test_push_null failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Push NULL validation passed.\n");
-
-    if (test_pop_empty()) {
-        printf("\033[0;31m[ERROR]\033[0m test_pop_empty failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Empty array validation passed.\n");
-
-    if (test_front_back_empty()) {
-        printf("\033[0;31m[ERROR]\033[0m test_front_back_empty failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Front/Back empty validation passed.\n");
-
-    if (test_front_back_null()) {
-        printf("\033[0;31m[ERROR]\033[0m test_front_back_null failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Front/Back NULL validation passed.\n");
-
-    if (test_pop_null()) {
-        printf("\033[0;31m[ERROR]\033[0m test_pop_null failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Pop NULL validation passed.\n");
-
-    if (test_get_invalid()) {
-        printf("\033[0;31m[ERROR]\033[0m test_get_invalid failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Get validation passed.\n");
-
-    if (test_set_invalid()) {
-        printf("\033[0;31m[ERROR]\033[0m test_set_invalid failed.\n");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Set validation passed.\n");
-
-    if (test_metadata_invalid()) {
-        printf("\033[0;31m[ERROR]\033[0m test_metadata_invalid failed.\n");
-        return 1;
-    }
 
     if (test_reserve_invalid()) {
         printf("\033[0;31m[ERROR]\033[0m test_reserve_invalid failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Reserve validation passed.\n");
+
+    if (test_clear()) {
+        printf("\033[0;31m[ERROR]\033[0m test_clear failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Clear test passed.\n");
 
     if (test_clear_invalid()) {
         printf("\033[0;31m[ERROR]\033[0m test_clear_invalid failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Clear validation passed.\n");
+
+    if (test_shrink_to_fit()) {
+        printf("\033[0;31m[ERROR]\033[0m test_shrink_to_fit failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Shrink-to-fit test passed.\n");
 
     if (test_shrink_to_fit_invalid()) {
         printf("\033[0;31m[ERROR]\033[0m test_shrink_to_fit_invalid failed.\n");
         return 1;
     }
-
     printf("\033[0;32m[OK]\033[0m Shrink-to-fit validation passed.\n");
-
-    printf("\033[0;32m[OK]\033[0m Metadata validation passed.\n");
 
     printf("\n\033[0;32m[SUCCESS]\033[0m All Generic Dynamic Array tests passed successfully!\n\n");
 

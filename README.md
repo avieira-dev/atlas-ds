@@ -62,15 +62,21 @@ The library also serves as a reference implementation for students and developer
 
 Current capabilities:
 
-- Generic type-agnostic storage via `void*`
-- Element size tracking in bytes (`type_size`)
+- Integer-specialized implementation
 - Dynamic allocation and destruction
 - Automatic runtime resizing
-- Contiguous raw memory storage
+- Contiguous memory storage
 - Indexed element access via `get()`
 - Indexed element mutation via `set()`
 - Stack-like insertion via `push()`
 - Stack-like removal via `pop()`
+- Indexed insertion via `insert()`
+- Indexed removal via `erase()`
+- Element swapping via `swap()`
+- Array copying via `copy()`
+- Deep cloning via `clone()`
+- Value lookup via `find()`
+- Membership queries via `contains()`
 - Size tracking
 - Capacity tracking
 - Empty-state queries via `empty()`
@@ -79,7 +85,7 @@ Current capabilities:
 - Manual capacity management via `reserve()`
 - Logical reset using `clear()`
 - Capacity reduction via `shrink_to_fit()`
-- Defensive validation of pointers and initialization states
+- Defensive validation of pointers and invalid states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
 
@@ -150,6 +156,8 @@ Current capabilities:
 - Indexed element mutation via `set()`
 - Stack-like insertion via `push()`
 - Stack-like removal via `pop()`
+- Indexed insertion via `insert()`
+- Indexed removal via `erase()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
@@ -162,6 +170,10 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
+
+int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
+
+int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -329,6 +341,11 @@ int main(void) {
     atlas_array_void_push(arr, &a);
     atlas_array_void_push(arr, &b);
     atlas_array_void_push(arr, &c);
+
+    int inserted = 15;
+    atlas_array_void_insert(arr, 1, &inserted);
+
+    atlas_array_void_erase(arr, 2);
 
     int retrieved_value = 0;
 
