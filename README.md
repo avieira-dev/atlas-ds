@@ -158,6 +158,7 @@ Current capabilities:
 - Stack-like removal via `pop()`
 - Indexed insertion via `insert()`
 - Indexed removal via `erase()`
+- Indexed element swapping via `swap()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
@@ -174,6 +175,8 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
 int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
 
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
+
+int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
 
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -344,6 +347,8 @@ int main(void) {
 
     int inserted = 15;
     atlas_array_void_insert(arr, 1, &inserted);
+
+    atlas_array_void_swap(arr, 0, 2);
 
     atlas_array_void_erase(arr, 2);
 

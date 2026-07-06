@@ -853,6 +853,95 @@ static int test_erase_invalid(void) {
     return 0;
 }
 
+static int test_swap(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 30;
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(array, 0, 2) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_SUCCESS || out != 30) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(array, 1, &out) != ATLAS_SUCCESS || out != 20) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(array, 2, &out) != ATLAS_SUCCESS || out != 10) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_swap_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(NULL, 0, 0) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(array, 0, 1) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(array, 1, 0) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(array, 1, 1) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_swap(array, 0, 0) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_metadata_invalid(void) {
 
     size_t size = 0;
@@ -1014,6 +1103,23 @@ int main(void) {
         return 1;
     }
     printf("\033[0;32m[OK]\033[0m Erase validation passed.\n\n");
+
+    // =========================================================
+    // Swap
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running swap tests...\n");
+
+    if (test_swap()) {
+        printf("\033[0;31m[ERROR]\033[0m test_swap failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Swap test passed.\n");
+
+    if (test_swap_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_swap_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Swap validation passed.\n\n");
 
     // =========================================================
     // Metadata

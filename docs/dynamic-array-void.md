@@ -79,6 +79,7 @@ Current capabilities include:
 - Stack-like removal (`pop`)
 - Indexed insertion (`insert`)
 - Indexed removal (`erase`)
+- Element swapping (`swap`)
 - Bounds-checked indexed access
 - Automated tests
 
@@ -94,6 +95,8 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
 int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
 
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
+
+int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
 
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -151,6 +154,9 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 > [!NOTE]  
 > `erase()` removes the element at the specified index and shifts all subsequent elements one position to the left, preserving contiguous storage.
 
+> [!NOTE]  
+> `swap()` exchanges the elements stored at two valid indices. If both indices are identical, no operation is performed and the function still returns success.
+
 ---
 
 ## Safety Guarantees
@@ -172,6 +178,7 @@ Implemented safety mechanisms include:
 - Bounds-checked access for indexed operations (`get` / `set`)
 - Bounds-checked insertion (`insert`)
 - Bounds-checked removal (`erase`)
+- Bounds-checked element swapping (`swap`)
 - Empty-array validation for `pop`, `front`, and `back` operations
 
 > [!NOTE]  
@@ -197,6 +204,7 @@ Core responsibilities include:
 - Providing a valid destination buffer when using `pop()`
 - Providing a valid index and source object address when using `insert()`
 - Providing a valid index when using `erase()`
+- Providing two valid indices when using `swap()`
 - Providing a valid array when using `reserve()`
 - Providing a valid array when using `clear()`
 - Providing a valid array when using `shrink_to_fit()`
@@ -230,11 +238,12 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 | Insertion (`insert`)     | O(n) worst-case |
 | Removal (`erase`)        | O(n) worst-case |
 | Reserve (`reserve`)      | O(n)            |
+| Swap (`swap`)            | O(1)            |
 | Clear (`clear`)          | O(1)            |
 | Shrink (`shrink_to_fit`) | O(n)            |
 
 > [!NOTE]  
-> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored elements. The `insert()` and `erase()` operations have **O(n)** worst-case complexity because they may need to shift all subsequent elements to preserve contiguous storage.
+> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored bytes. The `insert()` and `erase()` operations have `O(n)` worst-case complexity because they may need to shift subsequent elements to preserve contiguous storage. The `swap()` operation exchanges two elements through a constant number of memory-copy operations and therefore runs in `O(1)` time.
 
 ---
 

@@ -258,4 +258,20 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
  */
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
+/**
+ * @brief Exchanges the positions of two elements in the generic dynamic array.
+ *
+ * Swaps the elements stored at the specified indices by exchanging their
+ * contents in place. If both indices are equal, no modification is
+ * performed and the function returns success.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index_a Zero-based index of the first element.
+ * @param index_b Zero-based index of the second element.
+ *
+ * @return 0 on success, or -1 if the array pointer is NULL
+ * or either index is out of bounds.
+ */
+int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
+
 #endif

@@ -441,3 +441,39 @@ int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_array_void_swap:
+ * Validates the input pointer and both indices.
+ * If the indices are different, exchanges the
+ * contents of the two elements using a temporary
+ * buffer allocated with the element size. The
+ * logical size and storage capacity remain
+ * unchanged.
+ */
+int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
+
+    if (!arr || index_a >= arr->size || index_b >= arr->size) {
+        return ATLAS_ERROR;
+    }
+
+    if (index_a == index_b) {
+        return ATLAS_SUCCESS;
+    }
+
+    void *element_a_ptr = atlas_array_void_get_element_ptr(arr, index_a);
+    void *element_b_ptr = atlas_array_void_get_element_ptr(arr, index_b);
+    void *temp = malloc(arr->type_size);
+
+    if (!temp) {
+        return ATLAS_ERROR;
+    }
+    
+    memcpy(temp, element_a_ptr, arr->type_size);
+    memcpy(element_a_ptr, element_b_ptr, arr->type_size);
+    memcpy(element_b_ptr, temp, arr->type_size);
+
+    free(temp);
+
+    return ATLAS_SUCCESS;
+}
