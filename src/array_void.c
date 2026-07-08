@@ -477,3 +477,66 @@ int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_array_void_copy:
+ * Validates the source and destination arrays,
+ * verifies that both arrays store elements of
+ * the same size, expands the destination storage
+ * if necessary, copies all stored elements using
+ * a single contiguous memory copy, and updates
+ * the destination logical size.
+ */
+int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
+
+    if (!src || !dest) {
+        return ATLAS_ERROR;
+    }
+
+    if (src == dest) {
+        return ATLAS_SUCCESS;
+    }
+
+    if (src->type_size != dest->type_size) {
+        return ATLAS_ERROR;
+    }
+
+    if (dest->capacity < src->capacity) {
+        if (atlas_array_void_resize(dest, src->capacity) != ATLAS_SUCCESS) {
+            return ATLAS_ERROR;
+        }
+    }
+
+    memcpy(dest->data, src->data, src->size * src->type_size);
+    dest->size = src->size;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_array_void_clone:
+ * Validates the source array, creates a new
+ * generic dynamic array with matching element
+ * size and capacity, copies all stored elements
+ * into the new array, and releases allocated
+ * resources if the copy operation fails.
+ */
+AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src) {
+
+    if (!src) {
+        return NULL;
+    }
+
+    AtlasArrayVoid *clone = atlas_array_void_create(src->type_size, src->capacity);
+
+    if (!clone) {
+        return NULL;
+    }
+
+    if (atlas_array_void_copy(src, clone) != ATLAS_SUCCESS) {
+        atlas_array_void_destroy(&clone);
+        return NULL;
+    }
+
+    return clone;
+}

@@ -274,4 +274,34 @@ int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
  */
 int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
 
+/**
+ * @brief Copies the contents of one generic dynamic array into another.
+ *
+ * Copies all stored elements from the source array into the destination
+ * array. If necessary, the destination storage is automatically expanded
+ * to accommodate the copied elements. Both arrays must store elements of
+ * the same size.
+ *
+ * @param src Pointer to the source generic dynamic array.
+ * @param dest Pointer to the destination generic dynamic array.
+ *
+ * @return 0 on success, or -1 if either array pointer is NULL, the element
+ * sizes differ, or memory reallocation fails.
+ */
+int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
+
+/**
+ * @brief Creates a copy of a generic dynamic array.
+ *
+ * Allocates a new generic dynamic array with the same element size and
+ * capacity as the source array, then copies all stored elements into the
+ * newly created array.
+ *
+ * @param src Pointer to the source generic dynamic array.
+ *
+ * @return Pointer to the newly created copy on success, or NULL if the
+ * source pointer is NULL or memory allocation fails.
+ */
+AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src);
+
 #endif

@@ -159,6 +159,8 @@ Current capabilities:
 - Indexed insertion via `insert()`
 - Indexed removal via `erase()`
 - Indexed element swapping via `swap()`
+- Array copying via `copy()`
+- Deep cloning via `clone()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
@@ -177,6 +179,10 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
 int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
+
+int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
+
+AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src);
 
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -320,7 +326,6 @@ int main(void) {
 
 ### Generic Dynamic Array Example
 
-
 ```c
 #include <atlas/array_void.h>
 
@@ -362,12 +367,35 @@ int main(void) {
     printf("Value at index 1: %d\n", retrieved_value);
 
     int new_value = 50;
-
     atlas_array_void_set(arr, 1, &new_value);
+
+    AtlasArrayVoid *clone = atlas_array_void_clone(arr);
+
+    if (!clone) {
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    AtlasArrayVoid *copy = atlas_array_void_create(sizeof(int), 1);
+
+    if (!copy) {
+        atlas_array_void_destroy(&clone);
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_void_copy(arr, copy) != 0) {
+        atlas_array_void_destroy(&copy);
+        atlas_array_void_destroy(&clone);
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
 
     int removed_value = 0;
 
     if (atlas_array_void_pop(arr, &removed_value) != 0) {
+        atlas_array_void_destroy(&copy);
+        atlas_array_void_destroy(&clone);
         atlas_array_void_destroy(&arr);
         return 1;
     }
@@ -401,6 +429,8 @@ int main(void) {
 
     atlas_array_void_shrink_to_fit(arr);
 
+    atlas_array_void_destroy(&copy);
+    atlas_array_void_destroy(&clone);
     atlas_array_void_destroy(&arr);
 
     return 0;

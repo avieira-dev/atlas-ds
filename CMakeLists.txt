@@ -24,8 +24,7 @@ add_library(atlasds STATIC
 # Include Directories
 # ====================
 target_include_directories(atlasds
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # ====================

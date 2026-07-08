@@ -942,6 +942,133 @@ static int test_swap_invalid(void) {
     return 0;
 }
 
+static int test_copy(void) {
+
+    AtlasArrayVoid *src = atlas_array_void_create(sizeof(int), 2);
+    AtlasArrayVoid *dest = atlas_array_void_create(sizeof(int), 1);
+
+    if (!src || !dest) {
+        return 1;
+    }
+
+    int value = 10;
+    if (atlas_array_void_push(src, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+    if (atlas_array_void_push(src, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    if (atlas_array_void_copy(src, dest) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_array_void_size(dest, &size) != ATLAS_SUCCESS || size != 2) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(dest, 0, &out) != ATLAS_SUCCESS || out != 10) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(dest, 1, &out) != ATLAS_SUCCESS || out != 20) {
+        return 1;
+    }
+
+    atlas_array_void_destroy(&src);
+    atlas_array_void_destroy(&dest);
+
+    return 0;
+}
+
+static int test_copy_invalid(void) {
+
+    AtlasArrayVoid *a = atlas_array_void_create(sizeof(int), 1);
+    AtlasArrayVoid *b = atlas_array_void_create(sizeof(double), 1);
+
+    if (!a || !b) {
+        return 1;
+    }
+
+    if (atlas_array_void_copy(NULL, a) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_copy(a, NULL) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_copy(a, b) != ATLAS_ERROR) {
+        return 1;
+    }
+
+    if (atlas_array_void_copy(a, a) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    atlas_array_void_destroy(&a);
+    atlas_array_void_destroy(&b);
+
+    return 0;
+}
+
+static int test_clone(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+    atlas_array_void_push(array, &value);
+
+    value = 20;
+    atlas_array_void_push(array, &value);
+
+    AtlasArrayVoid *clone = atlas_array_void_clone(array);
+
+    if (!clone) {
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_array_void_size(clone, &size) != ATLAS_SUCCESS || size != 2) {
+        return 1;
+    }
+
+    int out = 0;
+
+    if (atlas_array_void_get(clone, 0, &out) != ATLAS_SUCCESS || out != 10) {
+        return 1;
+    }
+
+    if (atlas_array_void_get(clone, 1, &out) != ATLAS_SUCCESS || out != 20) {
+        return 1;
+    }
+
+    atlas_array_void_destroy(&clone);
+    atlas_array_void_destroy(&array);
+
+    return 0;
+}
+
+static int test_clone_invalid(void) {
+
+    if (atlas_array_void_clone(NULL) != NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_metadata_invalid(void) {
 
     size_t size = 0;
@@ -1122,6 +1249,35 @@ int main(void) {
     printf("\033[0;32m[OK]\033[0m Swap validation passed.\n\n");
 
     // =========================================================
+    // Copy / Clone
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running copy/clone tests...\n");
+
+    if (test_copy()) {
+        printf("\033[0;31m[ERROR]\033[0m test_copy failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Copy test passed.\n");
+
+    if (test_copy_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_copy_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Copy validation passed.\n");
+
+    if (test_clone()) {
+        printf("\033[0;31m[ERROR]\033[0m test_clone failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Clone test passed.\n");
+
+    if (test_clone_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_clone_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Clone validation passed.\n\n");
+
+    // =========================================================
     // Metadata
     // =========================================================
     printf("\033[0;33m[INFO]\033[0m Running metadata tests...\n");
@@ -1150,12 +1306,6 @@ int main(void) {
     }
     printf("\033[0;32m[OK]\033[0m Front/Back test passed.\n");
 
-    if (test_metadata_invalid()) {
-        printf("\033[0;31m[ERROR]\033[0m test_metadata_invalid failed.\n");
-        return 1;
-    }
-    printf("\033[0;32m[OK]\033[0m Metadata validation passed.\n");
-
     if (test_front_back_empty()) {
         printf("\033[0;31m[ERROR]\033[0m test_front_back_empty failed.\n");
         return 1;
@@ -1166,7 +1316,13 @@ int main(void) {
         printf("\033[0;31m[ERROR]\033[0m test_front_back_null failed.\n");
         return 1;
     }
-    printf("\033[0;32m[OK]\033[0m Front/Back NULL validation passed.\n\n");
+    printf("\033[0;32m[OK]\033[0m Front/Back NULL validation passed.\n");
+
+    if (test_metadata_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_metadata_invalid failed.\n\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Metadata validation passed.\n\n");
 
     // =========================================================
     // Capacity Management
@@ -1209,7 +1365,7 @@ int main(void) {
     }
     printf("\033[0;32m[OK]\033[0m Shrink-to-fit validation passed.\n");
 
-    printf("\n\033[0;32m[SUCCESS]\033[0m All Generic Dynamic Array tests passed successfully!\n\n");
+    printf("\n\033[1;32m[SUCCESS]\033[0m All Generic Dynamic Array tests passed successfully!\n\n");
 
     return 0;
 }
