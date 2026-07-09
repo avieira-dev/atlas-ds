@@ -443,6 +443,66 @@ int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
 }
 
 /*
+ * Implementation of atlas_array_void_find:
+ * Validates the input pointers, then traverses the array comparing
+ * each stored element with the specified value through the
+ * user-provided comparison function.
+ *
+ * The comparison function determines whether two elements are
+ * considered equal. When it returns zero, the matching element
+ * is found and its index is stored in the output parameter.
+ *
+ * If no matching element exists, the output index remains unchanged
+ * and the function returns false.
+ */
+bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *)) {
+
+    if (!arr || !index_out || !value || !compare) {
+        return false;
+    }
+
+    for (size_t i = 0; i < arr->size; i++) {
+        void *element_ptr = atlas_array_void_get_element_ptr(arr, i);
+
+        if (compare(element_ptr, value) == 0) {
+            *index_out = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+ * Implementation of atlas_array_void_contains:
+ * Validates the input pointers, then traverses the array comparing
+ * each stored element with the specified value through the
+ * user-provided comparison function.
+ *
+ * If the comparison function returns zero, the element is considered
+ * equal to the searched value and the function returns true.
+ *
+ * If no matching element is found after traversing the array,
+ * the function returns false.
+ */
+bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *)) {
+
+    if (!arr || !value || !compare) {
+        return false;
+    }
+
+    for (size_t i = 0; i < arr->size; i++) {
+        void *element_ptr = atlas_array_void_get_element_ptr(arr, i);
+
+        if (compare(element_ptr, value) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
  * Implementation of atlas_array_void_swap:
  * Validates the input pointer and both indices.
  * If the indices are different, exchanges the

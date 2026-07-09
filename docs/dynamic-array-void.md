@@ -44,7 +44,7 @@ To access an element at a given index, the byte offset must be calculated manual
 
 In practice, the base pointer is first converted to a byte pointer (such as unsigned char*) before the offset is applied.
 
-Data movement between elements is performed through standard memory-copy operations such as `memcpy`, allowing the container to work with any trivially copyable object.
+Data movement between elements is performed through standard memory-copy operations such as `memcpy`, allowing the container to work with arbitrary object representations that can safely be copied byte-by-byte.
 
 > [!IMPORTANT]  
 > Since pointer arithmetic is not defined for `void*`, AtlasDS internally converts the base pointer to `char*`, allowing address calculations to be performed one byte at a time.
@@ -82,6 +82,8 @@ Current capabilities include:
 - Element swapping (`swap`)
 - Array copying (`copy`)
 - Deep cloning (`clone`)
+- Element lookup using user-provided comparison (`find`)
+- Membership checking using user-provided comparison (`contains`)
 - Bounds-checked indexed access
 - Automated tests
 
@@ -125,6 +127,10 @@ int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
 int atlas_array_void_clear(AtlasArrayVoid *arr);
 
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
+
+bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *));
+
+bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *));
 ```
 
 > [!IMPORTANT]  
@@ -169,6 +175,12 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 > [!NOTE]  
 > `clone()` creates a new generic dynamic array with the same element size and capacity as the source array, then copies all stored elements into the newly allocated container.
 
+> [!NOTE]  
+> `find()` searches for an element using the user-provided comparison function. The comparison callback must return `0` when the elements are considered equal and a non-zero value otherwise. If a matching element is found, the function stores its index in the provided output variable.
+
+> [!NOTE]  
+> `contains()` checks whether an element exists in the array using the user-provided comparison function. Unlike `find()`, it only reports whether a matching element exists and does not return the element position.
+
 ---
 
 ## Safety Guarantees
@@ -194,6 +206,8 @@ Implemented safety mechanisms include:
 - Bounds-checked removal (`erase`)
 - Bounds-checked element swapping (`swap`)
 - Empty-array validation for `pop`, `front`, and `back` operations
+- Valid comparison callback validation for search operations (`find` / `contains`)
+- Safe element lookup through user-defined comparison logic
 
 > [!NOTE]  
 > These checks are designed to improve stability and predictability while manipulating raw memory.
@@ -220,6 +234,9 @@ Core responsibilities include:
 - Providing a valid index when using `erase()`
 - Providing two valid indices when using `swap()`
 - Providing compatible source and destination arrays when using `copy()`
+- Providing a valid comparison function when using `find()` or `contains()`
+- Ensuring the comparison function correctly interprets the stored element type
+- Ensuring the comparison function returns `0` for equal elements and a non-zero value for different elements
 - Providing a valid array when using `reserve()`
 - Providing a valid array when using `clear()`
 - Providing a valid array when using `shrink_to_fit()`
@@ -257,11 +274,17 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 | Swap (`swap`)            | O(1)            |
 | Copy (`copy`)            | O(n)            |
 | Clone (`clone`)          | O(n)            |
+| Find (`find`)            | O(n)            |
+| Contains (`contains`)    | O(n)            |
 | Clear (`clear`)          | O(1)            |
 | Shrink (`shrink_to_fit`) | O(n)            |
 
 > [!NOTE]  
-> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization. Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored bytes. The `insert()` and `erase()` operations have `O(n)` worst-case complexity because they may need to shift subsequent elements to preserve contiguous storage. The `copy()` and `clone()` operations are also linear because they copy all stored elements.
+> Creation performs memory allocation proportional to the requested capacity because the storage buffer is allocated during initialization.   
+> Likewise, `reserve()` and `shrink_to_fit()` may perform memory reallocation and therefore have linear complexity with respect to the number of stored bytes.  
+> The `insert()` and `erase()` operations have `O(n)` worst-case complexity because they may need to shift subsequent elements to preserve contiguous storage.  
+> The `copy()` and `clone()` operations are also linear because they copy all stored elements.  
+> The `find()` and `contains()` operations have linear complexity because they may need to compare the searched value against every stored element until a match is found or the entire array has been traversed.
 
 ---
 

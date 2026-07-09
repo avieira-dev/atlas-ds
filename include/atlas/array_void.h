@@ -259,6 +259,60 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
 /**
+ * @brief Searches for an element in the generic dynamic array.
+ *
+ * Traverses the array and compares each stored element with the
+ * specified value using the user-provided comparison function.
+ * The comparison function defines whether two elements are
+ * considered equal.
+ *
+ * The comparison function must return 0 when the two elements are
+ * considered equal, and a non-zero value when they are different.
+ *
+ * The index output parameter is modified only when a matching
+ * element is found. If no matching element exists, its previous
+ * value remains unchanged.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param index_out Pointer to the variable that will receive the
+ * index of the found element.
+ * @param value Pointer to the value to search for.
+ * The pointed object is not modified.
+ * @param compare User-provided comparison function used to compare
+ * stored elements with the searched value.
+ * It must return 0 for equal elements and a non-zero value
+ * for different elements.
+ *
+ * @return true if the element is found, or false if any input pointer
+ * is NULL or no matching element exists.
+ */
+bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *));
+
+/**
+ * @brief Checks whether an element exists in the generic dynamic array.
+ *
+ * Traverses the array and compares each stored element with the
+ * specified value using the user-provided comparison function.
+ * The comparison function defines whether two elements are
+ * considered equal.
+ *
+ * The comparison function must return 0 when the two elements are
+ * considered equal, and a non-zero value when they are different.
+ *
+ * @param arr Pointer to the generic dynamic array.
+ * @param value Pointer to the value to search for.
+ * The pointed object is not modified.
+ * @param compare User-provided comparison function used to compare
+ * stored elements with the searched value.
+ * It must return 0 for equal elements and a non-zero value
+ * for different elements.
+ *
+ * @return true if an element matching the specified value is found,
+ * or false if any input pointer is NULL or no matching element exists.
+ */
+bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *));
+
+/**
  * @brief Exchanges the positions of two elements in the generic dynamic array.
  *
  * Swaps the elements stored at the specified indices by exchanging their

@@ -11,6 +11,18 @@
 
 #include <stdio.h>
 
+static int compare_int(const void *a, const void *b) {
+
+    int value_a = *(const int *)a;
+    int value_b = *(const int *)b;
+
+    if (value_a == value_b) {
+        return 0;
+    }
+
+    return 1;
+}
+
 static int test_create_destroy(void) {
 
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 0);
@@ -1069,6 +1081,158 @@ static int test_clone_invalid(void) {
     return 0;
 }
 
+static int test_find(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 30;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    size_t index = 0;
+    int target = 20;
+
+    if (!atlas_array_void_find(array, &index, &target, compare_int)) {
+        return 1;
+    }
+
+    if (index != 1) {
+        return 1;
+    }
+
+    target = 99;
+
+    if (atlas_array_void_find(array, &index, &target, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_find_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+    size_t index = 0;
+
+    if (atlas_array_void_find(NULL, &index, &value, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_find(array, NULL, &value, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_find(array, &index, NULL, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_find(array, &index, &value, NULL)) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_contains(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    value = 20;
+
+    if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    int target = 20;
+
+    if (!atlas_array_void_contains(array, &target, compare_int)) {
+        return 1;
+    }
+
+    target = 50;
+
+    if (atlas_array_void_contains(array, &target, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_contains_invalid(void) {
+
+    AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
+
+    if (!array) {
+        return 1;
+    }
+
+    int value = 10;
+
+    if (atlas_array_void_contains(NULL, &value, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_contains(array, NULL, compare_int)) {
+        return 1;
+    }
+
+    if (atlas_array_void_contains(array, &value, NULL)) {
+        return 1;
+    }
+
+    if (atlas_array_void_destroy(&array) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_metadata_invalid(void) {
 
     size_t size = 0;
@@ -1276,6 +1440,35 @@ int main(void) {
         return 1;
     }
     printf("\033[0;32m[OK]\033[0m Clone validation passed.\n\n");
+
+    // =========================================================
+    // Search
+    // =========================================================
+    printf("\033[0;33m[INFO]\033[0m Running search tests...\n");
+
+    if (test_find()) {
+        printf("\033[0;31m[ERROR]\033[0m test_find failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Find test passed.\n");
+
+    if (test_find_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_find_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Find validation passed.\n");
+
+    if (test_contains()) {
+        printf("\033[0;31m[ERROR]\033[0m test_contains failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Contains test passed.\n");
+
+    if (test_contains_invalid()) {
+        printf("\033[0;31m[ERROR]\033[0m test_contains_invalid failed.\n");
+        return 1;
+    }
+    printf("\033[0;32m[OK]\033[0m Contains validation passed.\n\n");
 
     // =========================================================
     // Metadata

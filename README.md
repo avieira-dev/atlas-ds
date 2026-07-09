@@ -161,6 +161,8 @@ Current capabilities:
 - Indexed element swapping via `swap()`
 - Array copying via `copy()`
 - Deep cloning via `clone()`
+- Value lookup via `find()`
+- Membership queries via `contains()`
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
@@ -205,10 +207,14 @@ int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
 int atlas_array_void_clear(AtlasArrayVoid *arr);
 
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
+
+bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *));
+
+bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *));
 ```
 
 > [!IMPORTANT]  
-> The generic implementation stores raw bytes and does not perform any type checking. The caller is responsible for providing the correct element size and data type.
+> The generic implementation stores raw bytes and does not perform any type checking. The caller is responsible for providing the correct element size, data type, and comparison logic when using search operations.
 
 > [!NOTE]  
 > If `initial_capacity` is `0`, the array is created with a capacity of `ATLAS_ARRAY_VOID_STANDARD_CAPACITY` elements.
@@ -332,6 +338,18 @@ int main(void) {
 #include <stdbool.h>
 #include <stdio.h>
 
+int compare_int(const void *a, const void *b) {
+
+    const int *value_a = a;
+    const int *value_b = b;
+
+    if (*value_a != *value_b) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
 
     AtlasArrayVoid *arr = atlas_array_void_create(sizeof(int), 2);
@@ -391,6 +409,17 @@ int main(void) {
         return 1;
     }
 
+    size_t found_index = 0;
+    int search_value = 20;
+
+    if (atlas_array_void_find(arr, &found_index, &search_value, compare_int)) {
+        printf("Value found at index: %zu\n", found_index);
+    }
+
+    if (atlas_array_void_contains(arr, &search_value, compare_int)) {
+        printf("Value exists in array\n");
+    }
+
     int removed_value = 0;
 
     if (atlas_array_void_pop(arr, &removed_value) != 0) {
@@ -446,7 +475,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Structure | Status |
 |---|---|
 | Dynamic Array (int) | ✅ Complete |
-| Dynamic Array (void*) | 🔄 In Development |
+| Dynamic Array (void*) | ✅ Complete |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
 | Deque | 🔲 Planned |
