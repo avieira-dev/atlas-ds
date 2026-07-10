@@ -51,13 +51,13 @@ static int test_create_invalid_type_size(void) {
 
 static int test_destroy_null(void) {
 
-    if (atlas_array_void_destroy(NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_destroy(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
     AtlasArrayVoid *array = NULL;
 
-    if (atlas_array_void_destroy(&array) != ATLAS_ERROR) {
+    if (atlas_array_void_destroy(&array) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -138,11 +138,11 @@ static int test_push_null(void) {
 
     int value = 10;
 
-    if (atlas_array_void_push(NULL, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_push(NULL, &value) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_push(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_push(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -163,7 +163,7 @@ static int test_pop_empty(void) {
 
     int out = 0;
 
-    if (atlas_array_void_pop(array, &out) != ATLAS_ERROR) {
+    if (atlas_array_void_pop(array, &out) != ATLAS_ERROR_EMPTY) {
         return 1;
     }
 
@@ -184,11 +184,11 @@ static int test_pop_null(void) {
 
     int out = 0;
 
-    if (atlas_array_void_pop(NULL, &out) != ATLAS_ERROR) {
+    if (atlas_array_void_pop(NULL, &out) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_pop(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_pop(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -246,15 +246,15 @@ static int test_get_invalid(void) {
 
     int out = 0;
 
-    if (atlas_array_void_get(NULL, 0, &out) != ATLAS_ERROR) {
+    if (atlas_array_void_get(NULL, 0, &out) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_get(array, 0, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_get(array, 0, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_get(array, 0, &out) != ATLAS_ERROR) {
+    if (atlas_array_void_get(array, 0, &out) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -264,7 +264,7 @@ static int test_get_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_get(array, 1, &out) != ATLAS_ERROR) {
+    if (atlas_array_void_get(array, 1, &out) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -285,15 +285,15 @@ static int test_set_invalid(void) {
 
     int value = 20;
 
-    if (atlas_array_void_set(NULL, 0, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_set(NULL, 0, &value) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_set(array, 0, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_set(array, 0, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_set(array, 0, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_set(array, 0, &value) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -303,7 +303,7 @@ static int test_set_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_set(array, 1, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_set(array, 1, &value) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -499,11 +499,11 @@ static int test_front_back_empty(void) {
 
     int value = 0;
 
-    if (atlas_array_void_front(array, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_front(array, &value) != ATLAS_ERROR_EMPTY) {
         return 1;
     }
 
-    if (atlas_array_void_back(array, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_back(array, &value) != ATLAS_ERROR_EMPTY) {
         return 1;
     }
 
@@ -524,19 +524,19 @@ static int test_front_back_null(void) {
 
     int value = 0;
 
-    if (atlas_array_void_front(NULL, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_front(NULL, &value) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_front(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_front(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_back(NULL, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_back(NULL, &value) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_back(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_back(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -578,7 +578,7 @@ static int test_reserve(void) {
 
 static int test_reserve_invalid(void) {
 
-    if (atlas_array_void_reserve(NULL, 10) != ATLAS_ERROR) {
+    if (atlas_array_void_reserve(NULL, 10) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -656,7 +656,7 @@ static int test_clear(void) {
 
 static int test_clear_invalid(void) {
 
-    if (atlas_array_void_clear(NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_clear(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -700,7 +700,7 @@ static int test_shrink_to_fit(void) {
 
 static int test_shrink_to_fit_invalid(void) {
 
-    if (atlas_array_void_shrink_to_fit(NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_shrink_to_fit(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -778,15 +778,15 @@ static int test_insert_invalid(void) {
 
     int value = 10;
 
-    if (atlas_array_void_insert(NULL, 0, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_insert(NULL, 0, &value) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_insert(array, 0, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_insert(array, 0, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_insert(array, 1, &value) != ATLAS_ERROR) {
+    if (atlas_array_void_insert(array, 1, &value) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -842,11 +842,11 @@ static int test_erase_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_erase(NULL, 0) != ATLAS_ERROR) {
+    if (atlas_array_void_erase(NULL, 0) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_erase(array, 0) != ATLAS_ERROR) {
+    if (atlas_array_void_erase(array, 0) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -854,7 +854,7 @@ static int test_erase_invalid(void) {
 
     if (atlas_array_void_push(array, &value) != ATLAS_SUCCESS) return 1;
 
-    if (atlas_array_void_erase(array, 1) != ATLAS_ERROR) {
+    if (atlas_array_void_erase(array, 1) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -921,7 +921,7 @@ static int test_swap_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_swap(NULL, 0, 0) != ATLAS_ERROR) {
+    if (atlas_array_void_swap(NULL, 0, 0) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
@@ -931,15 +931,15 @@ static int test_swap_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_swap(array, 0, 1) != ATLAS_ERROR) {
+    if (atlas_array_void_swap(array, 0, 1) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
-    if (atlas_array_void_swap(array, 1, 0) != ATLAS_ERROR) {
+    if (atlas_array_void_swap(array, 1, 0) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
-    if (atlas_array_void_swap(array, 1, 1) != ATLAS_ERROR) {
+    if (atlas_array_void_swap(array, 1, 1) != ATLAS_ERROR_BOUNDS) {
         return 1;
     }
 
@@ -1008,15 +1008,15 @@ static int test_copy_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_copy(NULL, a) != ATLAS_ERROR) {
+    if (atlas_array_void_copy(NULL, a) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_copy(a, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_copy(a, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_copy(a, b) != ATLAS_ERROR) {
+    if (atlas_array_void_copy(a, b) != ATLAS_ERROR_TYPE) {
         return 1;
     }
 
@@ -1245,27 +1245,27 @@ static int test_metadata_invalid(void) {
         return 1;
     }
 
-    if (atlas_array_void_size(NULL, &size) != ATLAS_ERROR) {
+    if (atlas_array_void_size(NULL, &size) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_size(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_size(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_capacity(NULL, &capacity) != ATLAS_ERROR) {
+    if (atlas_array_void_capacity(NULL, &capacity) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_capacity(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_capacity(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_empty(NULL, &empty) != ATLAS_ERROR) {
+    if (atlas_array_void_empty(NULL, &empty) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    if (atlas_array_void_empty(array, NULL) != ATLAS_ERROR) {
+    if (atlas_array_void_empty(array, NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 

@@ -49,7 +49,8 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
  * If the pointer or the referenced array is NULL,
  * the function returns an error code.
  *
- * @return 0 on success, or -1 if the input pointer or the referenced array is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the input
+ * pointer or the referenced array is NULL.
  */
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
@@ -64,8 +65,9 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
  * @param value Pointer to the element to be copied into the array.
  * The pointed object is not modified.
  *
- * @return 0 on success, or -1 if the array pointer or value pointer
- * is NULL, or if memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or value pointer is NULL, or ATLAS_ERROR_MEMORY if the internal storage
+ * reallocation fails (the only resize failure reachable from this call site).
  */
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
 
@@ -80,8 +82,9 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
  * @param out_value Pointer to the destination buffer that will receive
  * the copied element.
  *
- * @return 0 on success, or -1 if the array pointer, output pointer
- * is NULL, or if the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or output pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is out
+ * of bounds.
  */
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
@@ -96,8 +99,9 @@ int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_valu
  * @param new_value Pointer to the element whose bytes will be copied
  * into the array. The pointed object is not modified.
  *
- * @return 0 on success, or -1 if the array pointer, value pointer
- * is NULL, or if the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or value pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is out
+ * of bounds.
  */
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
 
@@ -112,8 +116,8 @@ int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_valu
  * @param out_value Pointer to the destination buffer that will receive
  * the removed element.
  *
- * @return 0 on success, or -1 if the array pointer, output pointer,
- * or the array is empty.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or output pointer is NULL, or ATLAS_ERROR_EMPTY if the array is empty.
  */
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
 
@@ -125,7 +129,8 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the variable that will receive the current size.
  *
- * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the array
+ * pointer or output pointer is NULL.
  */
 int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
 
@@ -138,7 +143,8 @@ int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the variable that will receive the current capacity.
  *
- * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the array
+ * pointer or output pointer is NULL.
  */
 int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
 
@@ -151,7 +157,8 @@ int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the variable that will receive the result.
  *
- * @return 0 on success, or -1 if the array pointer or output pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the array
+ * pointer or output pointer is NULL.
  */
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
 
@@ -164,8 +171,8 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the destination buffer.
  *
- * @return 0 on success, or -1 if the array pointer, output pointer,
- * or the array is empty.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or output pointer is NULL, or ATLAS_ERROR_EMPTY if the array is empty.
  */
 int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
 
@@ -178,8 +185,8 @@ int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param out_value Pointer to the destination buffer.
  *
- * @return 0 on success, or -1 if the array pointer, output pointer,
- * or the array is empty.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or output pointer is NULL, or ATLAS_ERROR_EMPTY if the array is empty.
  */
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
 
@@ -193,8 +200,9 @@ int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
  * @param arr Pointer to the generic dynamic array.
  * @param new_capacity Minimum capacity that the array should support.
  *
- * @return 0 on success, or -1 if the array pointer is NULL or memory
- * reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * is NULL, or ATLAS_ERROR_MEMORY if the internal storage reallocation
+ * fails (the only resize failure reachable from this call site).
  */
 int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
 
@@ -207,7 +215,8 @@ int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
  *
  * @param arr Pointer to the generic dynamic array.
  *
- * @return 0 on success, or -1 if the array pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the array
+ * pointer is NULL.
  */
 int atlas_array_void_clear(AtlasArrayVoid *arr);
 
@@ -220,8 +229,9 @@ int atlas_array_void_clear(AtlasArrayVoid *arr);
  *
  * @param arr Pointer to the generic dynamic array.
  *
- * @return 0 on success, or -1 if the array pointer is NULL or memory
- * reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * is NULL, or ATLAS_ERROR_MEMORY if the internal storage reallocation
+ * fails (the only resize failure reachable from this call site).
  */
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 
@@ -238,8 +248,10 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
  * Valid values are in the range [0, size].
  * @param value Pointer to the element to be copied into the array.
  *
- * @return 0 on success, or -1 if the array pointer, value pointer
- * is NULL, the index is out of bounds, or memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * or value pointer is NULL, ATLAS_ERROR_BOUNDS if the index is out of
+ * bounds, or ATLAS_ERROR_MEMORY if the internal storage reallocation
+ * fails (the only resize failure reachable from this call site).
  */
 int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
 
@@ -253,8 +265,8 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
  * @param arr Pointer to the generic dynamic array.
  * @param index Zero-based index of the element to remove.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * is NULL, or ATLAS_ERROR_BOUNDS if the index is out of bounds.
  */
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
 
@@ -316,15 +328,16 @@ bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int
  * @brief Exchanges the positions of two elements in the generic dynamic array.
  *
  * Swaps the elements stored at the specified indices by exchanging their
- * contents in place. If both indices are equal, no modification is
- * performed and the function returns success.
+ * contents in place using a temporary buffer. If both indices are equal,
+ * no modification is performed and the function returns success.
  *
  * @param arr Pointer to the generic dynamic array.
  * @param index_a Zero-based index of the first element.
  * @param index_b Zero-based index of the second element.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or either index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the array pointer
+ * is NULL, ATLAS_ERROR_BOUNDS if either index is out of bounds, or
+ * ATLAS_ERROR_MEMORY if the temporary buffer allocation fails.
  */
 int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
 
@@ -339,8 +352,10 @@ int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
  * @param src Pointer to the source generic dynamic array.
  * @param dest Pointer to the destination generic dynamic array.
  *
- * @return 0 on success, or -1 if either array pointer is NULL, the element
- * sizes differ, or memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either array
+ * pointer is NULL, ATLAS_ERROR_TYPE if the element sizes differ, or
+ * ATLAS_ERROR_MEMORY if the internal storage reallocation fails (the
+ * only resize failure reachable from this call site).
  */
 int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
 

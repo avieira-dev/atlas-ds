@@ -28,23 +28,24 @@ struct atlas_array {
  * shrinking operations while preserving all stored
  * elements.
  *
- * The requested capacity must be greater than zero
- * and large enough to hold the current logical size.
- *
- * If the requested capacity matches the current one,
- * the function performs no operation and returns success.
+ * Returns ATLAS_ERROR_NULL if the array is null, or
+ * ATLAS_ERROR_INVALID_ARGUMENT if requested sizes violate boundaries.
+ * Returns ATLAS_ERROR_MEMORY if realloc fails.
  */
 static int atlas_array_resize(AtlasArray *arr, size_t new_capacity) {
 
-    if (!arr || new_capacity == 0 || new_capacity < arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (new_capacity == 0 || new_capacity < arr->size) {
+        return ATLAS_ERROR_INVALID_ARGUMENT;
     }
 
     if (new_capacity != arr->capacity) {
         int *temp = realloc(arr->data, sizeof(int) * new_capacity);
-
         if (!temp) {
-            return ATLAS_ERROR;
+            return ATLAS_ERROR_MEMORY;
         }
 
         arr->data = temp;
@@ -76,7 +77,6 @@ AtlasArray *atlas_array_create(size_t initial_capacity) {
     array->size = 0;
 
     int *ptr_data = malloc(sizeof(int) * array->capacity);
-
     if (!ptr_data) {
         free(array);
         return NULL;
@@ -114,20 +114,21 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array) {
 /*
  * Implementation of atlas_array_push:
  * Appends a value to the array. If the size reaches current capacity,
- * it uses realloc to double the capacity. Includes defensive checks
- * to prevent crashes if realloc fails.
+ * it uses the internal resize helper to double the capacity. Propagates
+ * defensive status errors if the resize fails.
  */
 int atlas_array_push(AtlasArray *arr, int value) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     if (arr->size == arr->capacity) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -144,8 +145,12 @@ int atlas_array_push(AtlasArray *arr, int value) {
  */
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value) {
 
-    if (!arr || !out_value || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     *out_value = arr->data[index];
@@ -161,8 +166,12 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value) {
  */
 int atlas_array_set(AtlasArray *arr, size_t index, int new_value) {
 
-    if (!arr || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     arr->data[index] = new_value;
@@ -201,13 +210,17 @@ size_t atlas_array_capacity(const AtlasArray *arr) {
 /*
  * Implementation of atlas_array_pop:
  * Removes the last logical element from the array and returns
- * its value through the output parameter. Does not reduce the
- * allocated capacity of the internal buffer.
+ * its value through the output parameter. Returns ATLAS_ERROR_EMPTY 
+ * if no elements are available.
  */
 int atlas_array_pop(AtlasArray *arr, int *out_value) {
 
-    if (!arr || !out_value || arr->size == 0) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
 
     size_t last_index = arr->size - 1;
@@ -223,48 +236,18 @@ int atlas_array_pop(AtlasArray *arr, int *out_value) {
  * Ensures that the dynamic array has at least the requested capacity.
  * If new_capacity is less than or equal to the current capacity, the
  * function performs no operation and returns success (idempotent behavior).
- *
- * If expansion is required, the function allocates a new memory block
- * using realloc and only updates the internal pointer and capacity after
- * successful allocation, preserving the previous state in case of failure.
  */
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     if (new_capacity > arr->capacity) {
-        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
-    }
-
-    return ATLAS_SUCCESS;
-}
-
-/*
- * Implementation of atlas_array_shrink_to_fit:
- * Reduces the internal buffer to the smallest capacity capable
- * of storing the current elements.
- *
- * When the array contains elements, the capacity becomes equal
- * to the current size. Empty arrays retain a minimum capacity
- * of one element.
- *
- * If the current capacity already matches the target capacity,
- * the operation completes without performing a reallocation.
- */
-int atlas_array_shrink_to_fit(AtlasArray *arr) {
-
-    if (!arr) {
-        return ATLAS_ERROR;
-    }
-
-    size_t new_capacity = arr->size == 0 ? ATLAS_ARRAY_STANDARD_CAPACITY : arr->size;
-
-    if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-        return ATLAS_ERROR;
     }
 
     return ATLAS_SUCCESS;
@@ -273,13 +256,12 @@ int atlas_array_shrink_to_fit(AtlasArray *arr) {
 /*
  * Implementation of atlas_array_clear:
  * Removes all logical elements from the array by resetting
- * its size to zero. The allocated memory buffer remains intact,
- * allowing future insertions without additional reallocations.
+ * its size to zero. The allocated memory buffer remains intact.
  */
 int atlas_array_clear(AtlasArray *arr) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     arr->size = 0;
@@ -288,15 +270,35 @@ int atlas_array_clear(AtlasArray *arr) {
 }
 
 /*
+ * Implementation of atlas_array_shrink_to_fit:
+ * Reduces the internal buffer to the smallest capacity capable
+ * of storing the current elements. Empty arrays retain a minimum capacity.
+ */
+int atlas_array_shrink_to_fit(AtlasArray *arr) {
+
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    size_t new_capacity = arr->size == 0 ? ATLAS_ARRAY_STANDARD_CAPACITY : arr->size;
+
+    int status = atlas_array_resize(arr, new_capacity);
+    if (status != ATLAS_SUCCESS) {
+        return status;
+    }
+
+    return ATLAS_SUCCESS;
+}
+
+/*
  * Implementation of atlas_array_empty:
  * Checks whether the array contains any logical elements.
- * The result is written to the provided output parameter
- * without modifying the array state.
+ * The result is written to the provided output parameter.
  */
 int atlas_array_empty(const AtlasArray *arr, bool *empty) {
 
     if (!arr || !empty) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     *empty = (arr->size == 0);
@@ -306,38 +308,40 @@ int atlas_array_empty(const AtlasArray *arr, bool *empty) {
 
 /*
  * Implementation of atlas_array_front:
- * Retrieves the first element stored in the array and
- * writes it to the provided output parameter without
- * modifying the array state.
+ * Retrieves the first element stored in the array and writes it 
+ * to the output parameter. Returns ATLAS_ERROR_EMPTY if the array is empty.
  */
 int atlas_array_front(const AtlasArray *arr, int *out_value) {
 
     if (!arr || !out_value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
-    if (arr->size > 0) {
-        *out_value = arr->data[0];
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
+
+    *out_value = arr->data[0];
 
     return ATLAS_SUCCESS;
 }
 
 /*
  * Implementation of atlas_array_back:
- * Retrieves the last element stored in the array and
- * writes it to the provided output parameter without
- * modifying the array state.
+ * Retrieves the last element stored in the array and writes it 
+ * to the output parameter. Returns ATLAS_ERROR_EMPTY if the array is empty.
  */
 int atlas_array_back(const AtlasArray *arr, int *out_value) {
 
     if (!arr || !out_value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
-    if (arr->size > 0) {
-        *out_value = arr->data[arr->size - 1];
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
+
+    *out_value = arr->data[arr->size - 1];
 
     return ATLAS_SUCCESS;
 }
@@ -345,23 +349,25 @@ int atlas_array_back(const AtlasArray *arr, int *out_value) {
 /*
  * Implementation of atlas_array_insert:
  * Inserts a new element at the specified index while preserving
- * the order of existing elements. Elements at and after the
- * insertion point are shifted one position to the right.
- *
- * If the current capacity is insufficient, the internal buffer
- * is expanded before the insertion takes place.
+ * the order of existing elements. Returns ATLAS_ERROR_BOUNDS if the
+ * index is outside the allowed size range.
  */
 int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
 
-    if (!arr || index > arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index > arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (arr->capacity == arr->size) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -380,16 +386,17 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value) {
 /*
  * Implementation of atlas_array_erase:
  * Removes the element at the specified index while preserving
- * the order of the remaining elements. Elements located after
- * the removal point are shifted one position to the left.
- *
- * The internal buffer is not resized and the allocated
- * capacity remains unchanged after the operation.
+ * the order of the remaining elements. Returns ATLAS_ERROR_BOUNDS 
+ * if the index is invalid.
  */
 int atlas_array_erase(AtlasArray *arr, size_t index) {
 
-    if (!arr || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (index <= arr->size - 2) {
@@ -408,18 +415,13 @@ int atlas_array_erase(AtlasArray *arr, size_t index) {
  * Performs a linear search through the array looking for the
  * first occurrence of the requested value.
  *
- * Elements are inspected from the beginning of the array
- * towards the end. When a match is found, its index is stored
- * in the output parameter and the search terminates
- * immediately.
- *
- * If no matching value exists, the function returns an error
- * and leaves the output parameter unchanged.
+ * If no matching value exists, the function returns 
+ * ATLAS_ERROR_NOT_FOUND and leaves the output parameter unchanged.
  */
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
 
     if (!arr || !index_out) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     for (size_t i = 0; i < arr->size; i++) {
@@ -429,29 +431,22 @@ int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value) {
         }
     }
 
-    return ATLAS_ERROR;
+    return ATLAS_ERROR_NOT_FOUND;
 }
 
 /*
  * Implementation of atlas_array_contains:
- * Checks whether a given value exists in the array.
- *
- * Internally, the operation reuses atlas_array_find() to perform
- * the search. The result is reported through the output parameter
- * as a boolean value rather than returning the position of the
- * matching element.
- *
- * A value that is not present in the array is considered a valid
- * outcome and does not constitute an error.
+ * Checks whether a given value exists in the array by internally
+ * reusing atlas_array_find(). A non-existent value is a valid result
+ * and returns ATLAS_SUCCESS with `contains` set to false.
  */
 int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
 
     if (!arr || !contains) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     size_t unused_index = 0;
-
     *contains = atlas_array_find(arr, &unused_index, value) == ATLAS_SUCCESS;
 
     return ATLAS_SUCCESS;
@@ -459,27 +454,21 @@ int atlas_array_contains(const AtlasArray *arr, bool *contains, int value) {
 
 /*
  * Implementation of atlas_array_swap:
- * Exchanges the values stored at two valid positions within
- * the array.
- *
- * The operation preserves the current size and capacity and
- * requires only a temporary variable to perform the exchange.
- *
- * If both indices refer to the same element, the function
- * completes successfully without modifying the array.
- *
- * Invalid indices or a NULL array pointer result in an error
- * and leave the array unchanged.
+ * Exchanges the values stored at two valid positions within the array.
+ * Returns ATLAS_ERROR_BOUNDS if any index is invalid.
  */
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
 
-    if (!arr || index_a >= arr->size || index_b >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index_a >= arr->size || index_b >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (index_a != index_b) {
         int value_temp = arr->data[index_a];
-
         arr->data[index_a] = arr->data[index_b];
         arr->data[index_b] = value_temp;
     }
@@ -489,39 +478,27 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b) {
 
 /*
  * Implementation of atlas_array_copy:
- * Copies all elements from the source array into the
- * destination array.
- *
- * The operation preserves the source array and replaces
- * the contents of the destination array.
- *
- * If the destination capacity is insufficient, the internal
- * buffer is expanded before copying begins.
- *
- * Empty source arrays are treated as valid input and cause
- * the destination array to become empty while preserving its
- * current capacity.
- *
- * Self-copy operations are rejected to prevent ambiguous
- * behavior.
- *
- * In the event of a memory allocation failure, the destination
- * array remains unchanged.
+ * Copies all elements from the source array into the destination array.
+ * Rejects self-copy operations by returning ATLAS_ERROR_INVALID_ARGUMENT.
  */
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
 
-    if (!src || !dest || src == dest) {
-        return ATLAS_ERROR;
+    if (!src || !dest) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (src == dest) {
+        return ATLAS_ERROR_INVALID_ARGUMENT;
     }
 
     if (dest->capacity < src->size) {
-        if (atlas_array_resize(dest, src->size) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_resize(dest, src->size);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
     size_t i;
-
     for (i = 0; i < src->size; i++) {
         dest->data[i] = src->data[i];
 
@@ -534,21 +511,8 @@ int atlas_array_copy(const AtlasArray *src, AtlasArray *dest) {
 
 /*
  * Implementation of atlas_array_clone:
- * Creates a new array that is an independent duplicate
- * of the source array.
- *
- * The operation preserves all elements, size information,
- * and capacity information from the source structure.
- *
- * Internally, the clone is created through a new allocation
- * and populated using the array copy mechanism.
- *
- * The resulting array owns its memory independently, allowing
- * both arrays to be modified or destroyed without affecting
- * each other.
- *
- * If any allocation or copy step fails, all temporary
- * resources are released and NULL is returned.
+ * Creates a new array that is an independent duplicate of the source array.
+ * If any internal allocation or copy step fails, releases temporary resources.
  */
 AtlasArray *atlas_array_clone(const AtlasArray *src) {
 

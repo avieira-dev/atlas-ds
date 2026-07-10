@@ -30,23 +30,28 @@ struct atlas_array_void {
  * shrinking operations while preserving all stored
  * elements.
  *
- * The requested capacity must be greater than zero
- * and large enough to hold the current logical size.
+ * Can return ATLAS_ERROR_NULL if the array pointer is NULL,
+ * ATLAS_ERROR_INVALID_ARGUMENT if new_capacity is 0 or smaller
+ * than the current logical size, or ATLAS_ERROR_MEMORY if the
+ * underlying reallocation fails.
  *
- * If the requested capacity matches the current one,
- * the function performs no operation and returns success.
+ * If the requested capacity matches the current one, the function
+ * performs no operation and returns ATLAS_SUCCESS.
  */
 static int atlas_array_void_resize(AtlasArrayVoid *arr, size_t new_capacity) {
 
-    if (!arr || new_capacity == 0 || new_capacity < arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (new_capacity == 0 || new_capacity < arr->size) {
+        return ATLAS_ERROR_INVALID_ARGUMENT;
     }
 
     if (new_capacity != arr->capacity) {
         void *temp = realloc(arr->data, arr->type_size * new_capacity);
-
         if (!temp) {
-            return ATLAS_ERROR;
+            return ATLAS_ERROR_MEMORY;
         }
 
         arr->data = temp;
@@ -86,7 +91,8 @@ static bool atlas_array_void_full(const AtlasArrayVoid *arr) {
  * Allocates memory for both the control structure and the underlying generic
  * data buffer. Sets the array metadata and initializes the internal
  * storage using the requested capacity or the minimum supported
- * capacity when none is specified.
+ * capacity when none is specified. Returns NULL if type_size is 0 or
+ * if either allocation fails.
  */
 AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity) {
 
@@ -105,7 +111,6 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
     array->size = 0;
 
     void *ptr_data = malloc(array->type_size * array->capacity);
-
     if (!ptr_data) {
         free(array);
         return NULL;
@@ -121,11 +126,13 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
  * Safely frees the internal generic buffer first, then the main structure.
  * Takes a double pointer to validate inputs in defensive order and resets
  * the user's pointer to NULL, preventing accidental dangling pointer access.
+ * Returns ATLAS_ERROR_NULL if the double pointer or the referenced array
+ * is NULL.
  */
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
 
     if (!ptr_atlas_array_void || !*ptr_atlas_array_void) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     AtlasArrayVoid *array = *ptr_atlas_array_void;
@@ -147,19 +154,22 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
  * Validates the input pointers and appends a copy of the specified element
  * to the end of the array. Automatically expands the internal storage when
  * the current capacity is exhausted, then copies the element bytes into the
- * correct position and updates the array size.
+ * correct position and updates the array size. Returns ATLAS_ERROR_NULL if
+ * either pointer is NULL, or ATLAS_ERROR_MEMORY if the internal resize
+ * fails to reallocate storage.
  */
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
 
     if (!arr || !value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     if (atlas_array_void_full(arr)) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_void_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -175,12 +185,17 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
  * Validates the input pointers and requested index, obtains
  * the address of the requested element within the internal
  * storage buffer, then copies its bytes into the user-provided
- * output buffer.
+ * output buffer. Returns ATLAS_ERROR_NULL if either pointer is
+ * NULL, or ATLAS_ERROR_BOUNDS if the index is out of range.
  */
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value) {
 
-    if (!arr || !out_value || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, index);
@@ -194,12 +209,18 @@ int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_valu
  * Validates the input pointers and requested index, obtains
  * the address of the destination element within the internal
  * storage buffer, then overwrites the stored value by copying
- * the bytes from the user-provided element.
+ * the bytes from the user-provided element. Returns ATLAS_ERROR_NULL
+ * if either pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is
+ * out of range.
  */
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value) {
 
-    if (!arr || !new_value || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr || !new_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, index);
@@ -215,12 +236,17 @@ int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_valu
  *
  * The internal storage capacity remains unchanged. After the element
  * has been copied to the output buffer, the logical size of the array
- * is decremented.
+ * is decremented. Returns ATLAS_ERROR_NULL if either pointer is NULL,
+ * or ATLAS_ERROR_EMPTY if the array has no elements to remove.
  */
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
 
-    if (!arr || !out_value || arr->size == 0) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, (arr->size - 1));
@@ -234,12 +260,12 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
  * Implementation of atlas_array_void_size:
  * Validates the input pointers and stores the current
  * logical size of the array in the user-provided output
- * variable.
+ * variable. Returns ATLAS_ERROR_NULL if either pointer is NULL.
  */
 int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value) {
 
     if (!arr || !out_value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     *out_value = arr->size;
@@ -251,12 +277,13 @@ int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value) {
  * Implementation of atlas_array_void_capacity:
  * Validates the input pointers and stores the current
  * storage capacity of the array in the user-provided
- * output variable.
+ * output variable. Returns ATLAS_ERROR_NULL if either
+ * pointer is NULL.
  */
 int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value) {
 
     if (!arr || !out_value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     *out_value = arr->capacity;
@@ -268,12 +295,13 @@ int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value) {
  * Implementation of atlas_array_void_empty:
  * Validates the input pointers and stores whether the
  * array currently contains no elements in the
- * user-provided output variable.
+ * user-provided output variable. Returns ATLAS_ERROR_NULL
+ * if either pointer is NULL.
  */
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
 
     if (!arr || !out_value) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     *out_value = (arr->size == 0);
@@ -285,11 +313,17 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
  * Implementation of atlas_array_void_front:
  * Validates the input pointers and copies the first
  * stored element into the user-provided output buffer.
+ * Returns ATLAS_ERROR_NULL if either pointer is NULL, or
+ * ATLAS_ERROR_EMPTY if the array has no elements.
  */
 int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value) {
 
-    if (!arr || !out_value || arr->size == 0) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, 0);
@@ -302,11 +336,17 @@ int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value) {
  * Implementation of atlas_array_void_back:
  * Validates the input pointers and copies the last
  * stored element into the user-provided output buffer.
+ * Returns ATLAS_ERROR_NULL if either pointer is NULL, or
+ * ATLAS_ERROR_EMPTY if the array has no elements.
  */
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
 
-    if (!arr || !out_value || arr->size == 0) {
-        return ATLAS_ERROR;
+    if (!arr || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (arr->size == 0) {
+        return ATLAS_ERROR_EMPTY;
     }
 
     void *element_ptr = atlas_array_void_get_element_ptr(arr, (arr->size - 1));
@@ -320,17 +360,20 @@ int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
  * Ensures that the array has at least the requested
  * storage capacity. If the requested capacity is
  * less than or equal to the current capacity,
- * no reallocation is performed.
+ * no reallocation is performed. Returns ATLAS_ERROR_NULL
+ * if the array pointer is NULL, or ATLAS_ERROR_MEMORY if
+ * the internal resize fails to reallocate storage.
  */
 int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     if (new_capacity > arr->capacity) {
-        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_void_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -342,12 +385,13 @@ int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity) {
  * Removes all elements from the array by resetting
  * its logical size. The allocated storage buffer
  * remains unchanged and can be reused by subsequent
- * insertions.
+ * insertions. Returns ATLAS_ERROR_NULL if the array
+ * pointer is NULL.
  */
 int atlas_array_void_clear(AtlasArrayVoid *arr) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     arr->size = 0;
@@ -359,18 +403,22 @@ int atlas_array_void_clear(AtlasArrayVoid *arr) {
  * Implementation of atlas_array_void_shrink_to_fit:
  * Reduces the storage capacity to match the current
  * logical size. When the array is empty, the capacity
- * is reduced to the minimum supported capacity.
+ * is reduced to the minimum supported capacity. Returns
+ * ATLAS_ERROR_NULL if the array pointer is NULL, or
+ * ATLAS_ERROR_MEMORY if the internal resize fails to
+ * reallocate storage.
  */
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
 
     if (!arr) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     size_t new_capacity = arr->size == 0 ? ATLAS_ARRAY_VOID_STANDARD_CAPACITY : arr->size;
 
-    if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-        return ATLAS_ERROR;
+    int status = atlas_array_void_resize(arr, new_capacity);
+    if (status != ATLAS_SUCCESS) {
+        return status;
     }
 
     return ATLAS_SUCCESS;
@@ -383,19 +431,27 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
  * the existing elements one position to the right
  * when inserting before the end of the array, copies
  * the new element into the requested position, and
- * updates the logical size.
+ * updates the logical size. Returns ATLAS_ERROR_NULL if
+ * either pointer is NULL, ATLAS_ERROR_BOUNDS if the index
+ * is out of range, or ATLAS_ERROR_MEMORY if the internal
+ * resize fails to reallocate storage.
  */
 int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value) {
 
-    if (!arr || !value || index > arr->size) {
-        return ATLAS_ERROR;
+    if (!arr || !value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index > arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (atlas_array_void_full(arr)) {
         size_t new_capacity = arr->capacity * 2;
 
-        if (atlas_array_void_resize(arr, new_capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_void_resize(arr, new_capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -422,11 +478,17 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
  * one slot to the left to preserve contiguous
  * storage, then decrements the logical size.
  * The allocated storage capacity remains unchanged.
+ * Returns ATLAS_ERROR_NULL if the array pointer is NULL,
+ * or ATLAS_ERROR_BOUNDS if the index is out of range.
  */
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
 
-    if (!arr || index >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (index <= arr->size - 2) {
@@ -453,7 +515,8 @@ int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
  * is found and its index is stored in the output parameter.
  *
  * If no matching element exists, the output index remains unchanged
- * and the function returns false.
+ * and the function returns false. Note this function does not use
+ * the ATLAS status codes, as its outcome is expressed as a boolean.
  */
 bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *)) {
 
@@ -483,7 +546,8 @@ bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const v
  * equal to the searched value and the function returns true.
  *
  * If no matching element is found after traversing the array,
- * the function returns false.
+ * the function returns false. Note this function does not use the
+ * ATLAS status codes, as its outcome is expressed as a boolean.
  */
 bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *)) {
 
@@ -509,12 +573,19 @@ bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int
  * contents of the two elements using a temporary
  * buffer allocated with the element size. The
  * logical size and storage capacity remain
- * unchanged.
+ * unchanged. Returns ATLAS_ERROR_NULL if the array
+ * pointer is NULL, ATLAS_ERROR_BOUNDS if either index
+ * is out of range, or ATLAS_ERROR_MEMORY if the
+ * temporary buffer allocation fails.
  */
 int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
 
-    if (!arr || index_a >= arr->size || index_b >= arr->size) {
-        return ATLAS_ERROR;
+    if (!arr) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index_a >= arr->size || index_b >= arr->size) {
+        return ATLAS_ERROR_BOUNDS;
     }
 
     if (index_a == index_b) {
@@ -526,7 +597,7 @@ int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
     void *temp = malloc(arr->type_size);
 
     if (!temp) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_MEMORY;
     }
     
     memcpy(temp, element_a_ptr, arr->type_size);
@@ -545,12 +616,15 @@ int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
  * the same size, expands the destination storage
  * if necessary, copies all stored elements using
  * a single contiguous memory copy, and updates
- * the destination logical size.
+ * the destination logical size. Returns ATLAS_ERROR_NULL
+ * if either pointer is NULL, ATLAS_ERROR_TYPE if the
+ * element sizes differ, or ATLAS_ERROR_MEMORY if the
+ * internal resize fails to reallocate storage.
  */
 int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
 
     if (!src || !dest) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_NULL;
     }
 
     if (src == dest) {
@@ -558,12 +632,13 @@ int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
     }
 
     if (src->type_size != dest->type_size) {
-        return ATLAS_ERROR;
+        return ATLAS_ERROR_TYPE;
     }
 
     if (dest->capacity < src->capacity) {
-        if (atlas_array_void_resize(dest, src->capacity) != ATLAS_SUCCESS) {
-            return ATLAS_ERROR;
+        int status = atlas_array_void_resize(dest, src->capacity);
+        if (status != ATLAS_SUCCESS) {
+            return status;
         }
     }
 
@@ -579,7 +654,9 @@ int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
  * generic dynamic array with matching element
  * size and capacity, copies all stored elements
  * into the new array, and releases allocated
- * resources if the copy operation fails.
+ * resources if the copy operation fails. Returns
+ * NULL if the source pointer is NULL or if either
+ * the underlying allocation or copy fails.
  */
 AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src) {
 

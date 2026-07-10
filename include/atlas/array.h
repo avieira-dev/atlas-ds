@@ -58,12 +58,10 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array);
  * to accommodate additional elements.
  *
  * @param arr Pointer to the AtlasArray instance.
- * If arr is NULL, the function returns -1.
- *
  * @param value Value to be inserted into the array.
  *
- * @return 0 on success, or -1 if memory allocation fails
- * or the input pointer is NULL.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * or a propagated allocation error if resizing fails.
  */
 int atlas_array_push(AtlasArray *arr, int value);
 
@@ -77,8 +75,8 @@ int atlas_array_push(AtlasArray *arr, int value);
  * @param index The zero-based index of the element to retrieve.
  * @param out_value Pointer to the variable where the retrieved value will be stored.
  *
- * @return 0 on success, or -1 if the array pointer is NULL, the output pointer
- * is NULL, or the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` or `out_value` is NULL,
+ * or ATLAS_ERROR_BOUNDS if the index is out of bounds.
  */
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 
@@ -93,8 +91,8 @@ int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
  * @param index Zero-based index of the element to be replaced.
  * @param new_value New value that will overwrite the current element.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * or ATLAS_ERROR_BOUNDS if the index is out of bounds.
  */
 int atlas_array_set(AtlasArray *arr, size_t index, int new_value);
 
@@ -103,7 +101,7 @@ int atlas_array_set(AtlasArray *arr, size_t index, int new_value);
  *
  * @param arr Pointer to the AtlasArray instance.
  *
- * @return The number of elements currently in the array, or 0 if arr is NULL.
+ * @return The number of elements currently in the array, or 0 if `arr` is NULL.
  */
 size_t atlas_array_size(const AtlasArray *arr);
 
@@ -115,7 +113,7 @@ size_t atlas_array_size(const AtlasArray *arr);
  *
  * @param arr Pointer to the AtlasArray instance.
  *
- * @return The current capacity of the array, or 0 if arr is NULL.
+ * @return The current capacity of the array, or 0 if `arr` is NULL.
  */
 size_t atlas_array_capacity(const AtlasArray *arr);
 
@@ -124,16 +122,13 @@ size_t atlas_array_capacity(const AtlasArray *arr);
  *
  * Retrieves the last inserted element, stores it in the provided
  * output pointer, and decreases the logical size of the array.
- *
  * This operation does not reduce the internal capacity.
  *
  * @param arr Pointer to the AtlasArray instance.
  * @param out_value Pointer where the removed value will be stored.
  *
- * @return 0 on success, or -1 if:
- * - arr is NULL
- * - out_value is NULL
- * - the array is empty
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` or `out_value` is NULL,
+ * or ATLAS_ERROR_EMPTY if the container contains no elements.
  */
 int atlas_array_pop(AtlasArray *arr, int *out_value);
 
@@ -148,8 +143,8 @@ int atlas_array_pop(AtlasArray *arr, int *out_value);
  * @param arr Pointer to the AtlasArray instance.
  * @param new_capacity Minimum required capacity for the array.
  *
- * @return 0 on success (including no-op cases), or -1 if memory allocation
- * fails or the input pointer is NULL.
+ * @return ATLAS_SUCCESS on success (including no-op cases), ATLAS_ERROR_NULL if `arr` is NULL,
+ * or a propagated allocation error if resizing fails.
  */
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 
@@ -159,12 +154,9 @@ int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
  * Resets the logical size of the array to zero while preserving
  * the currently allocated memory buffer and capacity.
  *
- * This operation allows the array to be reused without triggering
- * additional memory allocations on future insertions.
- *
  * @param arr Pointer to the AtlasArray instance.
  *
- * @return 0 on success, or -1 if the input pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if `arr` is NULL.
  */
 int atlas_array_clear(AtlasArray *arr);
 
@@ -172,19 +164,12 @@ int atlas_array_clear(AtlasArray *arr);
  * @brief Reduces the allocated capacity to match the current size.
  *
  * Shrinks the internal buffer to eliminate unused capacity and
- * minimize memory consumption.
- *
- * If the array contains elements, the new capacity becomes equal
- * to the current size. If the array is empty, the capacity is
- * reduced to the minimum supported value of 1.
- *
- * If the current capacity already matches the target capacity,
- * no reallocation is performed.
+ * minimize memory consumption. Empty arrays retain a standard minimum capacity.
  *
  * @param arr Pointer to the AtlasArray instance.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * or a propagated allocation error if resizing fails.
  */
 int atlas_array_shrink_to_fit(AtlasArray *arr);
 
@@ -194,28 +179,24 @@ int atlas_array_shrink_to_fit(AtlasArray *arr);
  * Evaluates the current logical size of the array and stores
  * the result in the provided output parameter.
  *
- * An array is considered empty when its size is equal to zero.
- *
  * @param arr Pointer to the AtlasArray instance.
- * @param empty Pointer where the result will be stored.
+ * @param empty Pointer where the boolean result will be stored.
  *
- * @return 0 on success, or -1 if any input pointer is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if `arr` or `empty` is NULL.
  */
 int atlas_array_empty(const AtlasArray *arr, bool *empty);
 
 /**
- * @brief Retrieves the first element of the dynamic array.
+ * @brief Retrieves the last element of the dynamic array.
  *
- * Copies the first stored element into the provided output
+ * Copies the last stored element into the provided output
  * parameter without removing it from the array.
  *
- * If the array contains no elements, the function performs
- * no write operation and leaves the output parameter unchanged.
- *
  * @param arr Pointer to the AtlasArray instance.
- * @param out_value Pointer where the first element will be stored.
+ * @param out_value Pointer where the last element will be stored.
  *
- * @return 0 on success, or -1 if any input pointer is NULL.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_EMPTY if the array is empty,
+ * or ATLAS_ERROR_NULL if `arr` or `out_value` is NULL.
  */
 int atlas_array_front(const AtlasArray *arr, int *out_value);
 
@@ -226,12 +207,13 @@ int atlas_array_front(const AtlasArray *arr, int *out_value);
  * parameter without removing it from the array.
  *
  * If the array contains no elements, the function performs
- * no write operation and leaves the output parameter unchanged.
+ * no write operation and returns an empty container error.
  *
  * @param arr Pointer to the AtlasArray instance.
  * @param out_value Pointer where the last element will be stored.
  *
- * @return 0 on success, or -1 if any input pointer is NULL.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_EMPTY if the array is empty,
+ * or ATLAS_ERROR_NULL if any input pointer is NULL.
  */
 int atlas_array_back(const AtlasArray *arr, int *out_value);
 
@@ -242,18 +224,12 @@ int atlas_array_back(const AtlasArray *arr, int *out_value);
  * all subsequent elements one position to the right to preserve
  * their order.
  *
- * If the internal buffer is full, the array automatically grows
- * before performing the insertion.
- *
- * The index may be equal to the current size, in which case the
- * operation behaves as an append at the end of the array.
- *
  * @param arr Pointer to the AtlasArray instance.
  * @param index Zero-based insertion position.
  * @param value Value to be inserted.
  *
- * @return 0 on success, or -1 if the array pointer is NULL,
- * the index is out of bounds, or memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * ATLAS_ERROR_BOUNDS if the index is out of bounds, or a propagated error if resizing fails.
  */
 int atlas_array_insert(AtlasArray *arr, size_t index, int value);
 
@@ -264,14 +240,11 @@ int atlas_array_insert(AtlasArray *arr, size_t index, int value);
  * all subsequent elements one position to the left to preserve
  * their order.
  *
- * The size of the array is decreased by one after the removal.
- * The allocated capacity remains unchanged.
- *
  * @param arr Pointer to the AtlasArray instance.
  * @param index Zero-based position of the element to remove.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or the index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * or ATLAS_ERROR_BOUNDS if the index is out of bounds.
  */
 int atlas_array_erase(AtlasArray *arr, size_t index);
 
@@ -279,67 +252,42 @@ int atlas_array_erase(AtlasArray *arr, size_t index);
  * @brief Searches for the first occurrence of a value.
  *
  * Performs a linear search through the array and returns the
- * index of the first element whose value matches the requested
- * value.
- *
- * The search is performed from the beginning of the array
- * towards the end, ensuring that the first occurrence is
- * reported when duplicate values exist.
- *
- * If the value is found, its index is written to the output
- * parameter.
+ * index of the first element whose value matches the requested value.
  *
  * @param arr Pointer to the AtlasArray instance.
- * @param index_out Output parameter that receives the index
- * of the first matching element.
+ * @param index_out Output parameter that receives the index of the matching element.
  * @param value Value to search for.
  *
- * @return 0 if the value is found, or -1 if the array pointer
- * is NULL, the output pointer is NULL, or the value does not
- * exist in the array.
+ * @return ATLAS_SUCCESS if found, ATLAS_ERROR_NULL if `arr` or `index_out` is NULL,
+ * or ATLAS_ERROR_NOT_FOUND if the value does not exist.
  */
 int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
 
 /**
  * @brief Checks whether a value exists in the array.
  *
- * Performs a linear search through the array looking for the
- * specified value.
- *
- * If the value is found, the output parameter is set to true.
- * Otherwise, it is set to false.
- *
- * This operation does not expose the position of the element.
- * Use atlas_array_find() when the index of the first occurrence
- * is required.
+ * Performs a linear search through the array looking for the specified value
+ * and outputs a boolean result.
  *
  * @param arr Pointer to the AtlasArray instance.
  * @param contains Output parameter indicating whether the value exists.
  * @param value Value to search for.
  *
- * @return 0 on success, or -1 if the array pointer or output
- * parameter is NULL.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if `arr` or `contains` is NULL.
  */
 int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
 
 /**
  * @brief Swaps the values stored at two positions in the array.
  *
- * Exchanges the elements located at the specified indices while
- * preserving the overall structure of the array.
- *
- * The operation does not modify the array size or capacity and
- * executes in constant time.
- *
- * If both indices are equal, the function performs no changes
- * and returns success.
+ * Exchanges the elements located at the specified indices.
  *
  * @param arr Pointer to the AtlasArray instance.
  * @param index_a Index of the first element.
  * @param index_b Index of the second element.
  *
- * @return 0 on success, or -1 if the array pointer is NULL
- * or either index is out of bounds.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `arr` is NULL,
+ * or ATLAS_ERROR_BOUNDS if either index is out of bounds.
  */
 int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
 
@@ -347,22 +295,13 @@ int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
  * @brief Copies all elements from one array into another.
  *
  * Replaces the contents of the destination array with a copy of
- * the elements stored in the source array.
- *
- * The destination array is resized only when its current capacity
- * is insufficient to store all elements from the source array.
- * Existing elements in the destination array are overwritten.
- *
- * If the source array is empty, the destination array becomes
- * empty. Its current capacity is preserved.
- *
- * Self-copy operations are not permitted.
+ * the elements stored in the source array. Self-copy operations are rejected.
  *
  * @param src Pointer to the source array.
  * @param dest Pointer to the destination array.
  *
- * @return 0 on success, or -1 if either pointer is NULL, src and dest refer to the same array 
- * or memory reallocation fails.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if `src` or `dest` is NULL,
+ * ATLAS_ERROR_INVALID_ARGUMENT if `src == dest`, or a propagated error if resizing fails.
  */
 int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
 
@@ -370,19 +309,11 @@ int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
  * @brief Creates an independent copy of an existing array.
  *
  * Allocates a new AtlasArray instance and duplicates all
- * elements, metadata, and capacity information from the
- * source array.
- *
- * The cloned array preserves both the size and capacity of
- * the source array while maintaining its own independent
- * storage.
- *
- * Modifications performed on the cloned array do not affect
- * the source array, and vice versa.
+ * elements, metadata, and capacity information from the source array.
  *
  * @param src Pointer to the source array.
  *
- * @return Pointer to the newly allocated clone on success, or NULL if src is NULL 
+ * @return Pointer to the newly allocated clone on success, or NULL if `src` is NULL 
  * or memory allocation fails.
  */
 AtlasArray *atlas_array_clone(const AtlasArray *src);
