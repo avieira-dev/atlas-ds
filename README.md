@@ -23,7 +23,7 @@
 - [Overview](#overview)
 - [Philosophy](#philosophy)
 - [Current Features](#current-features)
-- [Quick Example](#quick-example)
+- [Documentation](#documentation)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
@@ -66,77 +66,20 @@ Current capabilities:
 - Dynamic allocation and destruction
 - Automatic runtime resizing
 - Contiguous memory storage
-- Indexed element access via `get()`
-- Indexed element mutation via `set()`
-- Stack-like insertion via `push()`
-- Stack-like removal via `pop()`
-- Indexed insertion via `insert()`
-- Indexed removal via `erase()`
-- Element swapping via `swap()`
-- Array copying via `copy()`
-- Deep cloning via `clone()`
-- Value lookup via `find()`
-- Membership queries via `contains()`
-- Size tracking
-- Capacity tracking
-- Empty-state queries via `empty()`
-- First element access via `front()`
-- Last element access via `back()`
-- Manual capacity management via `reserve()`
-- Logical reset using `clear()`
-- Capacity reduction via `shrink_to_fit()`
+- Indexed element access (`get`) and mutation (`set`)
+- Stack-like insertion (`push`) and removal (`pop`)
+- Indexed insertion (`insert`) and removal (`erase`)
+- Element swapping (`swap`)
+- Array copying (`copy`) and deep cloning (`clone`)
+- Value lookup (`find`) and membership queries (`contains`)
+- Size, capacity, and empty-state queries
+- First (`front`) and last (`back`) element access
+- Manual capacity management (`reserve`, `shrink_to_fit`, `clear`)
 - Defensive validation of pointers and invalid states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
 
-Implemented public API:
-
-```c
-AtlasArray *atlas_array_create(size_t initial_capacity);
-
-void atlas_array_destroy(AtlasArray **ptr_atlas_array);
-
-int atlas_array_push(AtlasArray *arr, int value);
-
-int atlas_array_insert(AtlasArray *arr, size_t index, int value);
-
-int atlas_array_erase(AtlasArray *arr, size_t index);
-
-int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
-
-int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
-
-AtlasArray *atlas_array_clone(const AtlasArray *src);
-
-int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
-
-int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
-
-int atlas_array_pop(AtlasArray *arr, int *out_value);
-
-int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
-
-int atlas_array_set(AtlasArray *arr, size_t index, int new_value);
-
-size_t atlas_array_size(const AtlasArray *arr);
-
-size_t atlas_array_capacity(const AtlasArray *arr);
-
-int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
-
-int atlas_array_shrink_to_fit(AtlasArray *arr);
-
-int atlas_array_clear(AtlasArray *arr);
-
-int atlas_array_empty(const AtlasArray *arr, bool *empty);
-
-int atlas_array_front(const AtlasArray *arr, int *out_value);
-
-int atlas_array_back(const AtlasArray *arr, int *out_value);
-```
-
-> [!IMPORTANT]  
-> The current implementation supports only the `int` type.
+See the full API reference and usage example in [`docs/dynamic-array.md`](docs/dynamic-array.md).
 
 ### Generic Dynamic Array (`void*` implementation)
 
@@ -147,324 +90,31 @@ Current capabilities:
 - Dynamic allocation and destruction
 - Automatic runtime resizing
 - Contiguous raw memory storage
-- Size queries via `size()`
-- Capacity tracking via `capacity()`
-- Empty-state queries via `empty()`
-- First element access via `front()`
-- Last element access via `back()`
-- Indexed element access via `get()`
-- Indexed element mutation via `set()`
-- Stack-like insertion via `push()`
-- Stack-like removal via `pop()`
-- Indexed insertion via `insert()`
-- Indexed removal via `erase()`
-- Indexed element swapping via `swap()`
-- Array copying via `copy()`
-- Deep cloning via `clone()`
-- Value lookup via `find()`
-- Membership queries via `contains()`
+- Size, capacity, and empty-state queries
+- First (`front`) and last (`back`) element access
+- Indexed element access (`get`) and mutation (`set`)
+- Stack-like insertion (`push`) and removal (`pop`)
+- Indexed insertion (`insert`) and removal (`erase`)
+- Indexed element swapping (`swap`)
+- Array copying (`copy`) and deep cloning (`clone`)
+- Value lookup (`find`) and membership queries (`contains`) via user-provided comparison
 - Defensive validation of pointers and initialization states
 - Prevention of dangling pointers via double-pointer destruction
 - Automated tests covering all implemented public APIs
 
-Implemented public API:
-
-```c
-AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity);
-
-int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
-
-int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
-
-int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
-
-int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
-
-int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
-
-int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
-
-AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src);
-
-int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
-
-int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
-
-int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value);
-
-int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value);
-
-int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value);
-
-int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value);
-
-int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value);
-
-int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value);
-
-int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity);
-
-int atlas_array_void_clear(AtlasArrayVoid *arr);
-
-int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
-
-bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *));
-
-bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *));
-```
-
 > [!IMPORTANT]  
 > The generic implementation stores raw bytes and does not perform any type checking. The caller is responsible for providing the correct element size, data type, and comparison logic when using search operations.
 
-> [!NOTE]  
-> If `initial_capacity` is `0`, the array is created with a capacity of `ATLAS_ARRAY_VOID_STANDARD_CAPACITY` elements.
+See the full API reference and usage example in [`docs/dynamic-array-void.md`](docs/dynamic-array-void.md).
 
 ---
 
-## Quick Example
+## Documentation
 
-> The API may evolve as the project is under active development.
+Detailed documentation for each structure — including conceptual design, memory layout, complexity analysis, safety guarantees, and usage examples — is available in [`docs/`](docs/):
 
-### Dynamic Array Example (`int` implementation)
-
-```c
-#include <atlas/array.h>
-
-#include <stdio.h>
-#include <stdbool.h>
-
-int main(void) {
-
-    AtlasArray *arr = atlas_array_create(2);
-
-    if (!arr) {
-        return 1;
-    }
-
-    atlas_array_reserve(arr, 10);
-
-    atlas_array_push(arr, 10);
-    atlas_array_push(arr, 20);
-    atlas_array_push(arr, 30);
-
-    atlas_array_insert(arr, 1, 15);
-
-    atlas_array_erase(arr, 2);
-
-    atlas_array_swap(arr, 0, 1);
-
-    AtlasArray *backup = atlas_array_create(1);
-
-    if (!backup) {
-        atlas_array_destroy(&arr);
-        return 1;
-    }
-
-    atlas_array_copy(arr, backup);
-
-    AtlasArray *snapshot = atlas_array_clone(arr);
-
-    if (!snapshot) {
-        atlas_array_destroy(&backup);
-        atlas_array_destroy(&arr);
-        return 1;
-    }
-
-    size_t found_index = 0;
-
-    if (atlas_array_find(arr, &found_index, 20) == 0) {
-        printf("Found at index %zu\n", found_index);
-    }
-
-    bool contains = false;
-
-    atlas_array_contains(arr, &contains, 15);
-
-    if (contains) {
-        printf("Value exists in array\n");
-    }
-
-    int first = 0;
-    int last = 0;
-
-    atlas_array_front(arr, &first);
-    atlas_array_back(arr, &last);
-
-    int retrieved_value = 0;
-
-    atlas_array_set(arr, 1, 50);
-
-    if (atlas_array_get(arr, 1, &retrieved_value) != 0) {
-        atlas_array_destroy(&arr);
-        return 1;
-    }
-
-    int removed_value = 0;
-
-    if (atlas_array_pop(arr, &removed_value) != 0) {
-        atlas_array_destroy(&arr);
-        return 1;
-    }
-
-    atlas_array_clear(arr);
-
-    // Release unused memory and keep minimum capacity
-    atlas_array_shrink_to_fit(arr);
-
-    bool empty_array = false;
-
-    if (atlas_array_empty(arr, &empty_array) != 0) {
-        atlas_array_destroy(&arr);
-        return 1;
-    }
-
-    if (empty_array) {
-        atlas_array_push(arr, 99);
-    }
-
-    atlas_array_destroy(&snapshot);
-    atlas_array_destroy(&backup);
-    atlas_array_destroy(&arr);
-
-    return 0;
-}
-```
-
-### Generic Dynamic Array Example
-
-```c
-#include <atlas/array_void.h>
-
-#include <stdbool.h>
-#include <stdio.h>
-
-int compare_int(const void *a, const void *b) {
-
-    const int *value_a = a;
-    const int *value_b = b;
-
-    if (*value_a != *value_b) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int main(void) {
-
-    AtlasArrayVoid *arr = atlas_array_void_create(sizeof(int), 2);
-
-    if (!arr) {
-        return 1;
-    }
-
-    atlas_array_void_reserve(arr, 10);
-
-    int a = 10;
-    int b = 20;
-    int c = 30;
-
-    atlas_array_void_push(arr, &a);
-    atlas_array_void_push(arr, &b);
-    atlas_array_void_push(arr, &c);
-
-    int inserted = 15;
-    atlas_array_void_insert(arr, 1, &inserted);
-
-    atlas_array_void_swap(arr, 0, 2);
-
-    atlas_array_void_erase(arr, 2);
-
-    int retrieved_value = 0;
-
-    if (atlas_array_void_get(arr, 1, &retrieved_value) != 0) {
-        atlas_array_void_destroy(&arr);
-        return 1;
-    }
-
-    printf("Value at index 1: %d\n", retrieved_value);
-
-    int new_value = 50;
-    atlas_array_void_set(arr, 1, &new_value);
-
-    AtlasArrayVoid *clone = atlas_array_void_clone(arr);
-
-    if (!clone) {
-        atlas_array_void_destroy(&arr);
-        return 1;
-    }
-
-    AtlasArrayVoid *copy = atlas_array_void_create(sizeof(int), 1);
-
-    if (!copy) {
-        atlas_array_void_destroy(&clone);
-        atlas_array_void_destroy(&arr);
-        return 1;
-    }
-
-    if (atlas_array_void_copy(arr, copy) != 0) {
-        atlas_array_void_destroy(&copy);
-        atlas_array_void_destroy(&clone);
-        atlas_array_void_destroy(&arr);
-        return 1;
-    }
-
-    size_t found_index = 0;
-    int search_value = 20;
-
-    if (atlas_array_void_find(arr, &found_index, &search_value, compare_int)) {
-        printf("Value found at index: %zu\n", found_index);
-    }
-
-    if (atlas_array_void_contains(arr, &search_value, compare_int)) {
-        printf("Value exists in array\n");
-    }
-
-    int removed_value = 0;
-
-    if (atlas_array_void_pop(arr, &removed_value) != 0) {
-        atlas_array_void_destroy(&copy);
-        atlas_array_void_destroy(&clone);
-        atlas_array_void_destroy(&arr);
-        return 1;
-    }
-
-    printf("Popped value: %d\n", removed_value);
-
-    size_t size = 0;
-    size_t capacity = 0;
-    bool empty = false;
-
-    atlas_array_void_size(arr, &size);
-    atlas_array_void_capacity(arr, &capacity);
-    atlas_array_void_empty(arr, &empty);
-
-    printf("Size: %zu\n", size);
-    printf("Capacity: %zu\n", capacity);
-    printf("Empty: %s\n", empty ? "true" : "false");
-
-    int first = 0;
-    int last = 0;
-
-    if (atlas_array_void_front(arr, &first) == 0) {
-        printf("First: %d\n", first);
-    }
-
-    if (atlas_array_void_back(arr, &last) == 0) {
-        printf("Last: %d\n", last);
-    }
-
-    atlas_array_void_clear(arr);
-
-    atlas_array_void_shrink_to_fit(arr);
-
-    atlas_array_void_destroy(&copy);
-    atlas_array_void_destroy(&clone);
-    atlas_array_void_destroy(&arr);
-
-    return 0;
-}
-```
+- [Dynamic Array (`int`)](docs/dynamic-array.md)
+- [Generic Dynamic Array (`void*`)](docs/dynamic-array-void.md)
 
 ---
 
@@ -494,7 +144,6 @@ atlas-ds/
 ├── include/
 │   └── atlas/
 ├── src/
-├── examples/
 ├── tests/
 ├── docs/
 ├── build/

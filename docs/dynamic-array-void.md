@@ -15,6 +15,7 @@ Unlike the specialized integer implementation, this version stores raw bytes and
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
 - [Applications](#applications)
+- [Usage Example](#usage-example)
 
 ---
 
@@ -96,16 +97,6 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void);
 
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value);
 
-int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
-
-int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
-
-int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
-
-int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
-
-AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src);
-
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value);
 
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value);
@@ -128,9 +119,19 @@ int atlas_array_void_clear(AtlasArrayVoid *arr);
 
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr);
 
+int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value);
+
+int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index);
+
 bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *));
 
 bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *));
+
+int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b);
+
+int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest);
+
+AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src);
 ```
 
 > [!IMPORTANT]  
@@ -143,16 +144,16 @@ bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int
 > The `destroy()` function uses a double pointer to safely invalidate the caller's pointer after releasing the allocated memory.
 
 > [!NOTE]    
-> Both `get()` and `set()` validate the requested index against the current logical size (`size`), not the allocated capacity, preventing access to uninitialized memory.
+> Both `get()` and `set()` validate the requested index against the current logical size (`size`), not the allocated capacity, preventing access to uninitialized memory. Out-of-range indices return `ATLAS_ERROR_BOUNDS`.
 
 > [!NOTE]  
 > The metadata operations (`size`, `capacity`, and `empty`) are constant-time (`O(1)`) queries that never modify the container and simply expose its current logical state.
 
 > [!NOTE]  
-> The `front()` and `back()` operations return copies of the first and last stored elements, respectively. Both functions validate that the array is not empty before accessing the internal storage.
+> The `front()` and `back()` operations return copies of the first and last stored elements, respectively. Both functions validate that the array is not empty before accessing the internal storage, returning `ATLAS_ERROR_EMPTY` otherwise.
 
 > [!NOTE]  
-> `reserve()` increases the storage capacity only when the requested capacity is greater than the current one. Requests for smaller or equal capacities perform no operation and still return success.
+> `reserve()` increases the storage capacity only when the requested capacity is greater than the current one. Requests for smaller or equal capacities perform no operation and still return `ATLAS_SUCCESS`.
 
 > [!NOTE]  
 > `clear()` removes all stored elements by resetting the logical size to zero while preserving the allocated storage capacity for future insertions.
@@ -161,16 +162,16 @@ bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int
 > `shrink_to_fit()` reduces the allocated storage capacity to match the current logical size. If the array is empty, the capacity becomes `ATLAS_ARRAY_VOID_STANDARD_CAPACITY`.
 
 > [!NOTE]  
-> `insert()` inserts an element at the specified index, shifting all subsequent elements one position to the right while preserving contiguous storage. Insertion at `size` is equivalent to appending a new element.
+> `insert()` inserts an element at the specified index, shifting all subsequent elements one position to the right while preserving contiguous storage. Insertion at `size` is equivalent to appending a new element. An index greater than `size` returns `ATLAS_ERROR_BOUNDS`.
 
 > [!NOTE]  
-> `erase()` removes the element at the specified index and shifts all subsequent elements one position to the left, preserving contiguous storage.
+> `erase()` removes the element at the specified index and shifts all subsequent elements one position to the left, preserving contiguous storage. An index greater than or equal to `size` returns `ATLAS_ERROR_BOUNDS`.
 
 > [!NOTE]  
-> `swap()` exchanges the elements stored at two valid indices. If both indices are identical, no operation is performed and the function still returns success.
+> `swap()` exchanges the elements stored at two valid indices. If both indices are identical, no operation is performed and the function still returns `ATLAS_SUCCESS`.
 
 > [!NOTE]  
-> `copy()` copies all stored elements from one generic dynamic array to another. If necessary, the destination array is automatically resized before the elements are copied. Both arrays must store elements with the same `type_size`.
+> `copy()` copies all stored elements from one generic dynamic array to another. If necessary, the destination array is automatically resized before the elements are copied. Both arrays must store elements with the same `type_size`, otherwise the operation returns `ATLAS_ERROR_TYPE`. Self-copy operations (`src == dest`) are a no-op and return `ATLAS_SUCCESS`.
 
 > [!NOTE]  
 > `clone()` creates a new generic dynamic array with the same element size and capacity as the source array, then copies all stored elements into the newly allocated container.
@@ -301,3 +302,143 @@ Generic dynamic arrays are commonly used as the foundation for many low-level sy
 - Systems programming
 
 Generic dynamic arrays are often the underlying storage mechanism for higher-level containers such as vectors, stacks, queues, and hash tables.
+
+---
+
+## Usage Example
+
+> The API may evolve as the project is under active development.
+
+```c
+#include <atlas/array_void.h>
+
+#include <stdbool.h>
+#include <stdio.h>
+
+int compare_int(const void *a, const void *b) {
+
+    const int *value_a = a;
+    const int *value_b = b;
+
+    if (*value_a != *value_b) {
+        return 1;
+    }
+
+    return 0;
+}
+
+int main(void) {
+
+    AtlasArrayVoid *arr = atlas_array_void_create(sizeof(int), 2);
+
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_void_reserve(arr, 10);
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+
+    atlas_array_void_push(arr, &a);
+    atlas_array_void_push(arr, &b);
+    atlas_array_void_push(arr, &c);
+
+    int inserted = 15;
+    atlas_array_void_insert(arr, 1, &inserted);
+
+    atlas_array_void_swap(arr, 0, 2);
+
+    atlas_array_void_erase(arr, 2);
+
+    int retrieved_value = 0;
+
+    if (atlas_array_void_get(arr, 1, &retrieved_value) != 0) {
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    printf("Value at index 1: %d\n", retrieved_value);
+
+    int new_value = 50;
+    atlas_array_void_set(arr, 1, &new_value);
+
+    AtlasArrayVoid *clone = atlas_array_void_clone(arr);
+
+    if (!clone) {
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    AtlasArrayVoid *copy = atlas_array_void_create(sizeof(int), 1);
+
+    if (!copy) {
+        atlas_array_void_destroy(&clone);
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_void_copy(arr, copy) != 0) {
+        atlas_array_void_destroy(&copy);
+        atlas_array_void_destroy(&clone);
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    size_t found_index = 0;
+    int search_value = 20;
+
+    if (atlas_array_void_find(arr, &found_index, &search_value, compare_int)) {
+        printf("Value found at index: %zu\n", found_index);
+    }
+
+    if (atlas_array_void_contains(arr, &search_value, compare_int)) {
+        printf("Value exists in array\n");
+    }
+
+    int removed_value = 0;
+
+    if (atlas_array_void_pop(arr, &removed_value) != 0) {
+        atlas_array_void_destroy(&copy);
+        atlas_array_void_destroy(&clone);
+        atlas_array_void_destroy(&arr);
+        return 1;
+    }
+
+    printf("Popped value: %d\n", removed_value);
+
+    size_t size = 0;
+    size_t capacity = 0;
+    bool empty = false;
+
+    atlas_array_void_size(arr, &size);
+    atlas_array_void_capacity(arr, &capacity);
+    atlas_array_void_empty(arr, &empty);
+
+    printf("Size: %zu\n", size);
+    printf("Capacity: %zu\n", capacity);
+    printf("Empty: %s\n", empty ? "true" : "false");
+
+    int first = 0;
+    int last = 0;
+
+    if (atlas_array_void_front(arr, &first) == 0) {
+        printf("First: %d\n", first);
+    }
+
+    if (atlas_array_void_back(arr, &last) == 0) {
+        printf("Last: %d\n", last);
+    }
+
+    atlas_array_void_clear(arr);
+
+    atlas_array_void_shrink_to_fit(arr);
+
+    atlas_array_void_destroy(&copy);
+    atlas_array_void_destroy(&clone);
+    atlas_array_void_destroy(&arr);
+
+    return 0;
+}
+```

@@ -17,6 +17,7 @@ The AtlasDS implementation focuses on exposing the low-level mechanics behind dy
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
 - [Applications](#applications)
+- [Usage Example](#usage-example)
 
 ---
 
@@ -53,8 +54,8 @@ This strategy reduces the frequency of reallocations and helps maintain efficien
 
 AtlasDS also provides explicit capacity management via `reserve()`, enabling manual preallocation of memory in addition to the automatic growth strategy used by `push()`.
 
-> [!NOTE]
-> Dynamic Arrays provide amortized constant-time insertion.  
+> [!NOTE]  
+> Dynamic Arrays provide amortized constant-time insertion.    
 > Amortized O(1) means that although some insertions trigger expensive reallocations, the average insertion cost remains constant over multiple operations.
 
 ---
@@ -98,22 +99,6 @@ void atlas_array_destroy(AtlasArray **ptr_atlas_array);
 
 int atlas_array_push(AtlasArray *arr, int value);
 
-int atlas_array_insert(AtlasArray *arr, size_t index, int value);
-
-int atlas_array_erase(AtlasArray *arr, size_t index);
-
-int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
-
-int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
-
-AtlasArray *atlas_array_clone(const AtlasArray *src);
-
-int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
-
-int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
-
-int atlas_array_pop(AtlasArray *arr, int *out_value);
-
 int atlas_array_get(const AtlasArray *arr, size_t index, int *out_value);
 
 int atlas_array_set(AtlasArray *arr, size_t index, int new_value);
@@ -122,29 +107,41 @@ size_t atlas_array_size(const AtlasArray *arr);
 
 size_t atlas_array_capacity(const AtlasArray *arr);
 
+int atlas_array_pop(AtlasArray *arr, int *out_value);
+
 int atlas_array_reserve(AtlasArray *arr, size_t new_capacity);
 
-int atlas_array_shrink_to_fit(AtlasArray *arr);
-
 int atlas_array_clear(AtlasArray *arr);
+
+int atlas_array_shrink_to_fit(AtlasArray *arr);
 
 int atlas_array_empty(const AtlasArray *arr, bool *empty);
 
 int atlas_array_front(const AtlasArray *arr, int *out_value);
 
 int atlas_array_back(const AtlasArray *arr, int *out_value);
+
+int atlas_array_insert(AtlasArray *arr, size_t index, int value);
+
+int atlas_array_erase(AtlasArray *arr, size_t index);
+
+int atlas_array_find(const AtlasArray *arr, size_t *index_out, int value);
+
+int atlas_array_contains(const AtlasArray *arr, bool *contains, int value);
+
+int atlas_array_swap(AtlasArray *arr, size_t index_a, size_t index_b);
+
+int atlas_array_copy(const AtlasArray *src, AtlasArray *dest);
+
+AtlasArray *atlas_array_clone(const AtlasArray *src);
 ```
 
 > [!IMPORTANT]  
-> The current Dynamic Array module is feature-complete for the `int` type.  
-> Generic support using `void*` is planned as the next evolution of the implementation.
-
-> [!NOTE]  
-> Generic support using `void*` and element size abstraction is planned for future versions of AtlasDS.
+> The current Dynamic Array module is feature-complete for the `int` type.
 
 > [!NOTE]  
 > The `front()` and `back()` functions distinguish between invalid input and an empty array.  
-> Passing a NULL pointer results in an error (`-1`), while querying an empty array is considered a valid operation and returns success (`0`). In the latter case, the output parameter is left unchanged.
+> Passing a NULL pointer results in an error (`ATLAS_ERROR_NULL`), while querying an empty array is considered a valid operation and returns success (`ATLAS_SUCCESS`). In the latter case, the output parameter is left unchanged.
 
 > [!NOTE]  
 > The `insert()` operation preserves element ordering by shifting all elements at and after the insertion index one position to the right.    
@@ -271,3 +268,112 @@ Dynamic Arrays are commonly used in:
 - General-purpose collections
 
 Dynamic Arrays are often one of the foundational structures behind higher-level containers and runtime systems.
+
+---
+
+## Usage Example
+
+> The API may evolve as the project is under active development.
+
+```c
+#include <atlas/array.h>
+
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(void) {
+
+    AtlasArray *arr = atlas_array_create(2);
+
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_reserve(arr, 10);
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+
+    atlas_array_insert(arr, 1, 15);
+
+    atlas_array_erase(arr, 2);
+
+    atlas_array_swap(arr, 0, 1);
+
+    AtlasArray *backup = atlas_array_create(1);
+
+    if (!backup) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_copy(arr, backup);
+
+    AtlasArray *snapshot = atlas_array_clone(arr);
+
+    if (!snapshot) {
+        atlas_array_destroy(&backup);
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    size_t found_index = 0;
+
+    if (atlas_array_find(arr, &found_index, 20) == 0) {
+        printf("Found at index %zu\n", found_index);
+    }
+
+    bool contains = false;
+
+    atlas_array_contains(arr, &contains, 15);
+
+    if (contains) {
+        printf("Value exists in array\n");
+    }
+
+    int first = 0;
+    int last = 0;
+
+    atlas_array_front(arr, &first);
+    atlas_array_back(arr, &last);
+
+    int retrieved_value = 0;
+
+    atlas_array_set(arr, 1, 50);
+
+    if (atlas_array_get(arr, 1, &retrieved_value) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    int removed_value = 0;
+
+    if (atlas_array_pop(arr, &removed_value) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_clear(arr);
+
+    // Release unused memory and keep minimum capacity
+    atlas_array_shrink_to_fit(arr);
+
+    bool empty_array = false;
+
+    if (atlas_array_empty(arr, &empty_array) != 0) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (empty_array) {
+        atlas_array_push(arr, 99);
+    }
+
+    atlas_array_destroy(&snapshot);
+    atlas_array_destroy(&backup);
+    atlas_array_destroy(&arr);
+
+    return 0;
+}
+```
