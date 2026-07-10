@@ -126,10 +126,10 @@ Each module will include an implementation, usage examples, documentation, and a
 |---|---|
 | Dynamic Array (int) | ✅ Complete |
 | Dynamic Array (void*) | ✅ Complete |
+| Linked Lists | 🚧 In Progress |
 | Stacks | 🔲 Planned |
 | Queues | 🔲 Planned |
 | Deque | 🔲 Planned |
-| Linked Lists | 🔲 Planned |
 | Binary Search Trees | 🔲 Planned |
 | Heaps / Priority Queues | 🔲 Planned |
 | Hash Tables | 🔲 Planned |
