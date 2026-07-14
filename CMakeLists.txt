@@ -18,6 +18,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_library(atlasds STATIC
     src/array.c
     src/array_void.c
+    src/list.c
 )
 
 # ====================

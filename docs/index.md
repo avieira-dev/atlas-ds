@@ -30,6 +30,8 @@ Each module typically includes:
 - **Conceptual design**
 - **Memory behavior**
 - **API reference**
+- **Safety guarantees**
+- **Responsibilities**
 - **Complexity analysis**
 - **Usage examples**
 
@@ -37,10 +39,11 @@ Each module typically includes:
 
 ## Available Modules
 
-- [Dynamic Array (`int`)](dynamic-array.md)
-- [Generic Dynamic Array (`void*`)](dynamic-array-void.md)
+- [Dynamic Array](dynamic-array.md)
+- [Generic Dynamic Array](dynamic-array-void.md)
+- [Generic Linked List](docs/list.md)
 
-_More modules will be added as AtlasDS grows._
+_More data structure modules will be added as AtlasDS continues to evolve._
 
 ---
 
@@ -72,9 +75,10 @@ Documentation follows the same philosophy as the library itself: every behavior 
 
 ## Where to Start
 
-If you are new to AtlasDS, begin with one of the Dynamic Array modules:
+If you are new to AtlasDS, the following modules provide a solid introduction to the library's design principles:
 
-- **[Dynamic Array (`int`)](dynamic-array.md)** — fixed-type implementation focused on integer storage.
-- **[Generic Dynamic Array (`void*`)](dynamic-array-void.md)** — type-agnostic implementation based on raw memory manipulation.
+- **[Dynamic Array](dynamic-array.md)** — fixed-type implementation focused on integer storage.
+- **[Generic Dynamic Array](dynamic-array-void.md)** — type-agnostic implementation based on raw memory manipulation.
+- **[Generic Linked List](list.md)** — generic node-based container illustrating dynamic memory allocation and pointer-based data structures.
 
-These modules introduce the core design patterns used throughout the library.
+Together, these modules introduce the core design patterns used throughout AtlasDS.

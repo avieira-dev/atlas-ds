@@ -107,14 +107,32 @@ Current capabilities:
 
 See the full API reference and usage example in [`docs/dynamic-array-void.md`](docs/dynamic-array-void.md).
 
+### Generic Linked List (`void*` implementation)
+
+Current capabilities:
+
+- Generic type-agnostic storage using flexible node-based allocation
+- Element size tracking in bytes (`type_size`)
+- Dynamic node allocation and destruction
+- Singly linked node structure with first and last node tracking
+- Empty-state initialization and validation
+- Safe destruction of all allocated nodes
+- Prevention of dangling pointers via double-pointer destruction
+
+> [!NOTE]  
+> The linked list implementation is currently under active development. Additional operations such as insertion, removal, traversal, searching, and copying will be added progressively.
+
+See the full API reference and usage example in [`docs/list`](docs/list.md).
+
 ---
 
 ## Documentation
 
 Detailed documentation for each structure — including conceptual design, memory layout, complexity analysis, safety guarantees, and usage examples — is available in [`docs/`](docs/):
 
-- [Dynamic Array (`int`)](docs/dynamic-array.md)
-- [Generic Dynamic Array (`void*`)](docs/dynamic-array-void.md)
+- [Dynamic Array](docs/dynamic-array.md)
+- [Generic Dynamic Array](docs/dynamic-array-void.md)
+- [Generic Linked List](docs/list.md)
 
 ---
 
