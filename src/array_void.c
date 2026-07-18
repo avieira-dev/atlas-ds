@@ -13,7 +13,6 @@
 #include <string.h>
 
 struct atlas_array_void {
-    
     size_t type_size; // Size in bytes of each element
     size_t size; // Current number of elements in the array
     size_t capacity; // Number of elements that can be stored without reallocation
@@ -39,7 +38,6 @@ struct atlas_array_void {
  * performs no operation and returns ATLAS_SUCCESS.
  */
 static int atlas_array_void_resize(AtlasArrayVoid *arr, size_t new_capacity) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -71,14 +69,12 @@ static int atlas_array_void_resize(AtlasArrayVoid *arr, size_t new_capacity) {
  * operation that may reallocate the array.
  */
 static void *atlas_array_void_get_element_ptr(const AtlasArrayVoid *arr, size_t index) {
-
     void *out = (char *)arr->data + (index * arr->type_size);
 
     return out;
 }
 
 static bool atlas_array_void_full(const AtlasArrayVoid *arr) {
-
     return arr->size == arr->capacity;
 }
 
@@ -95,7 +91,6 @@ static bool atlas_array_void_full(const AtlasArrayVoid *arr) {
  * if either allocation fails.
  */
 AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacity) {
-
     if (type_size == 0) {
         return NULL;
     }
@@ -130,7 +125,6 @@ AtlasArrayVoid *atlas_array_void_create(size_t type_size, size_t initial_capacit
  * is NULL.
  */
 int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
-
     if (!ptr_atlas_array_void || !*ptr_atlas_array_void) {
         return ATLAS_ERROR_NULL;
     }
@@ -159,7 +153,6 @@ int atlas_array_void_destroy(AtlasArrayVoid **ptr_atlas_array_void) {
  * fails to reallocate storage.
  */
 int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
-
     if (!arr || !value) {
         return ATLAS_ERROR_NULL;
     }
@@ -189,7 +182,6 @@ int atlas_array_void_push(AtlasArrayVoid *arr, const void *value) {
  * NULL, or ATLAS_ERROR_BOUNDS if the index is out of range.
  */
 int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -214,7 +206,6 @@ int atlas_array_void_get(const AtlasArrayVoid *arr, size_t index, void *out_valu
  * out of range.
  */
 int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_value) {
-
     if (!arr || !new_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -240,7 +231,6 @@ int atlas_array_void_set(AtlasArrayVoid *arr, size_t index, const void *new_valu
  * or ATLAS_ERROR_EMPTY if the array has no elements to remove.
  */
 int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -263,7 +253,6 @@ int atlas_array_void_pop(AtlasArrayVoid *arr, void *out_value) {
  * variable. Returns ATLAS_ERROR_NULL if either pointer is NULL.
  */
 int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -281,7 +270,6 @@ int atlas_array_void_size(const AtlasArrayVoid *arr, size_t *out_value) {
  * pointer is NULL.
  */
 int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -299,7 +287,6 @@ int atlas_array_void_capacity(const AtlasArrayVoid *arr, size_t *out_value) {
  * if either pointer is NULL.
  */
 int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -317,7 +304,6 @@ int atlas_array_void_empty(const AtlasArrayVoid *arr, bool *out_value) {
  * ATLAS_ERROR_EMPTY if the array has no elements.
  */
 int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -340,7 +326,6 @@ int atlas_array_void_front(const AtlasArrayVoid *arr, void *out_value) {
  * ATLAS_ERROR_EMPTY if the array has no elements.
  */
 int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
-
     if (!arr || !out_value) {
         return ATLAS_ERROR_NULL;
     }
@@ -365,7 +350,6 @@ int atlas_array_void_back(const AtlasArrayVoid *arr, void *out_value) {
  * the internal resize fails to reallocate storage.
  */
 int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -389,7 +373,6 @@ int atlas_array_void_reserve(AtlasArrayVoid *arr, size_t new_capacity) {
  * pointer is NULL.
  */
 int atlas_array_void_clear(AtlasArrayVoid *arr) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -409,7 +392,6 @@ int atlas_array_void_clear(AtlasArrayVoid *arr) {
  * reallocate storage.
  */
 int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -437,7 +419,6 @@ int atlas_array_void_shrink_to_fit(AtlasArrayVoid *arr) {
  * resize fails to reallocate storage.
  */
 int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value) {
-
     if (!arr || !value) {
         return ATLAS_ERROR_NULL;
     }
@@ -482,7 +463,6 @@ int atlas_array_void_insert(AtlasArrayVoid *arr, size_t index, const void *value
  * or ATLAS_ERROR_BOUNDS if the index is out of range.
  */
 int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -519,7 +499,6 @@ int atlas_array_void_erase(AtlasArrayVoid *arr, size_t index) {
  * the ATLAS status codes, as its outcome is expressed as a boolean.
  */
 bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const void *value, int (*compare)(const void *, const void *)) {
-
     if (!arr || !index_out || !value || !compare) {
         return false;
     }
@@ -550,7 +529,6 @@ bool atlas_array_void_find(const AtlasArrayVoid *arr, size_t *index_out, const v
  * ATLAS status codes, as its outcome is expressed as a boolean.
  */
 bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int (*compare)(const void *, const void *)) {
-
     if (!arr || !value || !compare) {
         return false;
     }
@@ -579,7 +557,6 @@ bool atlas_array_void_contains(const AtlasArrayVoid *arr, const void *value, int
  * temporary buffer allocation fails.
  */
 int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
-
     if (!arr) {
         return ATLAS_ERROR_NULL;
     }
@@ -622,7 +599,6 @@ int atlas_array_void_swap(AtlasArrayVoid *arr, size_t index_a, size_t index_b) {
  * internal resize fails to reallocate storage.
  */
 int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
-
     if (!src || !dest) {
         return ATLAS_ERROR_NULL;
     }
@@ -659,7 +635,6 @@ int atlas_array_void_copy(const AtlasArrayVoid *src, AtlasArrayVoid *dest) {
  * the underlying allocation or copy fails.
  */
 AtlasArrayVoid *atlas_array_void_clone(const AtlasArrayVoid *src) {
-
     if (!src) {
         return NULL;
     }

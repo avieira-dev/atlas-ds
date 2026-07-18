@@ -316,7 +316,6 @@ Generic dynamic arrays are often the underlying storage mechanism for higher-lev
 #include <stdio.h>
 
 int compare_int(const void *a, const void *b) {
-
     const int *value_a = a;
     const int *value_b = b;
 
@@ -328,7 +327,6 @@ int compare_int(const void *a, const void *b) {
 }
 
 int main(void) {
-
     AtlasArrayVoid *arr = atlas_array_void_create(sizeof(int), 2);
 
     if (!arr) {

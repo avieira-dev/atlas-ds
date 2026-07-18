@@ -282,7 +282,6 @@ Dynamic Arrays are often one of the foundational structures behind higher-level 
 #include <stdbool.h>
 
 int main(void) {
-
     AtlasArray *arr = atlas_array_create(2);
 
     if (!arr) {

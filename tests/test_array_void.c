@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 static int compare_int(const void *a, const void *b) {
-
     int value_a = *(const int *)a;
     int value_b = *(const int *)b;
 
@@ -24,7 +23,6 @@ static int compare_int(const void *a, const void *b) {
 }
 
 static int test_create_destroy(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 0);
 
     if (!array) {
@@ -43,14 +41,12 @@ static int test_create_destroy(void) {
 }
 
 static int test_create_invalid_type_size(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(0, 0);
 
     return array == NULL ? 0 : 1;
 }
 
 static int test_destroy_null(void) {
-
     if (atlas_array_void_destroy(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
@@ -65,7 +61,6 @@ static int test_destroy_null(void) {
 }
 
 static int test_push_pop_int(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -102,7 +97,6 @@ static int test_push_pop_int(void) {
 }
 
 static int test_push_pop_double(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(double), 1);
 
     if (!array) {
@@ -129,7 +123,6 @@ static int test_push_pop_double(void) {
 }
 
 static int test_push_null(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -154,7 +147,6 @@ static int test_push_null(void) {
 }
 
 static int test_pop_empty(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -175,7 +167,6 @@ static int test_pop_empty(void) {
 }
 
 static int test_pop_null(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -200,7 +191,6 @@ static int test_pop_null(void) {
 }
 
 static int test_get_set_int(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -237,7 +227,6 @@ static int test_get_set_int(void) {
 }
 
 static int test_get_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -276,7 +265,6 @@ static int test_get_invalid(void) {
 }
 
 static int test_set_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -315,7 +303,6 @@ static int test_set_invalid(void) {
 }
 
 static int test_size(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -354,7 +341,6 @@ static int test_size(void) {
 }
 
 static int test_capacity(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -397,7 +383,6 @@ static int test_capacity(void) {
 }
 
 static int test_empty(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -448,7 +433,6 @@ static int test_empty(void) {
 }
 
 static int test_front_back(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -490,7 +474,6 @@ static int test_front_back(void) {
 }
 
 static int test_front_back_empty(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -515,7 +498,6 @@ static int test_front_back_empty(void) {
 }
 
 static int test_front_back_null(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -548,7 +530,6 @@ static int test_front_back_null(void) {
 }
 
 static int test_reserve(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -577,7 +558,6 @@ static int test_reserve(void) {
 }
 
 static int test_reserve_invalid(void) {
-
     if (atlas_array_void_reserve(NULL, 10) != ATLAS_ERROR_NULL) {
         return 1;
     }
@@ -610,7 +590,6 @@ static int test_reserve_invalid(void) {
 }
 
 static int test_clear(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -655,7 +634,6 @@ static int test_clear(void) {
 }
 
 static int test_clear_invalid(void) {
-
     if (atlas_array_void_clear(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
@@ -664,7 +642,6 @@ static int test_clear_invalid(void) {
 }
 
 static int test_shrink_to_fit(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 10);
 
     if (!array) {
@@ -699,7 +676,6 @@ static int test_shrink_to_fit(void) {
 }
 
 static int test_shrink_to_fit_invalid(void) {
-
     if (atlas_array_void_shrink_to_fit(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
@@ -732,7 +708,6 @@ static int test_shrink_to_fit_invalid(void) {
 }
 
 static int test_insert(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -769,7 +744,6 @@ static int test_insert(void) {
 }
 
 static int test_insert_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -798,7 +772,6 @@ static int test_insert_invalid(void) {
 }
 
 static int test_erase(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
 
     if (!array) {
@@ -835,7 +808,6 @@ static int test_erase(void) {
 }
 
 static int test_erase_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -866,7 +838,6 @@ static int test_erase_invalid(void) {
 }
 
 static int test_swap(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
 
     if (!array) {
@@ -914,7 +885,6 @@ static int test_swap(void) {
 }
 
 static int test_swap_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -955,7 +925,6 @@ static int test_swap_invalid(void) {
 }
 
 static int test_copy(void) {
-
     AtlasArrayVoid *src = atlas_array_void_create(sizeof(int), 2);
     AtlasArrayVoid *dest = atlas_array_void_create(sizeof(int), 1);
 
@@ -1000,7 +969,6 @@ static int test_copy(void) {
 }
 
 static int test_copy_invalid(void) {
-
     AtlasArrayVoid *a = atlas_array_void_create(sizeof(int), 1);
     AtlasArrayVoid *b = atlas_array_void_create(sizeof(double), 1);
 
@@ -1031,7 +999,6 @@ static int test_copy_invalid(void) {
 }
 
 static int test_clone(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -1073,7 +1040,6 @@ static int test_clone(void) {
 }
 
 static int test_clone_invalid(void) {
-
     if (atlas_array_void_clone(NULL) != NULL) {
         return 1;
     }
@@ -1082,7 +1048,6 @@ static int test_clone_invalid(void) {
 }
 
 static int test_find(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 3);
 
     if (!array) {
@@ -1132,7 +1097,6 @@ static int test_find(void) {
 }
 
 static int test_find_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -1166,7 +1130,6 @@ static int test_find_invalid(void) {
 }
 
 static int test_contains(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 2);
 
     if (!array) {
@@ -1205,7 +1168,6 @@ static int test_contains(void) {
 }
 
 static int test_contains_invalid(void) {
-
     AtlasArrayVoid *array = atlas_array_void_create(sizeof(int), 1);
 
     if (!array) {
@@ -1234,7 +1196,6 @@ static int test_contains_invalid(void) {
 }
 
 static int test_metadata_invalid(void) {
-
     size_t size = 0;
     size_t capacity = 0;
     bool empty = false;
@@ -1277,7 +1238,6 @@ static int test_metadata_invalid(void) {
 }
 
 int main(void) {
-
     printf("\n");
     printf("\033[1;33m=========================================================\033[0m\n");
     printf("\033[1;33mAtlasDS - Generic Dynamic Array Tests\033[0m\n");
