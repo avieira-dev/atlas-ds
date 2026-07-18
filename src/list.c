@@ -10,11 +10,11 @@
 #include <atlas/status.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct atlas_list_node AtlasListNode;
 
 struct atlas_list {
-
     size_t type_size; // Size in bytes of each stored element
     size_t list_size; // Current number of nodes in the list
     AtlasListNode *first_node; // Pointer to the first node
@@ -22,10 +22,50 @@ struct atlas_list {
 };
 
 struct atlas_list_node {
-
     AtlasListNode *next_node; // Pointer to the next node in the list
     unsigned char data[]; // Flexible array member storing the element bytes
 };
+
+// =====================
+// Internal Helpers
+// =====================
+
+/*
+ * Internal helper that allocates and initializes a new linked list node.
+ *
+ * Allocates a single memory block containing both the node metadata
+ * and the flexible array member used to store the element bytes.
+ *
+ * The provided value is copied into the node's internal storage using
+ * the list element size defined by type_size.
+ *
+ * Returns NULL if node allocation fails.
+ */
+static AtlasListNode *atlas_list_create_node(const AtlasList *list, const void *value) {
+    AtlasListNode *node = malloc(sizeof(AtlasListNode) + list->type_size);
+
+    if (!node) {
+        return NULL;
+    }
+
+    memcpy(node->data, value, list->type_size);
+
+    return node;
+}
+
+/*
+ * Internal helper that initializes the first and last pointers
+ * of an empty linked list after inserting its first node.
+ *
+ * The provided node becomes both the head and tail of the list,
+ * and its next pointer is initialized to NULL because there are
+ * no subsequent nodes.
+ */
+static void atlas_list_init_empty_list(AtlasList *list, AtlasListNode *node) {
+    list->first_node = node;
+    list->last_node = node;
+    node->next_node = NULL;
+}
 
 // =====================
 // Lifecycle
@@ -41,7 +81,6 @@ struct atlas_list_node {
  * for the list structure fails.
  */
 AtlasList *atlas_list_create(size_t type_size) {
-
     if (type_size == 0) {
         return NULL;
     }
@@ -76,7 +115,6 @@ AtlasList *atlas_list_create(size_t type_size) {
  * list is NULL.
  */
 int atlas_list_destroy(AtlasList **ptr_atlas_list) {
-
     if (!ptr_atlas_list || !*ptr_atlas_list) {
         return ATLAS_ERROR_NULL;
     }
@@ -93,6 +131,77 @@ int atlas_list_destroy(AtlasList **ptr_atlas_list) {
     free(ptr_list);
 
     *ptr_atlas_list = NULL;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_push_front:
+ * Allocates a new node, copies the provided element into its
+ * internal storage, and inserts it at the beginning of the
+ * linked list.
+ *
+ * If the list is empty, the new node becomes both the first
+ * and last node. Otherwise, it is linked before the current
+ * first node and becomes the new list head.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or value pointer is
+ * NULL, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_push_front(AtlasList *list, const void *value) {
+    if (!list || !value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    AtlasListNode *node = atlas_list_create_node(list, value);
+    if (!node) {
+        return ATLAS_ERROR_MEMORY;
+    }
+
+    if (list->list_size == 0){
+        atlas_list_init_empty_list(list, node);
+    } else {
+        node->next_node = list->first_node;
+        list->first_node = node;
+    }
+
+    list->list_size++;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_push_back:
+ * Allocates a new node, copies the provided element into its
+ * internal storage, and appends it to the end of the linked
+ * list.
+ *
+ * If the list is empty, the new node becomes both the first
+ * and last node. Otherwise, it is linked after the current
+ * last node and becomes the new list tail.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or value pointer is
+ * NULL, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_push_back(AtlasList *list, const void *value) {
+    if (!list || !value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    AtlasListNode *node = atlas_list_create_node(list, value);
+    if (!node) {
+        return ATLAS_ERROR_MEMORY;
+    }
+
+    if (list->list_size == 0) {
+        atlas_list_init_empty_list(list, node);
+    } else {
+        list->last_node->next_node = node;
+        node->next_node = NULL;
+        list->last_node = node;
+    }
+
+    list->list_size++;
 
     return ATLAS_SUCCESS;
 }

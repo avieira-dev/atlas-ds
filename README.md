@@ -116,13 +116,15 @@ Current capabilities:
 - Dynamic node allocation and destruction
 - Singly linked node structure with first and last node tracking
 - Empty-state initialization and validation
+- Insertion at the beginning (`push_front`)
+- Insertion at the end (`push_back`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as insertion, removal, traversal, searching, and copying will be added progressively.
+> The linked list implementation is currently under active development. Additional operations such as removal, traversal, searching, copying, and advanced manipulation will be added progressively.
 
-See the full API reference and usage example in [`docs/list`](docs/list.md).
+See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
 ---
 

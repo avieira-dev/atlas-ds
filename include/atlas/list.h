@@ -54,4 +54,38 @@ AtlasList *atlas_list_create(size_t type_size);
  */
 int atlas_list_destroy(AtlasList **ptr_atlas_list);
 
+/**
+ * @brief Inserts an element at the beginning of the linked list.
+ *
+ * Allocates a new node, copies the provided element into the node's
+ * internal storage, and makes it the new first element of the list.
+ *
+ * If the list is empty, the new node becomes both the first and last
+ * node.
+ *
+ * @param list Pointer to the linked list.
+ * @param value Pointer to the element to be copied into the new node.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_push_front(AtlasList *list, const void *value);
+
+/**
+ * @brief Appends an element to the end of the linked list.
+ *
+ * Allocates a new node, copies the provided element into the node's
+ * internal storage, and links it after the current last node.
+ *
+ * If the list is empty, the new node becomes both the first and last
+ * node.
+ *
+ * @param list Pointer to the linked list.
+ * @param value Pointer to the element to be copied into the new node.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_push_back(AtlasList *list, const void *value);
+
 #endif

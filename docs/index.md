@@ -41,7 +41,7 @@ Each module typically includes:
 
 - [Dynamic Array](dynamic-array.md)
 - [Generic Dynamic Array](dynamic-array-void.md)
-- [Generic Linked List](docs/list.md)
+- [Generic Linked List](list.md)
 
 _More data structure modules will be added as AtlasDS continues to evolve._
 

@@ -97,6 +97,8 @@ Current capabilities include:
 - Singly linked node structure
 - First and last node tracking
 - Empty list initialization
+- Front insertion (`push_front`)
+- Back insertion (`push_back`)
 - Safe list destruction
 - Complete node cleanup during destruction
 - Double-pointer destruction to prevent dangling pointers
@@ -108,13 +110,17 @@ Current capabilities include:
 AtlasList *atlas_list_create(size_t type_size);
 
 int atlas_list_destroy(AtlasList **ptr_atlas_list);
+
+int atlas_list_push_front(AtlasList *list, const void *value);
+
+int atlas_list_push_back(AtlasList *list, const void *value);
 ```
 
 > [!IMPORTANT]  
 > The `type_size` parameter must be greater than zero. Passing `0` causes creation to fail and the function returns `NULL`.
 
 > [!NOTE]  
-> The list initially contains no nodes. Nodes are created only when insertion operations are implemented.
+> The list initially contains no nodes. Nodes are created dynamically when insertion operations are performed.
 
 > [!NOTE]  
 > The `destroy()` function traverses the entire linked structure, releases each allocated node, then releases the list structure itself.
@@ -122,11 +128,17 @@ int atlas_list_destroy(AtlasList **ptr_atlas_list);
 > [!NOTE]  
 > The `destroy()` function uses a double pointer to safely invalidate the caller's pointer after releasing memory.
 
+> [!NOTE]  
+> The `push_front()` operation allocates a new node and inserts it at the beginning of the list. The previous first node becomes the next node of the inserted element.
+
+> [!NOTE]  
+> The `push_back()` operation allocates a new node and inserts it at the end of the list. The new node becomes the last element and the previous last node points to it.
+
 ---
 
 ## Safety Guarantees
 
-Since `void*` removes compile-time type information, the implementation relies on explicit runtime validation.
+Since generic storage removes compile-time type information, the implementation relies on explicit runtime validation.
 
 Implemented safety mechanisms include:
 
@@ -168,10 +180,12 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 
 ## Complexity
 
-| Operation | Complexity |
-|:----------|:-----------|
-| Creation (`create`) | O(1) |
-| Destruction (`destroy`) | O(n) |
+| **Operation**                  | **Complexity** |
+|:-------------------------------|:---------------|
+| Creation (`create`)            | O(1)           |
+| Destruction (`destroy`)        | O(n)           |
+| Front insertion (`push_front`) | O(1)           |
+| Back insertion (`push_back`)   | O(1)           |
 
 > [!NOTE]  
 > The destruction operation is linear because every allocated node must be individually traversed and released.
