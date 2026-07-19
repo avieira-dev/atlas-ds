@@ -99,6 +99,8 @@ Current capabilities include:
 - Empty list initialization
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
+- Front removal (`pop_front`)
+- Back removal (`pop_back`)
 - Safe list destruction
 - Complete node cleanup during destruction
 - Double-pointer destruction to prevent dangling pointers
@@ -114,6 +116,10 @@ int atlas_list_destroy(AtlasList **ptr_atlas_list);
 int atlas_list_push_front(AtlasList *list, const void *value);
 
 int atlas_list_push_back(AtlasList *list, const void *value);
+
+int atlas_list_pop_front(AtlasList *list, void *out_value);
+
+int atlas_list_pop_back(AtlasList *list, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -133,6 +139,12 @@ int atlas_list_push_back(AtlasList *list, const void *value);
 
 > [!NOTE]  
 > The `push_back()` operation allocates a new node and inserts it at the end of the list. The new node becomes the last element and the previous last node points to it.
+
+> [!NOTE]  
+> The `pop_front()` operation copies the value stored in the first node into the caller-provided output buffer, removes the node from the list, and releases its allocated memory.
+
+> [!NOTE]  
+> The `pop_back()` operation copies the value stored in the last node into the caller-provided output buffer, removes the node from the list, and releases its allocated memory. Because the current implementation uses a singly linked list, the operation traverses the list to locate the node preceding the last one.
 
 ---
 
@@ -186,9 +198,11 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Destruction (`destroy`)        | O(n)           |
 | Front insertion (`push_front`) | O(1)           |
 | Back insertion (`push_back`)   | O(1)           |
+| Front removal (`pop_front`)    | O(1)           |
+| Back removal (`pop_back`)      | O(n)           |
 
 > [!NOTE]  
-> The destruction operation is linear because every allocated node must be individually traversed and released.
+> The destruction and `pop_back()` operations are linear because they require traversing the linked structure. All other currently implemented operations execute in constant time.
 
 Future operations will introduce additional complexity analysis as the API expands.
 
@@ -210,4 +224,4 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as insertion, removal, traversal, searching, copying, and cloning will be added progressively.
+> The linked list implementation is under active development. Additional operations such as indexed insertion and removal, traversal, searching, copying, cloning, and iterator-style utilities will be added progressively.

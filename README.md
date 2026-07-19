@@ -118,11 +118,13 @@ Current capabilities:
 - Empty-state initialization and validation
 - Insertion at the beginning (`push_front`)
 - Insertion at the end (`push_back`)
+- Removal from the beginning (`pop_front`)
+- Removal from the end (`pop_back`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as removal, traversal, searching, copying, and advanced manipulation will be added progressively.
+> The linked list implementation is currently under active development. Additional operations such as traversal, searching, indexed insertion and removal, copying, cloning, and advanced manipulation will be added progressively.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 

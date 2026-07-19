@@ -205,3 +205,90 @@ int atlas_list_push_back(AtlasList *list, const void *value) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_list_pop_front:
+ * Removes the first node from the linked list, copies its stored
+ * element into the user-provided output buffer, and releases the
+ * node memory.
+ *
+ * If the removed node is the only element in the list, both the
+ * first and last node pointers are reset to NULL. Otherwise, the
+ * second node becomes the new list head.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output buffer pointer
+ * is NULL, or ATLAS_ERROR_EMPTY if the list contains no nodes.
+ */
+int atlas_list_pop_front(AtlasList *list, void *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasListNode *temp_ptr = list->first_node;
+
+    if (list->list_size == 1) {
+        list->first_node = NULL;
+        list->last_node = NULL;
+    } else {
+        list->first_node = list->first_node->next_node;
+    }
+
+    memcpy(out_value, temp_ptr->data, list->type_size);
+
+    list->list_size--;
+
+    free(temp_ptr);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_pop_back:
+ * Removes the last node from the linked list, copies its stored
+ * element into the user-provided output buffer, and releases the
+ * node memory.
+ *
+ * If the removed node is the only element in the list, both the
+ * first and last node pointers are reset to NULL. Otherwise, the
+ * list is traversed to locate the node preceding the last one,
+ * which becomes the new list tail.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output buffer pointer
+ * is NULL, or ATLAS_ERROR_EMPTY if the list contains no nodes.
+ */
+int atlas_list_pop_back(AtlasList *list, void *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasListNode *temp_ptr = list->last_node;
+    
+    if (list->list_size == 1) {
+        list->first_node = NULL;
+        list->last_node = NULL;
+    } else {
+        AtlasListNode *current_ptr = list->first_node;
+        while (current_ptr->next_node != list->last_node) {
+            current_ptr = current_ptr->next_node;
+        }
+
+        list->last_node = current_ptr;
+        current_ptr->next_node = NULL;
+    }
+
+    memcpy(out_value, temp_ptr->data, list->type_size);
+
+    list->list_size--;
+
+    free(temp_ptr);
+
+    return ATLAS_SUCCESS;
+}

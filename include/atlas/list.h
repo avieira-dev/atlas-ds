@@ -88,4 +88,48 @@ int atlas_list_push_front(AtlasList *list, const void *value);
  */
 int atlas_list_push_back(AtlasList *list, const void *value);
 
+/**
+ * @brief Removes and returns the first element of the linked list.
+ *
+ * Copies the value stored in the first node to the user-provided
+ * output buffer, removes the node from the list, and releases its
+ * allocated memory.
+ *
+ * If the removed node is the only element in the list, both the
+ * first and last node pointers become NULL.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the removed element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_EMPTY if the list contains no
+ * elements.
+ */
+int atlas_list_pop_front(AtlasList *list, void *out_value);
+
+/**
+ * @brief Removes and returns the last element of the linked list.
+ *
+ * Copies the value stored in the last node to the user-provided
+ * output buffer, removes the node from the list, and releases its
+ * allocated memory.
+ *
+ * Since the current implementation uses a singly linked list, the
+ * operation traverses the list to locate the node preceding the
+ * last element before updating the internal links.
+ *
+ * If the removed node is the only element in the list, both the
+ * first and last node pointers become NULL.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the removed element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_EMPTY if the list contains no
+ * elements.
+ */
+int atlas_list_pop_back(AtlasList *list, void *out_value);
+
 #endif
