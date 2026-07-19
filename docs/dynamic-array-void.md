@@ -258,7 +258,7 @@ AtlasDS intentionally exposes these responsibilities to help developers understa
 
 | **Operation**            | **Complexity**  |
 |:-------------------------|:----------------|
-| Creation (`create`)      | O(n)            |
+| Creation (`create`)      | O(1)            |
 | Destruction (`destroy`)  | O(1)            |
 | Size (`size`)            | O(1)            |
 | Capacity (`capacity`)    | O(1)            |
