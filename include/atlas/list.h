@@ -132,4 +132,46 @@ int atlas_list_pop_front(AtlasList *list, void *out_value);
  */
 int atlas_list_pop_back(AtlasList *list, void *out_value);
 
+/**
+ * @brief Retrieves the element stored at the specified index.
+ *
+ * Traverses the linked list until reaching the requested node,
+ * then copies the stored element into the user-provided output
+ * buffer.
+ *
+ * The index is zero-based, where index 0 refers to the first
+ * element of the list.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the stored element.
+ * @param index Zero-based index of the element to retrieve.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is outside
+ * the valid range.
+ */
+int atlas_list_get(const AtlasList *list, void *out_value, size_t index);
+
+/**
+ * @brief Replaces the element stored at the specified index.
+ *
+ * Traverses the linked list until reaching the requested node,
+ * then copies the provided element into the node's internal
+ * storage.
+ *
+ * The index is zero-based, where index 0 refers to the first
+ * element of the list.
+ *
+ * @param list Pointer to the linked list.
+ * @param new_value Pointer to the element that will replace the
+ * current value stored in the node.
+ * @param index Zero-based index of the element to replace.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is outside
+ * the valid range.
+ */
+int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
+
 #endif

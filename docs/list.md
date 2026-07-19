@@ -97,6 +97,8 @@ Current capabilities include:
 - Singly linked node structure
 - First and last node tracking
 - Empty list initialization
+- Indexed element access (`get`)
+- Indexed element mutation (`set`)
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
 - Front removal (`pop_front`)
@@ -120,6 +122,10 @@ int atlas_list_push_back(AtlasList *list, const void *value);
 int atlas_list_pop_front(AtlasList *list, void *out_value);
 
 int atlas_list_pop_back(AtlasList *list, void *out_value);
+
+int atlas_list_get(const AtlasList *list, void *out_value, size_t index);
+
+int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
 ```
 
 > [!IMPORTANT]  
@@ -146,6 +152,12 @@ int atlas_list_pop_back(AtlasList *list, void *out_value);
 > [!NOTE]  
 > The `pop_back()` operation copies the value stored in the last node into the caller-provided output buffer, removes the node from the list, and releases its allocated memory. Because the current implementation uses a singly linked list, the operation traverses the list to locate the node preceding the last one.
 
+> [!NOTE]  
+> The `get()` operation traverses the list until reaching the specified zero-based index, then copies the stored element into the caller-provided output buffer.
+
+> [!NOTE]  
+> The `set()` operation traverses the list until reaching the specified zero-based index, then replaces the stored element with the provided value by copying it into the node's internal storage.
+
 ---
 
 ## Safety Guarantees
@@ -156,6 +168,7 @@ Implemented safety mechanisms include:
 
 - NULL pointer validation
 - Invalid element size validation
+- Bounds checking for indexed operations
 - Allocation failure handling
 - Memory leak prevention during initialization
 - Safe destruction of all allocated nodes
@@ -177,6 +190,7 @@ Core responsibilities include:
 - Managing the lifetime of lists created by the API
 - Destroying lists when they are no longer needed
 - Providing valid list pointers when calling operations
+- Providing valid indices when using indexed operations
 - Ensuring future comparison callbacks correctly interpret stored element types
 
 Incorrect usage may lead to:
@@ -200,9 +214,11 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Back insertion (`push_back`)   | O(1)           |
 | Front removal (`pop_front`)    | O(1)           |
 | Back removal (`pop_back`)      | O(n)           |
+| Indexed access (`get`)         | O(n)           |
+| Indexed mutation (`set`)       | O(n)           |
 
 > [!NOTE]  
-> The destruction and `pop_back()` operations are linear because they require traversing the linked structure. All other currently implemented operations execute in constant time.
+> The `destroy()`, `pop_back()`, `get()`, and `set()` operations have linear time complexity because they require traversing the linked structure. The remaining currently implemented operations execute in constant time.
 
 Future operations will introduce additional complexity analysis as the API expands.
 

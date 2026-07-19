@@ -67,6 +67,22 @@ static void atlas_list_init_empty_list(AtlasList *list, AtlasListNode *node) {
     node->next_node = NULL;
 }
 
+/*
+ * Internal helper that traverses the linked list and returns
+ * the node located at the specified zero-based index.
+ *
+ * Assumes the provided index is valid. Bounds validation is
+ * performed by the calling public functions.
+ */
+static AtlasListNode *atlas_list_get_node_at(const AtlasList *list, size_t index) {
+    AtlasListNode *node_ptr = list->first_node;
+    for (size_t i = 0; i < index; i++) {
+        node_ptr = node_ptr->next_node;
+    }
+
+    return node_ptr;
+}
+
 // =====================
 // Lifecycle
 // =====================
@@ -289,6 +305,58 @@ int atlas_list_pop_back(AtlasList *list, void *out_value) {
     list->list_size--;
 
     free(temp_ptr);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_get:
+ * Traverses the linked list until reaching the specified
+ * zero-based index, then copies the stored element into the
+ * user-provided output buffer.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output buffer pointer
+ * is NULL, or ATLAS_ERROR_BOUNDS if the specified index is
+ * outside the valid range.
+ */
+int atlas_list_get(const AtlasList *list, void *out_value, size_t index) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= list->list_size) {
+        return ATLAS_ERROR_BOUNDS;
+    }
+
+    AtlasListNode *node_ptr = atlas_list_get_node_at(list, index);
+
+    memcpy(out_value, node_ptr->data, list->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_set:
+ * Traverses the linked list until reaching the specified
+ * zero-based index, then replaces the stored element by copying
+ * the provided value into the node's internal storage.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or value pointer is
+ * NULL, or ATLAS_ERROR_BOUNDS if the specified index is outside
+ * the valid range.
+ */
+int atlas_list_set(AtlasList *list, const void *new_value, size_t index) {
+    if (!list || !new_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= list->list_size) {
+        return ATLAS_ERROR_BOUNDS;
+    }
+
+    AtlasListNode *node_ptr = atlas_list_get_node_at(list, index);
+
+    memcpy(node_ptr->data, new_value, list->type_size);
 
     return ATLAS_SUCCESS;
 }
