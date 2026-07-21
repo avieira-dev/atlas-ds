@@ -24,14 +24,14 @@ The current AtlasDS implementation uses a **singly linked list**, where each nod
 
 The generic linked list stores the metadata required to manage a collection of dynamically allocated nodes independently of the stored element type.
 
-The structure is composed of four main components:
+The `AtlasList` structure maintains four pieces of metadata required to manage the linked list:
 
 - **type_size** (`size_t`): size in bytes of each stored element
 - **list_size** (`size_t`): number of nodes currently stored in the list
 - **first_node** (`AtlasListNode*`): pointer to the first node of the list
 - **last_node** (`AtlasListNode*`): pointer to the last node of the list
 
-Each node contains:
+Each `AtlasListNode` contains:
 
 - **next_node** (`AtlasListNode*`): pointer to the next node in the chain
 - **data** (`unsigned char[]`): flexible storage area containing the element bytes
@@ -58,15 +58,15 @@ Each node is allocated independently and contains:
 The list maintains references to the beginning and end of the chain:
 
 ```text
-first_node
-    |
-    v
+first_node                last_node
+    |                        |
+    v                        v
 +------+     +------+     +------+
-| Node | --> | Node | --> | Node |
-+------+     +------+     +------+
-                            |
-                            v
-                       last_node
+| Node | --> | Node | --> | Node | ---+
++------+     +------+     +------+    |
+                                      |
+                                      v
+                                     NULL
 ```
 
 The element storage uses a flexible array member:
@@ -97,6 +97,7 @@ Current capabilities include:
 - Singly linked node structure
 - First and last node tracking
 - Empty list initialization
+- Size and empty-state queries (`size`, `empty`)
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
 - Front insertion (`push_front`)
@@ -126,6 +127,10 @@ int atlas_list_pop_back(AtlasList *list, void *out_value);
 int atlas_list_get(const AtlasList *list, void *out_value, size_t index);
 
 int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
+
+int atlas_list_size(const AtlasList *list, size_t *out_value);
+
+int atlas_list_empty(const AtlasList *list, bool *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -157,6 +162,12 @@ int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
 
 > [!NOTE]  
 > The `set()` operation traverses the list until reaching the specified zero-based index, then replaces the stored element with the provided value by copying it into the node's internal storage.
+
+> [!NOTE]  
+> The `size()` operation returns the current number of elements stored in the list through a user-provided output pointer. Since the list maintains its size internally, the operation executes in constant time.
+
+> [!NOTE]  
+> The `empty()` operation reports whether the list contains any elements by comparing the internally maintained size against zero. The result is written to a user-provided output pointer and executes in constant time.
 
 ---
 
@@ -216,9 +227,11 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Back removal (`pop_back`)      | O(n)           |
 | Indexed access (`get`)         | O(n)           |
 | Indexed mutation (`set`)       | O(n)           |
+| Size (`size`)                  | O(1)           |
+| Empty query (`empty`)          | O(1)           |
 
 > [!NOTE]  
-> The `destroy()`, `pop_back()`, `get()`, and `set()` operations have linear time complexity because they require traversing the linked structure. The remaining currently implemented operations execute in constant time.
+> The `destroy()`, `pop_back()`, `get()`, and `set()` operations have linear time complexity because they require traversing the linked structure. Operations such as `create()`, `push_front()`, `push_back()`, `pop_front()`, `size()`, and `empty()` execute in constant time.
 
 Future operations will introduce additional complexity analysis as the API expands.
 

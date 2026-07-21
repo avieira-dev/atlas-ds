@@ -10,13 +10,14 @@
 #define ATLAS_LIST_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 /**
  * @brief Opaque structure representing a generic linked list.
  *
  * This structure is intentionally opaque to enforce encapsulation.
- * It stores elements of any data type using a generic byte-based
- * storage mechanism internally.
+ * Internally, it stores elements of arbitrary types using a
+ * byte-based storage mechanism.
  *
  * Users should only interact with the list through the public API.
  */
@@ -173,5 +174,33 @@ int atlas_list_get(const AtlasList *list, void *out_value, size_t index);
  * the valid range.
  */
 int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
+
+/**
+ * @brief Returns the number of elements currently stored in the list.
+ *
+ * Retrieves the current number of elements in the list and stores
+ * the result in the location pointed to by `out_value`.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer that receives the current list size.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if either
+ * pointer is NULL.
+ */
+int atlas_list_size(const AtlasList *list, size_t *out_value);
+
+/**
+ * @brief Checks whether the linked list is empty.
+ *
+ * Stores `true` in `out_value` if the list contains no elements,
+ * or `false` otherwise.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer that receives the result.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if either
+ * pointer is NULL.
+ */
+int atlas_list_empty(const AtlasList *list, bool *out_value);
 
 #endif

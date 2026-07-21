@@ -116,6 +116,7 @@ Current capabilities:
 - Dynamic node allocation and destruction
 - Singly linked node structure with first and last node tracking
 - Empty-state initialization and validation
+- Size and empty-state queries (`size`, `empty`)
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
 - Insertion at the beginning (`push_front`)

@@ -360,3 +360,39 @@ int atlas_list_set(AtlasList *list, const void *new_value, size_t index) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_list_size:
+ * Retrieves the current number of elements stored in the linked
+ * list and writes the result to the user-provided output pointer.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output pointer is NULL.
+ */
+int atlas_list_size(const AtlasList *list, size_t *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = list->list_size;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_empty:
+ * Checks whether the linked list contains any elements and writes
+ * the result to the user-provided output pointer.
+ *
+ * Stores true if the list is empty, or false otherwise.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output pointer is NULL.
+ */
+int atlas_list_empty(const AtlasList *list, bool *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = (list->list_size == 0);
+
+    return ATLAS_SUCCESS;
+}
