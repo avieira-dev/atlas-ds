@@ -203,4 +203,78 @@ int atlas_list_size(const AtlasList *list, size_t *out_value);
  */
 int atlas_list_empty(const AtlasList *list, bool *out_value);
 
+/**
+ * @brief Retrieves the first element stored in the linked list.
+ *
+ * Copies the value stored in the first node into the user-provided
+ * output buffer without removing the element from the list.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the first element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_EMPTY if the list contains no
+ * elements.
+ */
+int atlas_list_front(const AtlasList *list, void *out_value);
+
+/**
+ * @brief Retrieves the last element stored in the linked list.
+ *
+ * Copies the value stored in the last node into the user-provided
+ * output buffer without removing the element from the list.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the last element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_EMPTY if the list contains no
+ * elements.
+ */
+int atlas_list_back(const AtlasList *list, void *out_value);
+
+/**
+ * @brief Inserts an element at the specified index.
+ *
+ * Inserts a new node before the element currently stored at the
+ * specified zero-based index, shifting subsequent elements toward
+ * the end of the list.
+ *
+ * If the index is 0, the element is inserted at the beginning of
+ * the list. If the index is equal to the current list size, the
+ * element is appended to the end of the list.
+ *
+ * @param list Pointer to the linked list.
+ * @param index Zero-based index at which the element will be
+ * inserted.
+ * @param value Pointer to the element to be copied into the new
+ * node.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, ATLAS_ERROR_BOUNDS if the index is outside the
+ * valid range, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_insert(AtlasList *list, size_t index, const void *value);
+
+/**
+ * @brief Removes the element stored at the specified index.
+ *
+ * Traverses the linked list until reaching the requested
+ * zero-based index, copies the stored element into the
+ * user-provided output buffer, removes the corresponding node,
+ * and releases its allocated memory.
+ *
+ * @param list Pointer to the linked list.
+ * @param index Zero-based index of the element to remove.
+ * @param out_value Pointer to the destination buffer that receives
+ * a copy of the removed element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either
+ * pointer is NULL, or ATLAS_ERROR_BOUNDS if the index is outside
+ * the valid range.
+ */
+int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
+
 #endif

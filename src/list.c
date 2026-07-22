@@ -43,7 +43,6 @@ struct atlas_list_node {
  */
 static AtlasListNode *atlas_list_create_node(const AtlasList *list, const void *value) {
     AtlasListNode *node = malloc(sizeof(AtlasListNode) + list->type_size);
-
     if (!node) {
         return NULL;
     }
@@ -102,7 +101,6 @@ AtlasList *atlas_list_create(size_t type_size) {
     }
 
     AtlasList *list = malloc(sizeof(*list));
-
     if (!list) {
         return NULL;
     }
@@ -393,6 +391,143 @@ int atlas_list_empty(const AtlasList *list, bool *out_value) {
     }
 
     *out_value = (list->list_size == 0);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_front:
+ * Copies the element stored in the first node into the
+ * user-provided output buffer without removing it from the list.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output pointer is NULL,
+ * or ATLAS_ERROR_EMPTY if the list contains no elements.
+ */
+int atlas_list_front(const AtlasList *list, void *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    memcpy(out_value, list->first_node->data, list->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_back:
+ * Copies the element stored in the last node into the
+ * user-provided output buffer without removing it from the list.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output pointer is NULL,
+ * or ATLAS_ERROR_EMPTY if the list contains no elements.
+ */
+int atlas_list_back(const AtlasList *list, void *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    memcpy(out_value, list->last_node->data, list->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_insert:
+ * Inserts a new node at the specified zero-based index.
+ *
+ * If the index is 0, the operation delegates to
+ * atlas_list_push_front(). If the index is equal to the current
+ * list size, the operation delegates to atlas_list_push_back().
+ * Otherwise, a new node is inserted between the surrounding
+ * nodes by updating the internal links.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or value pointer is NULL,
+ * ATLAS_ERROR_BOUNDS if the specified index is outside the valid
+ * range, or ATLAS_ERROR_MEMORY if node allocation fails.
+ */
+int atlas_list_insert(AtlasList *list, size_t index, const void *value) {
+    if (!list || !value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index > list->list_size) {
+        return ATLAS_ERROR_BOUNDS;
+    }
+
+    if (index == 0) {
+        return atlas_list_push_front(list, value);
+    }
+    
+    if (index == list->list_size) {
+        return atlas_list_push_back(list, value);
+    }
+        
+    AtlasListNode *new_node = atlas_list_create_node(list, value);
+    if (!new_node) {
+        return ATLAS_ERROR_MEMORY;
+    }
+
+    AtlasListNode *before_ptr = atlas_list_get_node_at(list, index - 1);
+    AtlasListNode *after_ptr = before_ptr->next_node;
+
+    new_node->next_node = after_ptr;
+    before_ptr->next_node = new_node;
+
+    list->list_size++;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_erase:
+ * Removes the element stored at the specified zero-based index,
+ * copies its value into the user-provided output buffer, unlinks
+ * the corresponding node from the list, and releases its memory.
+ *
+ * If the index refers to the first or last element, the operation
+ * delegates to atlas_list_pop_front() or atlas_list_pop_back(),
+ * respectively.
+ *
+ * Returns ATLAS_ERROR_NULL if the list or output pointer is NULL,
+ * or ATLAS_ERROR_BOUNDS if the specified index is outside the
+ * valid range.
+ */
+int atlas_list_erase(AtlasList *list, size_t index, void *out_value) {
+    if (!list || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index >= list->list_size) {
+        return ATLAS_ERROR_BOUNDS;
+    }
+
+    if (index == 0) {
+        return atlas_list_pop_front(list, out_value);
+    }
+
+    if (index == list->list_size - 1) {
+        return atlas_list_pop_back(list, out_value);
+    }
+
+    AtlasListNode *before_ptr = atlas_list_get_node_at(list, index - 1);
+    AtlasListNode *node_ptr = before_ptr->next_node;
+    AtlasListNode *after_ptr = node_ptr->next_node;
+
+    before_ptr->next_node = after_ptr;
+
+    memcpy(out_value, node_ptr->data, list->type_size);
+
+    free(node_ptr);
+
+    list->list_size--;
 
     return ATLAS_SUCCESS;
 }

@@ -98,12 +98,15 @@ Current capabilities include:
 - First and last node tracking
 - Empty list initialization
 - Size and empty-state queries (`size`, `empty`)
+- First (`front`) and last (`back`) element access
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
+- Indexed insertion (`insert`)
 - Front removal (`pop_front`)
 - Back removal (`pop_back`)
+- Indexed removal (`erase`)
 - Safe list destruction
 - Complete node cleanup during destruction
 - Double-pointer destruction to prevent dangling pointers
@@ -131,6 +134,14 @@ int atlas_list_set(AtlasList *list, const void *new_value, size_t index);
 int atlas_list_size(const AtlasList *list, size_t *out_value);
 
 int atlas_list_empty(const AtlasList *list, bool *out_value);
+
+int atlas_list_front(const AtlasList *list, void *out_value);
+
+int atlas_list_back(const AtlasList *list, void *out_value);
+
+int atlas_list_insert(AtlasList *list, size_t index, const void *value);
+
+int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
 ```
 
 > [!IMPORTANT]  
@@ -168,6 +179,18 @@ int atlas_list_empty(const AtlasList *list, bool *out_value);
 
 > [!NOTE]  
 > The `empty()` operation reports whether the list contains any elements by comparing the internally maintained size against zero. The result is written to a user-provided output pointer and executes in constant time.
+
+> [!NOTE]  
+> The `front()` operation copies the element stored in the first node into the caller-provided output buffer without removing it from the list. The operation executes in constant time.
+
+> [!NOTE]  
+> The `back()` operation copies the element stored in the last node into the caller-provided output buffer without removing it from the list. The operation executes in constant time.
+
+> [!NOTE]  
+> The `insert()` operation inserts a new node before the specified zero-based index. Inserting at index `0` is equivalent to `push_front()`, while inserting at the current list size appends the element and is equivalent to `push_back()`.
+
+> [!NOTE]  
+> The `erase()` operation removes the node stored at the specified zero-based index, copies its value into the caller-provided output buffer, and releases the node's allocated memory.
 
 ---
 
@@ -217,23 +240,34 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 
 ## Complexity
 
-| **Operation**                  | **Complexity** |
-|:-------------------------------|:---------------|
-| Creation (`create`)            | O(1)           |
-| Destruction (`destroy`)        | O(n)           |
-| Front insertion (`push_front`) | O(1)           |
-| Back insertion (`push_back`)   | O(1)           |
-| Front removal (`pop_front`)    | O(1)           |
-| Back removal (`pop_back`)      | O(n)           |
-| Indexed access (`get`)         | O(n)           |
-| Indexed mutation (`set`)       | O(n)           |
-| Size (`size`)                  | O(1)           |
-| Empty query (`empty`)          | O(1)           |
+| **Operation**                  | **Complexity**  |
+|:-------------------------------|:----------------|
+| Creation (`create`)            | O(1)            |
+| Destruction (`destroy`)        | O(n)            |
+| Front insertion (`push_front`) | O(1)            |
+| Back insertion (`push_back`)   | O(1)            |
+| Front removal (`pop_front`)    | O(1)            |
+| Back removal (`pop_back`)      | O(n)            |
+| Indexed access (`get`)         | O(n)            |
+| Indexed mutation (`set`)       | O(n)            |
+| Size (`size`)                  | O(1)            |
+| Empty query (`empty`)          | O(1)            |
+| First element access (`front`) | O(1)            |
+| Last element access (`back`)   | O(1)            |
+| Indexed insertion (`insert`)   | O(n)            |
+| Indexed removal (`erase`)      | O(n)            |
 
 > [!NOTE]  
-> The `destroy()`, `pop_back()`, `get()`, and `set()` operations have linear time complexity because they require traversing the linked structure. Operations such as `create()`, `push_front()`, `push_back()`, `pop_front()`, `size()`, and `empty()` execute in constant time.
+> The `destroy()`, `pop_back()`, `get()`, `set()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity. Operations such as `create()`, `push_front()`, `push_back()`, `pop_front()`, `front()`, `back()`, `size()`, and `empty()` execute in constant time.
 
-Future operations will introduce additional complexity analysis as the API expands.
+> [!NOTE]  
+> The `insert()` operation executes in **O(1)** when inserting at the beginning (`index == 0`) or at the end (`index == list_size`), since these cases delegate to `push_front()` and `push_back()`. Inserting at any other position requires traversing the list to locate the insertion point, resulting in **O(n)** time complexity.
+
+> [!NOTE] 
+> The `erase()` operation executes in **O(1)** only when removing the first element (`index == 0`), since it delegates to `pop_front()`. Removing the last element or an intermediate element requires traversing the list to locate the preceding node, resulting in **O(n)** time complexity.
+
+
+Future operations will extend this table with additional complexity analysis as the API expands.
 
 ---
 
@@ -253,4 +287,4 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as indexed insertion and removal, traversal, searching, copying, cloning, and iterator-style utilities will be added progressively.
+> The linked list implementation is under active development. Additional operations such as searching, value lookup, copying, cloning, reversing, swapping, and iterator-style utilities will be added progressively.
