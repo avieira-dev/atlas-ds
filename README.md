@@ -175,6 +175,7 @@ atlas-ds/
 ├── tests/
 ├── docs/
 ├── build/
+├── .gitignore
 ├── CMakeLists.txt
 ├── LICENSE
 └── README.md
