@@ -150,18 +150,18 @@ Detailed documentation for each structure — including conceptual design, memor
 
 Each module will include an implementation, usage examples, documentation, and automated tests.
 
-| Structure | Status |
-|---|---|
-| Dynamic Array (int) | ✅ Complete |
-| Dynamic Array (void*) | ✅ Complete |
-| Linked Lists | 🚧 In Progress |
-| Stacks | 🔲 Planned |
-| Queues | 🔲 Planned |
-| Deque | 🔲 Planned |
-| Binary Search Trees | 🔲 Planned |
-| Heaps / Priority Queues | 🔲 Planned |
-| Hash Tables | 🔲 Planned |
-| Graph Representations | 🔲 Planned |
+| Structure               | Status         |
+|-------------------------|----------------|
+| Dynamic Array (int)     | ✅ Complete    |
+| Dynamic Array (void*)   | ✅ Complete    |
+| Linked Lists            | 🚧 In Progress |
+| Stacks                  | 🔲 Planned     |
+| Queues                  | 🔲 Planned     |
+| Deque                   | 🔲 Planned     |
+| Binary Search Trees     | 🔲 Planned     |
+| Heaps / Priority Queues | 🔲 Planned     |
+| Hash Tables             | 🔲 Planned     |
+| Graph Representations   | 🔲 Planned     |
 
 ---
 
@@ -249,7 +249,7 @@ your-project/
 ## Developer
 
 **Alexandre Vieira**  
-GitHub: [@avieira-dev](https://github.com/avieira-dev)
+GitHub: **[@avieira-dev](https://github.com/avieira-dev)**
 
 ---
 
