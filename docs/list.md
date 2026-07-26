@@ -17,6 +17,7 @@ The current AtlasDS implementation uses a **singly linked list**, where each nod
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
 - [Applications](#applications)
+- [Usage Example](#usage-example)
 
 ---
 
@@ -288,3 +289,88 @@ Linked lists are especially useful when frequent insertion and removal operation
 
 > [!NOTE]  
 > The linked list implementation is under active development. Additional operations such as searching, value lookup, copying, cloning, reversing, swapping, and iterator-style utilities will be added progressively.
+
+---
+
+## Usage Example
+
+> The API may evolve as the project is under active development.
+
+```c
+#include <atlas/list.h>
+
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+
+    atlas_list_push_back(list, &a);
+    atlas_list_push_back(list, &b);
+    atlas_list_push_front(list, &c);
+
+    int inserted = 15;
+    atlas_list_insert(list, 1, &inserted);
+
+    int erased_value = 0;
+    atlas_list_erase(list, 2, &erased_value);
+
+    int new_value = 99;
+    atlas_list_set(list, &new_value, 0);
+
+    int retrieved_value = 0;
+
+    if (atlas_list_get(list, &retrieved_value, 0) != 0) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    int first = 0;
+    int last = 0;
+
+    atlas_list_front(list, &first);
+    atlas_list_back(list, &last);
+
+    printf("Front: %d | Back: %d\n", first, last);
+
+    int popped_front = 0;
+    int popped_back = 0;
+
+    if (atlas_list_pop_front(list, &popped_front) != 0) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_pop_back(list, &popped_back) != 0) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    size_t size = 0;
+    atlas_list_size(list, &size);
+
+    bool empty_list = false;
+
+    if (atlas_list_empty(list, &empty_list) != 0) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (empty_list) {
+        int fallback = 1;
+        atlas_list_push_back(list, &fallback);
+    }
+
+    atlas_list_destroy(&list);
+
+    return 0;
+}
+```
