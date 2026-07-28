@@ -102,6 +102,7 @@ Current capabilities include:
 - First (`front`) and last (`back`) element access
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
+- Indexed element swapping (`swap`)
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
 - Indexed insertion (`insert`)
@@ -146,6 +147,8 @@ int atlas_list_insert(AtlasList *list, size_t index, const void *value);
 int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
 
 int atlas_list_clear(AtlasList *list);
+
+int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
 ```
 
 > [!IMPORTANT]  
@@ -199,6 +202,9 @@ int atlas_list_clear(AtlasList *list);
 > [!NOTE]  
 > The `clear()` operation releases every node currently stored in the list while preserving the list structure itself. After completion, the list becomes empty and is immediately ready to accept new insertions without requiring re-creation.
 
+> [!NOTE]  
+> The `swap()` operation traverses the list until reaching the two specified zero-based indices, then exchanges the stored element data between the corresponding nodes. The linked structure itself remains unchanged, since only the contents of the nodes are swapped.
+
 ---
 
 ## Safety Guarantees
@@ -232,7 +238,7 @@ Core responsibilities include:
 - Destroying lists when they are no longer needed
 - Using `clear()` when removing all elements while preserving the list object
 - Providing valid list pointers when calling operations
-- Providing valid indices when using indexed operations
+- Providing valid indices when using indexed operations such as `get()`, `set()`, `swap()`, `insert()`, and `erase()`
 - Ensuring future comparison callbacks correctly interpret stored element types
 
 Incorrect usage may lead to:
@@ -265,9 +271,10 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Indexed insertion (`insert`)   | O(n)            |
 | Indexed removal (`erase`)      | O(n)            |
 | Clear (`clear`)                | O(n)            |
+| Swap (`swap`)                  | O(n)            |
 
 > [!NOTE]  
-> The `destroy()`, `clear()`, `pop_back()`, `get()`, `set()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity.
+> The `destroy()`, `clear()`, `pop_back()`, `get()`, `set()`, `swap()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity.
 
 > [!NOTE]  
 > The `insert()` operation executes in **O(1)** when inserting at the beginning (`index == 0`) or at the end (`index == list_size`), since these cases delegate to `push_front()` and `push_back()`. Inserting at any other position requires traversing the list to locate the insertion point, resulting in **O(n)** time complexity.
@@ -296,7 +303,7 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as searching, copying, cloning, reversing, swapping, and iterator-style utilities will be added progressively.
+> The linked list implementation is under active development. Additional operations such as searching, copying, cloning, reversing, and iterator-style utilities will be added progressively.
 ---
 
 ## Usage Example
@@ -332,6 +339,11 @@ int main(void) {
 
     int new_value = 99;
     atlas_list_set(list, &new_value, 0);
+
+    int another_value = 42;
+    atlas_list_push_back(list, &another_value);
+
+    atlas_list_swap(list, 0, 2);
 
     int retrieved_value = 0;
 

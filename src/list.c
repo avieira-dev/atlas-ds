@@ -571,3 +571,47 @@ int atlas_list_clear(AtlasList *list) {
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_list_swap:
+ * Traverses the linked list until reaching the specified
+ * zero-based indices, then exchanges the stored element data
+ * between the corresponding nodes.
+ *
+ * The linked structure remains unchanged since only the
+ * contents stored inside the selected nodes are swapped.
+ *
+ * Returns ATLAS_ERROR_NULL if the list pointer is NULL,
+ * ATLAS_ERROR_BOUNDS if either index is outside the valid
+ * range, or ATLAS_ERROR_MEMORY if temporary memory allocation
+ * fails.
+ */
+int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b) {
+    if (!list) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (index_a >= list->list_size || index_b >= list->list_size) {
+        return ATLAS_ERROR_BOUNDS;
+    }
+
+    if (index_a == index_b) {
+        return ATLAS_SUCCESS;
+    }
+
+    AtlasListNode *node_a = atlas_list_get_node_at(list, index_a);
+    AtlasListNode *node_b = atlas_list_get_node_at(list, index_b);
+
+    void *temp = malloc(list->type_size);
+    if (!temp) {
+        return ATLAS_ERROR_MEMORY;
+    }
+
+    memcpy(temp, node_a->data, list->type_size);
+    memcpy(node_a->data, node_b->data, list->type_size);
+    memcpy(node_b->data, temp, list->type_size);
+
+    free(temp);
+
+    return ATLAS_SUCCESS;
+}

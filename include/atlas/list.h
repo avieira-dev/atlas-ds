@@ -293,4 +293,25 @@ int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
  */
 int atlas_list_clear(AtlasList *list);
 
+/**
+ * @brief Swaps the elements stored at two specified indices.
+ *
+ * Traverses the linked list until reaching both requested
+ * zero-based indices, then exchanges the stored element data
+ * between the corresponding nodes.
+ *
+ * The linked list structure itself is not modified. Only the
+ * contents of the selected nodes are exchanged.
+ *
+ * @param list Pointer to the linked list.
+ * @param index_a Zero-based index of the first element.
+ * @param index_b Zero-based index of the second element.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the
+ * list pointer is NULL, ATLAS_ERROR_BOUNDS if either index is
+ * outside the valid range, or ATLAS_ERROR_MEMORY if temporary
+ * memory allocation fails.
+ */
+int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
+
 #endif

@@ -119,19 +119,20 @@ Current capabilities:
 - Size and empty-state queries (`size`, `empty`)
 - First (`front`) and last (`back`) element access
 - Indexed element access (`get`) and mutation (`set`)
+- Indexed element swapping (`swap`)
 - Insertion at the beginning (`push_front`)
 - Insertion at the end (`push_back`)
 - Indexed insertion (`insert`)
 - Removal from the beginning (`pop_front`)
 - Removal from the end (`pop_back`)
 - Indexed removal (`erase`)
-- Removal of all elements while preserving the list structure (`clear`)
+- List clearing while preserving the list structure (`clear`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as searching, copying, cloning, reversing, swapping, and advanced traversal utilities will be added progressively.
+> The linked list implementation is currently under active development. Additional operations such as searching, copying, cloning, reversing, and advanced traversal utilities will be added progressively.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
