@@ -1013,6 +1013,172 @@ static int test_erase_invalid_index(void) {
     return 0;
 }
 
+static int test_clear_single_element(void) {
+    AtlasList *list = atlas_list_create(sizeof(char));
+
+    if (!list) {
+        return 1;
+    }
+
+    char letter = 'C';
+
+    if (atlas_list_insert(list, 0, &letter) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    size_t list_size;
+
+    if (atlas_list_size(list, &list_size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (list_size != 1) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_clear(list) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_size(list, &list_size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (list_size > 0) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_empty_list(void) {
+    AtlasList *list = atlas_list_create(sizeof(float));
+
+    if (!list) {
+        return 1;
+    }
+
+    if (atlas_list_clear(list) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_multiple_elements(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    int years[] = {1947, 1958, 1971, 1998};
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_insert(list, i, &years[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    size_t list_size;
+
+    if (atlas_list_size(list, &list_size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (list_size != 4) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_clear(list) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_reuse_list(void) {
+    AtlasList *list = atlas_list_create(sizeof(float));
+
+    float nos[] = {0.001, 0.016};
+
+    for (size_t i = 0; i < 2; i++) {
+        if (atlas_list_insert(list, i, &nos[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    size_t list_size;
+
+    if (atlas_list_size(list, &list_size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (list_size != 2) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_clear(list) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    float gravity = 9.81;
+
+    if (atlas_list_insert(list, 0, &gravity) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_size(list, &list_size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (list_size != 1) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_null_list(void) {
+    AtlasList *list = NULL;
+
+    if (atlas_list_clear(list) == ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     printf("\n" COLOR_BOLD_BLUE "========================================================" COLOR_RESET "\n");
     printf(COLOR_BOLD_BLUE "\t\tAtlasDS - List Tests" COLOR_RESET "\n");
@@ -1162,9 +1328,45 @@ int main(void) {
         printf(COLOR_RED "[ERROR]" COLOR_RESET " Erase invalid index validation failed.\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase invalid index validation passed.\n");
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase invalid index validation passed.\n\n");
 
-    printf("\n" COLOR_BOLD_GREEN "[SUCCESS]" COLOR_RESET " All tests completed successfully.\n\n");
+    // =========================================================
+    // Clear
+    // =========================================================
+
+    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running clear tests...\n");
+
+    if (test_clear_empty_list()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on empty list failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on empty list passed.\n");
+
+    if (test_clear_single_element()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on single-element list failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on single-element list passed.\n");
+
+    if (test_clear_multiple_elements()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on multi-element list failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on multi-element list passed.\n");
+
+    if (test_clear_reuse_list()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " List reuse after clear failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " List reuse after clear passed.\n");
+
+    if (test_clear_null_list()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear NULL validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear NULL validation passed.\n\n");
+
+    printf(COLOR_BOLD_GREEN "[SUCCESS]" COLOR_RESET " All tests completed successfully.\n\n");
 
     return 0;
 }

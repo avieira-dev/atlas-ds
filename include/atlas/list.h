@@ -277,4 +277,20 @@ int atlas_list_insert(AtlasList *list, size_t index, const void *value);
  */
 int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
 
+/**
+ * @brief Removes all elements from the linked list.
+ *
+ * Releases every node currently stored in the list while keeping
+ * the list structure itself allocated and ready for future
+ * insertions.
+ *
+ * After this operation, the list becomes empty.
+ *
+ * @param list Pointer to the linked list.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the
+ * list pointer is NULL.
+ */
+int atlas_list_clear(AtlasList *list);
+
 #endif

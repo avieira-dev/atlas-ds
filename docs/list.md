@@ -108,8 +108,9 @@ Current capabilities include:
 - Front removal (`pop_front`)
 - Back removal (`pop_back`)
 - Indexed removal (`erase`)
+- Removal of all elements while preserving the list structure (`clear`)
 - Safe list destruction
-- Complete node cleanup during destruction
+- Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
 - Defensive NULL validation
 
@@ -143,6 +144,8 @@ int atlas_list_back(const AtlasList *list, void *out_value);
 int atlas_list_insert(AtlasList *list, size_t index, const void *value);
 
 int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
+
+int atlas_list_clear(AtlasList *list);
 ```
 
 > [!IMPORTANT]  
@@ -193,6 +196,9 @@ int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
 > [!NOTE]  
 > The `erase()` operation removes the node stored at the specified zero-based index, copies its value into the caller-provided output buffer, and releases the node's allocated memory.
 
+> [!NOTE]  
+> The `clear()` operation releases every node currently stored in the list while preserving the list structure itself. After completion, the list becomes empty and is immediately ready to accept new insertions without requiring re-creation.
+
 ---
 
 ## Safety Guarantees
@@ -206,7 +212,7 @@ Implemented safety mechanisms include:
 - Bounds checking for indexed operations
 - Allocation failure handling
 - Memory leak prevention during initialization
-- Safe destruction of all allocated nodes
+- Safe release of all allocated nodes
 - Safe pointer invalidation after destruction
 
 > [!NOTE]  
@@ -224,6 +230,7 @@ Core responsibilities include:
 - Ensuring inserted elements match the specified element size
 - Managing the lifetime of lists created by the API
 - Destroying lists when they are no longer needed
+- Using `clear()` when removing all elements while preserving the list object
 - Providing valid list pointers when calling operations
 - Providing valid indices when using indexed operations
 - Ensuring future comparison callbacks correctly interpret stored element types
@@ -257,9 +264,10 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Last element access (`back`)   | O(1)            |
 | Indexed insertion (`insert`)   | O(n)            |
 | Indexed removal (`erase`)      | O(n)            |
+| Clear (`clear`)                | O(n)            |
 
 > [!NOTE]  
-> The `destroy()`, `pop_back()`, `get()`, `set()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity. Operations such as `create()`, `push_front()`, `push_back()`, `pop_front()`, `front()`, `back()`, `size()`, and `empty()` execute in constant time.
+> The `destroy()`, `clear()`, `pop_back()`, `get()`, `set()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity.
 
 > [!NOTE]  
 > The `insert()` operation executes in **O(1)** when inserting at the beginning (`index == 0`) or at the end (`index == list_size`), since these cases delegate to `push_front()` and `push_back()`. Inserting at any other position requires traversing the list to locate the insertion point, resulting in **O(n)** time complexity.
@@ -288,8 +296,7 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as searching, value lookup, copying, cloning, reversing, swapping, and iterator-style utilities will be added progressively.
-
+> The linked list implementation is under active development. Additional operations such as searching, copying, cloning, reversing, swapping, and iterator-style utilities will be added progressively.
 ---
 
 ## Usage Example
@@ -368,6 +375,13 @@ int main(void) {
         int fallback = 1;
         atlas_list_push_back(list, &fallback);
     }
+
+    atlas_list_clear(list);
+
+    bool empty_after_clear = false;
+    atlas_list_empty(list, &empty_after_clear);
+
+    printf("Empty after clear: %s\n", empty_after_clear ? "true" : "false");
 
     atlas_list_destroy(&list);
 

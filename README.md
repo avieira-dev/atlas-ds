@@ -125,12 +125,13 @@ Current capabilities:
 - Removal from the beginning (`pop_front`)
 - Removal from the end (`pop_back`)
 - Indexed removal (`erase`)
+- Removal of all elements while preserving the list structure (`clear`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as searching, value lookup, copying, cloning, reversing, swapping, and advanced traversal utilities will be added progressively.
+> The linked list implementation is currently under active development. Additional operations such as searching, copying, cloning, reversing, swapping, and advanced traversal utilities will be added progressively.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
@@ -202,18 +203,51 @@ After building the project:
 ```bash
 ./tests/test_array
 ./tests/test_array_void
+./tests/test_list
 ```
 
-Example output:
+## Example output
+
+### Generic Dynamic Array (`void*` implementation)
 
 ```text
-[INFO] Starting AtlasDS dynamic array tests...
-[OK] Dynamic array created successfully.
-[OK] Automatic resizing completed successfully.
-[OK] Bounds checking validated successfully.
-[OK] Metadata queries validated successfully.
-[OK] Pop operation validated successfully.
-[INFO] All tests completed successfully.
+=========================================================
+          AtlasDS - Generic Dynamic Array Tests
+=========================================================
+
+[INFO] Starting AtlasDS generic dynamic array tests...
+
+[INFO] Running capacity management tests...
+[OK] Reserve test passed.
+[OK] Reserve validation passed.
+[OK] Clear test passed.
+[OK] Clear validation passed.
+[OK] Shrink-to-fit test passed.
+[OK] Shrink-to-fit validation passed.
+
+[SUCCESS] All Generic Dynamic Array tests passed successfully!
+```
+
+### Generic Linked List (`void*` implementation)
+
+```text
+========================================================
+		          AtlasDS - List Tests
+========================================================
+
+[INFO] Starting AtlasDS list tests...
+
+[INFO] Running removal tests...
+[OK] Pop front operation passed.
+[OK] Pop back operation passed.
+[OK] Pop on empty list validation passed.
+[OK] Front/Back on empty list validation passed.
+[OK] Erase at beginning operation passed.
+[OK] Erase middle operation passed.
+[OK] Erase end operation passed.
+[OK] Erase invalid index validation passed.
+
+[SUCCESS] All tests completed successfully.
 ```
 
 ---

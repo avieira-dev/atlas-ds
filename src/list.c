@@ -82,6 +82,23 @@ static AtlasListNode *atlas_list_get_node_at(const AtlasList *list, size_t index
     return node_ptr;
 }
 
+/*
+ * Internal helper that releases every node currently stored
+ * in the linked list.
+ *
+ * The list structure itself is not modified or released.
+ * Callers are responsible for updating the list metadata
+ * after this function returns.
+ */
+static void atlas_list_free_nodes(const AtlasList *list) {
+    AtlasListNode *current_node = list->first_node;
+    while (current_node) {
+        AtlasListNode *next_node = current_node->next_node;
+        free(current_node);
+        current_node = next_node;
+    }
+}
+
 // =====================
 // Lifecycle
 // =====================
@@ -135,12 +152,7 @@ int atlas_list_destroy(AtlasList **ptr_atlas_list) {
 
     AtlasList *ptr_list = *ptr_atlas_list;
 
-    AtlasListNode *current_node = ptr_list->first_node;
-    while (current_node) {
-        AtlasListNode *next_node = current_node->next_node;
-        free(current_node);
-        current_node = next_node;
-    }
+    atlas_list_free_nodes(ptr_list);
 
     free(ptr_list);
 
@@ -528,6 +540,34 @@ int atlas_list_erase(AtlasList *list, size_t index, void *out_value) {
     free(node_ptr);
 
     list->list_size--;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_clear:
+ * Releases every node currently stored in the linked list while
+ * preserving the list structure itself.
+ *
+ * After all nodes are released, the list metadata is reset,
+ * leaving the list empty and ready for future insertions.
+ *
+ * Returns ATLAS_ERROR_NULL if the list pointer is NULL.
+ */
+int atlas_list_clear(AtlasList *list) {
+    if (!list) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_SUCCESS;
+    }
+        
+    atlas_list_free_nodes(list);
+
+    list->first_node = NULL;
+    list->last_node = NULL;
+    list->list_size = 0;
 
     return ATLAS_SUCCESS;
 }
