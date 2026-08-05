@@ -15,25 +15,6 @@
 
 ---
 
-> [!NOTE]  
-> New data structures will be implemented progressively as the atlas grows.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Philosophy](#philosophy)
-- [Current Features](#current-features)
-- [Documentation](#documentation)
-- [Planned Structures](#planned-structures)
-- [Repository Structure](#repository-structure)
-- [Build](#build)
-- [Running Tests](#running-tests)
-- [Integration](#integration)
-- [Developer](#developer)
-- [License](#license)
-
----
-
 ## Overview
 
 AtlasDS explores how **fundamental data structures** behave from a low-level systems perspective — exposing their internal mechanics such as memory layout, pointer relationships, and structural invariants.
@@ -43,6 +24,22 @@ Rather than providing high-level abstractions, every implementation is transpare
 The library also serves as a reference implementation for students and developers studying computer science fundamentals.
 
 **Naming convention:** all public symbols use the `atlas_` prefix to ensure clarity and avoid collisions in C translation units.
+
+> [!NOTE]  
+> New data structures will be implemented progressively as the atlas grows.
+
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [Current Features](#current-features)
+- [Documentation](#documentation)
+- [Planned Structures](#planned-structures)
+- [Repository Structure](#repository-structure)
+- [Build](#build)
+- [Running Tests](#running-tests)
+- [Integration](#integration)
+- [Author](#author)
+- [License](#license)
 
 ---
 
@@ -281,7 +278,7 @@ your-project/
 
 ---
 
-## Developer
+## Author
 
 **Alexandre Vieira**  
 GitHub: **[@avieira-dev](https://github.com/avieira-dev)**
