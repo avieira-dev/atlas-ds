@@ -746,3 +746,41 @@ int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value,
 
     return ATLAS_ERROR_NOT_FOUND;
 }
+
+/*
+ * Implementation of atlas_list_contains:
+ * Traverses the linked list and compares each stored element with
+ * the provided value using the user-supplied comparison function.
+ *
+ * If a matching element is found, the output value is set to true
+ * and the operation returns ATLAS_SUCCESS. If no matching element
+ * is found, the output value is set to false and the operation
+ * still returns ATLAS_SUCCESS.
+ *
+ * Returns ATLAS_ERROR_NULL if the list, output value, value, or
+ * comparison function pointer is NULL, or ATLAS_ERROR_EMPTY if the
+ * list contains no elements.
+ */
+int atlas_list_contains(const AtlasList *list, bool *out_value, const void *value, int (*comparison)(const void *, const void *)) {
+    if (!list || !out_value || !value || !comparison) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasListNode *current_node = list->first_node;
+    while (current_node) {
+        if (comparison(current_node->data, value) == 0) {
+            *out_value = true;
+            return ATLAS_SUCCESS;
+        }
+
+        current_node = current_node->next_node;
+    }
+
+    *out_value = false;
+
+    return ATLAS_SUCCESS;
+}

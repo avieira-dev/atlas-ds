@@ -16,11 +16,13 @@
 #define COLOR_GREEN "\033[0;32m"
 #define COLOR_YELLOW "\033[0;33m"
 #define COLOR_BLUE "\033[0;34m"
+#define COLOR_CYAN "\033[0;36m"
 
 #define COLOR_BOLD_RED "\033[1;31m"
 #define COLOR_BOLD_GREEN "\033[1;32m"
 #define COLOR_BOLD_YELLOW "\033[1;33m"
 #define COLOR_BOLD_BLUE "\033[1;34m"
+#define COLOR_BOLD_CYAN "\033[1;36m"
 
 #define COLOR_RESET "\033[0m"
 
@@ -1826,282 +1828,455 @@ static int test_find_null(void) {
     return 0;
 }
 
-int main(void) {
-    printf("\n" COLOR_BOLD_BLUE "========================================================" COLOR_RESET "\n");
-    printf(COLOR_BOLD_BLUE "\t\tAtlasDS - List Tests" COLOR_RESET "\n");
-    printf(COLOR_BOLD_BLUE "========================================================" COLOR_RESET "\n\n");
+static int test_contains(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
 
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Starting AtlasDS list tests...\n\n");
+    if (!list) {
+        return 1;
+    }
+
+    int elements[] = {10, 20, 30, 40};
+    size_t size_arr = sizeof(elements) / sizeof(elements[0]);
+
+    for (size_t i = 0; i < size_arr; i++) {
+        if (atlas_list_push_back(list, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    int value = 30;
+    bool contains;
+
+    if (atlas_list_contains(list, &contains, &value, compare_int) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (!contains) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_contains_not_found(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int elements[] = {10, 20, 30, 40};
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_push_back(list, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    int value = 99;
+    bool contains;
+
+    if (atlas_list_contains(list, &contains, &value, compare_int) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (contains) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_contains_empty_list(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int value = 10;
+    bool contains;
+
+    if (atlas_list_contains(list, &contains, &value, compare_int) != ATLAS_ERROR_EMPTY) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_contains_null(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int value = 10;
+    bool contains;
+
+    if (atlas_list_contains(NULL, &contains, &value, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_contains(list, NULL, &value, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_contains(list, &contains, NULL, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_contains(list, &contains, &value, NULL) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+int main(void) {
+    printf("\n" COLOR_BOLD_BLUE "╭────────────────────────────────────────────────────────╮" COLOR_RESET "\n");
+    printf(COLOR_BOLD_BLUE "│" COLOR_RESET "                  AtlasDS - List Tests                  " COLOR_BOLD_BLUE "│" COLOR_RESET "\n");
+    printf(COLOR_BOLD_BLUE "╰────────────────────────────────────────────────────────╯" COLOR_RESET "\n\n");
+
+    printf(COLOR_YELLOW "ℹ " COLOR_RESET "Starting AtlasDS list tests...\n\n");
 
     // =========================================================
     // Lifecycle
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running lifecycle tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Lifecycle" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_create_destroy()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Create/Destroy operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Create/Destroy operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Create/Destroy operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Create/Destroy operation\n");
 
     if (test_create_invalid_type_size()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Type size validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Type size validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Type size validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Type size validation\n");
 
     if (test_destroy_null()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " NULL destroy validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL destroy validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " NULL destroy validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL destroy validation\n\n");
+
 
     // =========================================================
     // Insertion
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running insertion tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Insertion" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_push_front()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Push front operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Push front operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Push front operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Push front operation\n");
 
     if (test_push_back()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Push back operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Push back operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Push back operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Push back operation\n");
 
     if (test_insert_at_beginning()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Insert at beginning operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert at beginning operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Insert at beginning operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert at beginning operation\n");
 
     if (test_insert_middle()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Insert middle operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert middle operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Insert middle operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert middle operation\n");
 
     if (test_insert_end()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Insert end operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert end operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Insert end operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert end operation\n");
 
     if (test_insert_invalid_index()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Insert invalid index validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert invalid index validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Insert invalid index validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert invalid index validation\n\n");
+
 
     // =========================================================
     // Access
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running access tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Access" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_set()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Set operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Set operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Set operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Set operation\n");
 
     if (test_empty()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Empty check failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Empty check\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Empty check passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Empty check\n");
 
     if (test_get_set_invalid_index()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Get/Set bounds validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Get/Set bounds validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Get/Set bounds validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Get/Set bounds validation\n\n");
+
 
     // =========================================================
     // Search
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running search tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Search" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_find()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find operation\n");
 
     if (test_find_not_found()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find not found validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find not found validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find not found validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find not found validation\n");
 
     if (test_find_empty_list()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find on empty list validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find on empty list validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find on empty list validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find on empty list validation\n");
 
     if (test_find_null()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find NULL validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find NULL validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find NULL validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find NULL validation\n");
+
+    if (test_contains()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains operation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains operation\n");
+
+    if (test_contains_not_found()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains not found validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains not found validation\n");
+
+    if (test_contains_empty_list()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains on empty list validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains on empty list validation\n");
+
+    if (test_contains_null()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains NULL validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains NULL validation\n\n");
+
 
     // =========================================================
     // Swap
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running swap tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Swap" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_swap()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Swap operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Swap operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap operation\n");
 
     if (test_swap_same_index()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Swap same index validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap same index validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Swap same index validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap same index validation\n");
 
     if (test_swap_invalid_index()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Swap invalid index validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap invalid index validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Swap invalid index validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap invalid index validation\n");
 
     if (test_swap_single_element()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Swap on single-element list failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap on single-element list\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Swap on single-element list passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap on single-element list\n");
 
     if (test_swap_empty_list()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Swap on empty list validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap on empty list validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Swap on empty list validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap on empty list validation\n\n");
+
 
     // =========================================================
     // Removal
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running removal tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Removal" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_pop_front()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Pop front operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop front operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Pop front operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop front operation\n");
 
     if (test_pop_back()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Pop back operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop back operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Pop back operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop back operation\n");
 
     if (test_pop_empty()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Pop on empty list validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop on empty list validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Pop on empty list validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop on empty list validation\n");
 
     if (test_front_back_empty()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Front/Back on empty list validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Front/Back on empty list validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Front/Back on empty list validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Front/Back on empty list validation\n");
 
     if (test_erase_beginning()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Erase at beginning operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase at beginning operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase at beginning operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase at beginning operation\n");
 
     if (test_erase_middle()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Erase middle operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase middle operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase middle operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase middle operation\n");
 
     if (test_erase_end()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Erase end operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase end operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase end operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase end operation\n");
 
     if (test_erase_invalid_index()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Erase invalid index validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase invalid index validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Erase invalid index validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase invalid index validation\n\n");
+
 
     // =========================================================
     // Clear
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running clear tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Clear" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_clear_empty_list()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on empty list failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear operation on empty list\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on empty list passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear operation on empty list\n");
 
     if (test_clear_single_element()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on single-element list failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear operation on single-element list\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on single-element list passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear operation on single-element list\n");
 
     if (test_clear_multiple_elements()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear operation on multi-element list failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear operation on multi-element list\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear operation on multi-element list passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear operation on multi-element list\n");
 
     if (test_clear_reuse_list()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " List reuse after clear failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " List reuse after clear\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " List reuse after clear passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " List reuse after clear\n");
 
     if (test_clear_null_list()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clear NULL validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear NULL validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear NULL validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear NULL validation\n\n");
+
 
     // =========================================================
     // Copy and Clone
     // =========================================================
-    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running copy and clone tests...\n");
+    printf(COLOR_BOLD_CYAN "➤ Copy and Clone" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
 
     if (test_copy()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Copy operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Copy operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Copy operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Copy operation\n");
 
     if (test_copy_independence()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Copy independence validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Copy independence validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Copy independence validation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Copy independence validation\n");
 
     if (test_clone()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clone operation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clone operation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clone operation passed.\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clone operation\n");
 
     if (test_clone_independence()) {
-        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clone independence validation failed.\n");
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clone independence validation\n");
         return 1;
     }
-    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clone independence validation passed.\n\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clone independence validation\n\n");
 
-    printf(COLOR_BOLD_GREEN "[SUCCESS]" COLOR_RESET " All tests completed successfully.\n\n");
+
+    printf(COLOR_BOLD_CYAN "════════════════════════════════════════════════════════\n" COLOR_RESET "\n");
+    printf(COLOR_BOLD_GREEN " ✔ SUCCESS:" COLOR_RESET " All tests were completed successfully.\n\n");
 
     return 0;
 }

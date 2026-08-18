@@ -375,4 +375,26 @@ AtlasList *atlas_list_clone(const AtlasList *source);
  */
 int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *));
 
+/**
+ * @brief Checks whether an element exists in the linked list.
+ *
+ * Traverses the linked list and compares each stored element with
+ * the provided value using the user-supplied comparison function.
+ *
+ * If a matching element is found, `true` is stored in `out_value`.
+ * If the entire list is traversed without finding a match, `false`
+ * is stored in `out_value`.
+ *
+ * @param list Pointer to the linked list.
+ * @param out_value Pointer that receives the result.
+ * @param value Pointer to the value to search for.
+ * @param comparison Function used to compare a stored element with
+ * the provided value.
+ *
+ * @return ATLAS_SUCCESS if the search is completed,
+ * ATLAS_ERROR_NULL if any required pointer is NULL, or
+ * ATLAS_ERROR_EMPTY if the list contains no elements.
+ */
+int atlas_list_contains(const AtlasList *list, bool *value_out, const void *value, int (*comparison)(const void *, const void *));
+
 #endif

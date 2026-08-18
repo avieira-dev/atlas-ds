@@ -117,6 +117,7 @@ Current capabilities:
 - First (`front`) and last (`back`) element access
 - Indexed element access (`get`) and mutation (`set`)
 - Value search (`find`)
+- Membership queries (`contains`)
 - Indexed element swapping (`swap`)
 - Insertion at the beginning (`push_front`)
 - Insertion at the end (`push_back`)
@@ -131,9 +132,6 @@ Current capabilities:
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
 - Automated tests covering all implemented public APIs
-
-> [!NOTE]  
-> Additional operations such as membership checking (`contains`) and list reversal (`reverse`) are planned for future implementation.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
@@ -153,18 +151,18 @@ Detailed documentation for each structure — including conceptual design, memor
 
 Each module will include an implementation, usage examples, documentation, and automated tests.
 
-| Structure               | Status            |
-|-------------------------|-------------------|
-| Dynamic Array (int)     | 🟩🟩🟩🟩🟩 `100%` |
-| Dynamic Array (void*)   | 🟩🟩🟩🟩🟩 `100%` |
-| Linked Lists            | 🟩🟩🟩🟩🟧 `90%`  |
-| Stacks                  | ⬛⬛⬛⬛⬛ `0%`   |
-| Queues                  | ⬛⬛⬛⬛⬛ `0%`   |
-| Deque                   | ⬛⬛⬛⬛⬛ `0%`   |
-| Binary Search Trees     | ⬛⬛⬛⬛⬛ `0%`   |
-| Heaps / Priority Queues | ⬛⬛⬛⬛⬛ `0%`   |
-| Hash Tables             | ⬛⬛⬛⬛⬛ `0%`   |
-| Graph Representations   | ⬛⬛⬛⬛⬛ `0%`   |
+| Structure               | Status                      |
+|-------------------------|-----------------------------|
+| Dynamic Array (int)     | ████████████████████ `100%` |
+| Dynamic Array (void*)   | ████████████████████ `100%` |
+| Linked Lists            | ███████████████████░ `95%`  |
+| Stacks                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Hash Tables             | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Graph Representations   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 
 ---
 
@@ -249,23 +247,30 @@ After building the project:
 ### Generic Linked List (`void*` implementation)
 
 ```text
-========================================================
-		          AtlasDS - List Tests
-========================================================
+╭────────────────────────────────────────────────────────╮
+│                  AtlasDS - List Tests                  │
+╰────────────────────────────────────────────────────────╯
 
-[INFO] Starting AtlasDS list tests...
+ℹ Starting AtlasDS list tests...
 
-[INFO] Running removal tests...
-[OK] Pop front operation passed.
-[OK] Pop back operation passed.
-[OK] Pop on empty list validation passed.
-[OK] Front/Back on empty list validation passed.
-[OK] Erase at beginning operation passed.
-[OK] Erase middle operation passed.
-[OK] Erase end operation passed.
-[OK] Erase invalid index validation passed.
+➤ Lifecycle
+────────────────────────────────────────────────────────
+  ✔ Create/Destroy operation
+  ✔ Type size validation
+  ✔ NULL destroy validation
 
-[SUCCESS] All tests completed successfully.
+➤ Insertion
+────────────────────────────────────────────────────────
+  ✔ Push front operation
+  ✔ Push back operation
+  ✔ Insert at beginning operation
+  ✔ Insert middle operation
+  ✔ Insert end operation
+  ✔ Insert invalid index validation
+
+════════════════════════════════════════════════════════
+
+ ✔ SUCCESS: All tests were completed successfully.
 ```
 
 ---

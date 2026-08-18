@@ -103,6 +103,7 @@ Current capabilities include:
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
 - Value search (`find`) using a user-provided comparison function
+- Membership queries (`contains`) using a user-provided comparison function
 - Indexed element swapping (`swap`)
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
@@ -159,6 +160,8 @@ int atlas_list_copy(const AtlasList *source, AtlasList *destination);
 AtlasList *atlas_list_clone(const AtlasList *source);
 
 int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *));
+
+int atlas_list_contains(const AtlasList *list, bool *out_value, const void *value, int (*comparison)(const void *, const void *));
 ```
 
 > [!IMPORTANT]  
@@ -239,6 +242,9 @@ int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value,
 > [!NOTE]  
 > The `find()` operation traverses the list and compares each stored element against the provided value using a user-provided comparison function. When a matching element is found, its zero-based index is written to `index_out`. If no matching element exists, the operation returns an appropriate error status.
 
+> [!NOTE]  
+> The `contains()` operation traverses the list and checks whether an element matching the provided value exists using a user-provided comparison function. The result is written to `out_value` as a boolean value. If a matching element is found, the operation returns `true`; otherwise, it returns `false`.
+
 ---
 
 ## Safety Guarantees
@@ -306,6 +312,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Indexed insertion (`insert`)   | O(n)            |
 | Indexed removal (`erase`)      | O(n)            |
 | Value search (`find`)          | O(n)            |
+| Membership query (`contains`)  | O(n)            |
 | Clear (`clear`)                | O(n)            |
 | Swap (`swap`)                  | O(n)            |
 | List copy (`copy`)             | O(n)            |
@@ -329,6 +336,9 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 > [!NOTE]  
 > The `find()` operation traverses the list sequentially until a matching element is found or the end of the list is reached. Therefore, its worst-case time complexity is O(n).
 
+> [!NOTE]  
+> The `contains()` operation traverses the list sequentially until a matching element is found or the end of the list is reached. Therefore, its worst-case time complexity is O(n).
+
 Future operations will extend this table with additional complexity analysis as the API expands.
 
 ---
@@ -346,10 +356,6 @@ Generic linked lists are commonly used as building blocks for:
 
 Linked lists are especially useful when frequent insertion and removal operations are required and contiguous memory storage is not the primary requirement.
 
----
-
-> [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as membership queries, list reversal, and iterator-style utilities will be added progressively.
 ---
 
 ## Usage Example
