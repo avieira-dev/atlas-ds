@@ -784,3 +784,45 @@ int atlas_list_contains(const AtlasList *list, bool *out_value, const void *valu
 
     return ATLAS_SUCCESS;
 }
+
+/*
+ * Implementation of atlas_list_reverse:
+ * Reverses the linked list by iteratively updating each node's
+ * next pointer to point to the previous node.
+ *
+ * The original first node is preserved as the new last node,
+ * while the final processed node becomes the new first node.
+ *
+ * The stored element data is not modified. Only the internal
+ * node relationships are reversed.
+ *
+ * Returns ATLAS_ERROR_NULL if the list pointer is NULL,
+ * ATLAS_ERROR_EMPTY if the list contains no elements, or
+ * ATLAS_SUCCESS when the list is successfully reversed.
+ */
+int atlas_list_reverse(AtlasList *list) {
+    if (!list) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasListNode *previous = NULL;
+    AtlasListNode *current = list->first_node;
+    AtlasListNode *next = NULL;
+    AtlasListNode *old_first = list->first_node;
+
+    while (current) {
+        next = current->next_node;
+        current->next_node = previous;
+        previous = current;
+        current = next;
+    }
+
+    list->first_node = previous;
+    list->last_node = old_first;
+
+    return ATLAS_SUCCESS;
+}

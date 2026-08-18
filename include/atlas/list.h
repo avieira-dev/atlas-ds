@@ -397,4 +397,21 @@ int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value,
  */
 int atlas_list_contains(const AtlasList *list, bool *value_out, const void *value, int (*comparison)(const void *, const void *));
 
+/**
+ * @brief Reverses the order of all elements in the linked list.
+ *
+ * Reverses the linked structure by updating the next-node pointers
+ * of every node without modifying the stored element data.
+ *
+ * The first node becomes the last node, and the last node becomes
+ * the first node while preserving the integrity of the linked list.
+ *
+ * @param list Pointer to the linked list.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the list
+ * pointer is NULL, or ATLAS_ERROR_EMPTY if the list contains no
+ * elements.
+ */
+int atlas_list_reverse(AtlasList *list);
+
 #endif

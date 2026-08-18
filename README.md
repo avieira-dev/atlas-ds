@@ -128,6 +128,7 @@ Current capabilities:
 - List clearing while preserving the list structure (`clear`)
 - List copying (`copy`)
 - Deep list cloning (`clone`)
+- List reversal (`reverse`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
@@ -155,7 +156,7 @@ Each module will include an implementation, usage examples, documentation, and a
 |-------------------------|-----------------------------|
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
-| Linked Lists            | ███████████████████░ `95%`  |
+| Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |

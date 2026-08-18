@@ -114,6 +114,7 @@ Current capabilities include:
 - Removal of all elements while preserving the list structure (`clear`)
 - List copying (`copy`)
 - Deep list cloning (`clone`)
+- List reversal (`reverse`)
 - Safe list destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
@@ -162,6 +163,8 @@ AtlasList *atlas_list_clone(const AtlasList *source);
 int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *));
 
 int atlas_list_contains(const AtlasList *list, bool *out_value, const void *value, int (*comparison)(const void *, const void *));
+
+int atlas_list_reverse(AtlasList *list);
 ```
 
 > [!IMPORTANT]  
@@ -245,6 +248,9 @@ int atlas_list_contains(const AtlasList *list, bool *out_value, const void *valu
 > [!NOTE]  
 > The `contains()` operation traverses the list and checks whether an element matching the provided value exists using a user-provided comparison function. The result is written to `out_value` as a boolean value. If a matching element is found, the operation returns `true`; otherwise, it returns `false`.
 
+> [!NOTE]  
+> The `reverse()` operation reverses the linked list in place by updating the `next_node` pointers of the existing nodes. The first node becomes the last node, the last node becomes the first node, and all intermediate nodes have their positions reversed. No new nodes are allocated and the list's element data remains unchanged.
+
 ---
 
 ## Safety Guarantees
@@ -317,6 +323,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Swap (`swap`)                  | O(n)            |
 | List copy (`copy`)             | O(n)            |
 | List clone (`clone`)           | O(n)            |
+| List reversal (`reverse`)      | O(n)            |
 
 > [!NOTE]  
 > The `destroy()`, `clear()`, `pop_back()`, `get()`, `set()`, `swap()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity.
@@ -339,7 +346,8 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 > [!NOTE]  
 > The `contains()` operation traverses the list sequentially until a matching element is found or the end of the list is reached. Therefore, its worst-case time complexity is O(n).
 
-Future operations will extend this table with additional complexity analysis as the API expands.
+> [!NOTE]  
+> The `reverse()` operation traverses the entire linked list once and reverses each node's `next_node` pointer in place. Therefore, it has O(n) time complexity and O(1) additional memory usage.
 
 ---
 
