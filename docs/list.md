@@ -110,6 +110,8 @@ Current capabilities include:
 - Back removal (`pop_back`)
 - Indexed removal (`erase`)
 - Removal of all elements while preserving the list structure (`clear`)
+- List copying (`copy`)
+- Deep list cloning (`clone`)
 - Safe list destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
@@ -149,6 +151,10 @@ int atlas_list_erase(AtlasList *list, size_t index, void *out_value);
 int atlas_list_clear(AtlasList *list);
 
 int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
+
+int atlas_list_copy(const AtlasList *source, AtlasList *destination);
+
+AtlasList *atlas_list_clone(const AtlasList *source);
 ```
 
 > [!IMPORTANT]  
@@ -204,6 +210,27 @@ int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
 
 > [!NOTE]  
 > The `swap()` operation traverses the list until reaching the two specified zero-based indices, then exchanges the stored element data between the corresponding nodes. The linked structure itself remains unchanged, since only the contents of the nodes are swapped.
+
+> [!NOTE]  
+> The `copy()` operation clears the destination list and copies all elements from the source list while preserving their original order. The source list remains unchanged.
+
+> [!NOTE]  
+> The `copy()` operation requires both lists to have the same `type_size`. If the element sizes differ, the function returns `ATLAS_ERROR_TYPE`.
+
+> [!NOTE]  
+> If a memory allocation fails during `copy()`, the destination list is cleared to prevent leaving it in a partially copied state.
+
+> [!NOTE]  
+> The `copy()` operation safely handles self-copying. If the source and destination refer to the same list, the operation returns `ATLAS_SUCCESS` without modifying the list.
+
+> [!NOTE]  
+> The `clone()` operation creates a new linked list with the same `type_size` as the source and copies all stored elements while preserving their original order.
+
+> [!NOTE]  
+> The list returned by `clone()` is independent from the source. Its nodes are allocated separately, so modifying or destroying one list does not affect the other.
+
+> [!NOTE]  
+> The `clone()` operation returns `NULL` if the source pointer is `NULL` or if memory allocation fails during list or node creation.
 
 ---
 
@@ -272,6 +299,8 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Indexed removal (`erase`)      | O(n)            |
 | Clear (`clear`)                | O(n)            |
 | Swap (`swap`)                  | O(n)            |
+| List copy (`copy`)             | O(n)            |
+| List clone (`clone`)           | O(n)            |
 
 > [!NOTE]  
 > The `destroy()`, `clear()`, `pop_back()`, `get()`, `set()`, `swap()`, `insert()`, and `erase()` operations may require traversing the linked structure and therefore have linear time complexity.
@@ -281,6 +310,12 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 
 > [!NOTE] 
 > The `erase()` operation executes in **O(1)** only when removing the first element (`index == 0`), since it delegates to `pop_front()`. Removing the last element or an intermediate element requires traversing the list to locate the preceding node, resulting in **O(n)** time complexity.
+
+> [!NOTE]  
+> The `copy()` operation traverses the source list and creates a new node for each element in the destination list, resulting in O(n) time complexity.
+
+> [!NOTE]  
+> The `clone()` operation creates a new list and copies every source element into a newly allocated node, resulting in O(n) time complexity and O(n) additional memory usage.
 
 
 Future operations will extend this table with additional complexity analysis as the API expands.
@@ -303,7 +338,8 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as searching, copying, cloning, reversing, and iterator-style utilities will be added progressively.
+> The linked list implementation is under active development. Additional operations such as searching, reversing, and iterator-style utilities will be added progressively.
+
 ---
 
 ## Usage Example

@@ -314,4 +314,39 @@ int atlas_list_clear(AtlasList *list);
  */
 int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
 
+/**
+ * @brief Copies elements from a source list to a destination list.
+ *
+ * Clears any existing elements in the destination list and inserts copies
+ * of all nodes from the source list in the same order.
+ *
+ * Both lists must store elements of the same data type size.
+ *
+ * @param source Pointer to the source linked list.
+ * @param destination Pointer to the destination linked list.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if either pointer is NULL,
+ * ATLAS_ERROR_TYPE if element type sizes do not match, or an error code from
+ * node allocation if memory allocation fails.
+ */
+int atlas_list_copy(const AtlasList *source, AtlasList *destination);
+
+/**
+ * @brief Creates a deep copy of a linked list.
+ *
+ * Allocates a new linked list with the same element type as the
+ * source list and copies all stored elements while preserving
+ * their original order.
+ *
+ * The returned list is completely independent from the source.
+ * Modifying one list does not affect the other.
+ *
+ * @param source Pointer to the source linked list.
+ *
+ * @return Pointer to the newly created cloned list on success,
+ * or NULL if the source pointer is NULL or if memory allocation
+ * fails during list or node creation.
+ */
+AtlasList *atlas_list_clone(const AtlasList *source);
+
 #endif

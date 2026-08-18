@@ -124,12 +124,14 @@ Current capabilities:
 - Removal from the end (`pop_back`)
 - Indexed removal (`erase`)
 - List clearing while preserving the list structure (`clear`)
+- List copying (`copy`)
+- Deep list cloning (`clone`)
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as searching, copying, cloning, reversing, and advanced traversal utilities will be added progressively.
+> The linked list implementation is currently under active development. Additional operations such as searching, reversing, and advanced traversal utilities will be added progressively.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
@@ -149,18 +151,18 @@ Detailed documentation for each structure — including conceptual design, memor
 
 Each module will include an implementation, usage examples, documentation, and automated tests.
 
-| Structure               | Status         |
-|-------------------------|----------------|
-| Dynamic Array (int)     | ✅ Complete    |
-| Dynamic Array (void*)   | ✅ Complete    |
-| Linked Lists            | 🚧 In Progress |
-| Stacks                  | 🔲 Planned     |
-| Queues                  | 🔲 Planned     |
-| Deque                   | 🔲 Planned     |
-| Binary Search Trees     | 🔲 Planned     |
-| Heaps / Priority Queues | 🔲 Planned     |
-| Hash Tables             | 🔲 Planned     |
-| Graph Representations   | 🔲 Planned     |
+| Structure               | Status            |
+|-------------------------|-------------------|
+| Dynamic Array (int)     | 🟩🟩🟩🟩🟩 `100%` |
+| Dynamic Array (void*)   | 🟩🟩🟩🟩🟩 `100%` |
+| Linked Lists            | 🟩🟩🟩🟩⬛ `80%`  |
+| Stacks                  | ⬛⬛⬛⬛⬛ `0%`   |
+| Queues                  | ⬛⬛⬛⬛⬛ `0%`   |
+| Deque                   | ⬛⬛⬛⬛⬛ `0%`   |
+| Binary Search Trees     | ⬛⬛⬛⬛⬛ `0%`   |
+| Heaps / Priority Queues | ⬛⬛⬛⬛⬛ `0%`   |
+| Hash Tables             | ⬛⬛⬛⬛⬛ `0%`   |
+| Graph Representations   | ⬛⬛⬛⬛⬛ `0%`   |
 
 ---
 
@@ -168,12 +170,28 @@ Each module will include an implementation, usage examples, documentation, and a
 
 ```text
 atlas-ds/
+├── build/
+├── docs/
+│   ├── dynamic-array-void.md
+│   ├── dynamic-array.md
+│   ├── index.md
+│   └── list.md
+├── examples/
 ├── include/
 │   └── atlas/
+|       ├── array_void.h
+|       ├── array.h
+|       ├── list.h
+│       └── status.h
 ├── src/
+│   ├── array_void.c
+│   ├── array.c
+│   └── list.c
 ├── tests/
-├── docs/
-├── build/
+│   ├── CMakeLists.txt
+│   ├── test_array_void.c
+│   ├── test_array.c
+│   └── test_list.c
 ├── .gitignore
 ├── CMakeLists.txt
 ├── LICENSE

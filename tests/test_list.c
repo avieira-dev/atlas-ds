@@ -1430,6 +1430,266 @@ static int test_swap_empty_list(void) {
     return 0;
 }
 
+static int test_copy(void) {
+    AtlasList *source = atlas_list_create(sizeof(int));
+    AtlasList *destination = atlas_list_create(sizeof(int));
+
+    if (!source || !destination) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    int source_elements[] = {10, 20, 30, 40};
+    int destination_element = 99;
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_push_back(source, &source_elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&destination);
+            return 1;
+        }
+    }
+
+    if (atlas_list_push_back(destination, &destination_element) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    if (atlas_list_copy(source, destination) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    size_t size;
+
+    if (atlas_list_size(destination, &size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    if (size != 4) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    int result;
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_get(destination, &result, i) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&destination);
+            return 1;
+        }
+
+        if (result != source_elements[i]) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&destination);
+            return 1;
+        }
+    }
+
+    atlas_list_destroy(&source);
+    atlas_list_destroy(&destination);
+
+    return 0;
+}
+
+
+static int test_copy_independence(void) {
+    AtlasList *source = atlas_list_create(sizeof(int));
+    AtlasList *destination = atlas_list_create(sizeof(int));
+
+    if (!source || !destination) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    int elements[] = {10, 20, 30};
+
+    for (size_t i = 0; i < 3; i++) {
+        if (atlas_list_push_back(source, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&destination);
+            return 1;
+        }
+    }
+
+    if (atlas_list_copy(source, destination) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    int new_value = 99;
+
+    if (atlas_list_set(destination, &new_value, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    int result;
+
+    if (atlas_list_get(source, &result, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    if (result != elements[1]) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    if (atlas_list_get(destination, &result, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    if (result != new_value) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&destination);
+        return 1;
+    }
+
+    atlas_list_destroy(&source);
+    atlas_list_destroy(&destination);
+
+    return 0;
+}
+
+
+static int test_clone(void) {
+    AtlasList *source = atlas_list_create(sizeof(int));
+
+    if (!source) {
+        return 1;
+    }
+
+    int elements[] = {15, 25, 35, 45};
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_push_back(source, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            return 1;
+        }
+    }
+
+    AtlasList *clone = atlas_list_clone(source);
+
+    if (!clone) {
+        atlas_list_destroy(&source);
+        return 1;
+    }
+
+    size_t size;
+
+    if (atlas_list_size(clone, &size) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    if (size != 4) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    int result;
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_get(clone, &result, i) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&clone);
+            return 1;
+        }
+
+        if (result != elements[i]) {
+            atlas_list_destroy(&source);
+            atlas_list_destroy(&clone);
+            return 1;
+        }
+    }
+
+    atlas_list_destroy(&source);
+    atlas_list_destroy(&clone);
+
+    return 0;
+}
+
+
+static int test_clone_independence(void) {
+    AtlasList *source = atlas_list_create(sizeof(int));
+
+    if (!source) {
+        return 1;
+    }
+
+    int elements[] = {100, 200, 300};
+
+    for (size_t i = 0; i < 3; i++) {
+        if (atlas_list_push_back(source, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&source);
+            return 1;
+        }
+    }
+
+    AtlasList *clone = atlas_list_clone(source);
+
+    if (!clone) {
+        atlas_list_destroy(&source);
+        return 1;
+    }
+
+    int new_value = 999;
+
+    if (atlas_list_set(clone, &new_value, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    int result;
+
+    if (atlas_list_get(source, &result, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    if (result != elements[1]) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    if (atlas_list_get(clone, &result, 1) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    if (result != new_value) {
+        atlas_list_destroy(&source);
+        atlas_list_destroy(&clone);
+        return 1;
+    }
+
+    atlas_list_destroy(&source);
+    atlas_list_destroy(&clone);
+
+    return 0;
+}
+
 int main(void) {
     printf("\n" COLOR_BOLD_BLUE "========================================================" COLOR_RESET "\n");
     printf(COLOR_BOLD_BLUE "\t\tAtlasDS - List Tests" COLOR_RESET "\n");
@@ -1440,7 +1700,6 @@ int main(void) {
     // =========================================================
     // Lifecycle
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running lifecycle tests...\n");
 
     if (test_create_destroy()) {
@@ -1464,7 +1723,6 @@ int main(void) {
     // =========================================================
     // Insertion
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running insertion tests...\n");
 
     if (test_push_front()) {
@@ -1506,7 +1764,6 @@ int main(void) {
     // =========================================================
     // Access
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running access tests...\n");
 
     if (test_set()) {
@@ -1530,7 +1787,6 @@ int main(void) {
     // =========================================================
     // Swap
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running swap tests...\n");
 
     if (test_swap()) {
@@ -1566,7 +1822,6 @@ int main(void) {
     // =========================================================
     // Removal
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running removal tests...\n");
 
     if (test_pop_front()) {
@@ -1620,7 +1875,6 @@ int main(void) {
     // =========================================================
     // Clear
     // =========================================================
-
     printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running clear tests...\n");
 
     if (test_clear_empty_list()) {
@@ -1652,6 +1906,35 @@ int main(void) {
         return 1;
     }
     printf(COLOR_GREEN "[OK]" COLOR_RESET " Clear NULL validation passed.\n\n");
+
+    // =========================================================
+    // Copy and Clone
+    // =========================================================
+    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running copy and clone tests...\n");
+
+    if (test_copy()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Copy operation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Copy operation passed.\n");
+
+    if (test_copy_independence()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Copy independence validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Copy independence validation passed.\n");
+
+    if (test_clone()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clone operation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clone operation passed.\n");
+
+    if (test_clone_independence()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Clone independence validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Clone independence validation passed.\n\n");
 
     printf(COLOR_BOLD_GREEN "[SUCCESS]" COLOR_RESET " All tests completed successfully.\n\n");
 

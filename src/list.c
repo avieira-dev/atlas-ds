@@ -99,6 +99,35 @@ static void atlas_list_free_nodes(const AtlasList *list) {
     }
 }
 
+/*
+ * Internal helper that appends copies of all nodes from a source
+ * list into a destination list.
+ *
+ * Traverses the source list from beginning to end, inserting a
+ * copy of each element at the end of the destination list while
+ * preserving the original order.
+ *
+ * If any insertion fails, the destination list is cleared to
+ * avoid leaving it in a partially copied state.
+ *
+ * Returns ATLAS_SUCCESS on success, or the underlying error code
+ * returned by atlas_list_push_back().
+ */
+static int atlas_list_append_copy(AtlasList *destination, const AtlasList *source) {
+    AtlasListNode *current_node = source->first_node;
+    while (current_node) {
+        int result = atlas_list_push_back(destination, current_node->data);
+        if (result != ATLAS_SUCCESS) {
+            atlas_list_clear(destination);
+            return result;
+        }
+
+        current_node = current_node->next_node;
+    }
+
+    return ATLAS_SUCCESS;
+}
+
 // =====================
 // Lifecycle
 // =====================
@@ -614,4 +643,69 @@ int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b) {
     free(temp);
 
     return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_list_copy:
+ * Clears the destination list and copies all elements from the
+ * source list sequentially into it.
+ *
+ * Validates that both list pointers are valid, checks for self-copy,
+ * and ensures that both lists handle elements of the same size. If an
+ * insertion error occurs, the destination list is cleared to ensure
+ * consistency.
+ *
+ * Returns ATLAS_ERROR_NULL if either pointer is NULL, ATLAS_ERROR_TYPE
+ * if element type sizes differ, or the underlying error code if node
+ * allocation fails.
+ */
+int atlas_list_copy(const AtlasList *source, AtlasList *destination) {
+    if (!source || !destination) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (source == destination) {
+        return ATLAS_SUCCESS;
+    }
+
+    if (source->type_size != destination->type_size) {
+        return ATLAS_ERROR_TYPE;
+    }
+
+    atlas_list_clear(destination);
+
+    return atlas_list_append_copy(destination, source);
+}
+
+/*
+ * Implementation of atlas_list_clone:
+ * Creates a new linked list capable of storing the same element
+ * type as the source list, then copies all elements into the new
+ * list while preserving their original order.
+ *
+ * If any allocation or insertion fails during cloning, all
+ * partially allocated resources are released before returning
+ * NULL.
+ *
+ * Returns a pointer to the newly created linked list on success,
+ * or NULL if the source pointer is NULL, list creation fails, or
+ * any node allocation fails during copying.
+ */
+AtlasList *atlas_list_clone(const AtlasList *source) {
+    if (!source) {
+        return NULL;
+    }
+
+    AtlasList *list = atlas_list_create(source->type_size);
+
+    if (!list) {
+        return NULL;
+    }
+
+    if (atlas_list_append_copy(list, source) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return NULL;
+    }
+
+    return list;
 }
