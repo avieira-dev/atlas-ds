@@ -31,6 +31,20 @@ typedef struct {
     double score;
 } Student;
 
+static int compare_int(const void *first, const void *second) {
+    const int *a = first;
+    const int *b = second;
+
+    if (*a < *b) {
+        return -1;
+    }
+
+    if (*a > *b) {
+        return 1;
+    }
+
+    return 0;
+}
 
 static int test_create_destroy(void) {
     AtlasList *list = atlas_list_create(sizeof(int));
@@ -50,7 +64,6 @@ static int test_create_destroy(void) {
     return 0;
 }
 
-
 static int test_create_invalid_type_size(void) {
     AtlasList *list = atlas_list_create(0);
 
@@ -60,7 +73,6 @@ static int test_create_invalid_type_size(void) {
 
     return 0;
 }
-
 
 static int test_destroy_null(void) {
     AtlasList *list = NULL;
@@ -75,7 +87,6 @@ static int test_destroy_null(void) {
 
     return 0;
 }
-
 
 static int test_push_front(void) {
     AtlasList *list = atlas_list_create(sizeof(char));
@@ -116,7 +127,6 @@ static int test_push_front(void) {
     return 0;
 }
 
-
 static int test_push_back(void) {
     AtlasList *list = atlas_list_create(sizeof(double));
 
@@ -155,7 +165,6 @@ static int test_push_back(void) {
 
     return 0;
 }
-
 
 static int test_insert_at_beginning(void) {
     AtlasList *list = atlas_list_create(sizeof(Student));
@@ -1690,6 +1699,133 @@ static int test_clone_independence(void) {
     return 0;
 }
 
+static int test_find(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int elements[] = {10, 20, 30, 40};
+    size_t size_arr = sizeof(elements) / sizeof(elements[0]);
+
+    for (size_t i = 0; i < size_arr; i++) {
+        if (atlas_list_push_back(list, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    int value = 30;
+    size_t index;
+
+    if (atlas_list_find(list, &index, &value, compare_int) != ATLAS_SUCCESS) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (index != 2) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_find_not_found(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int elements[] = {10, 20, 30, 40};
+
+    for (size_t i = 0; i < 4; i++) {
+        if (atlas_list_push_back(list, &elements[i]) != ATLAS_SUCCESS) {
+            atlas_list_destroy(&list);
+            return 1;
+        }
+    }
+
+    int value = 99;
+    size_t index;
+
+    if (atlas_list_find(list, &index, &value, compare_int) != ATLAS_ERROR_NOT_FOUND) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_find_empty_list(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int value = 10;
+    size_t index;
+
+    if (atlas_list_find(list, &index, &value, compare_int) != ATLAS_ERROR_EMPTY) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_find_null(void) {
+    AtlasList *list = atlas_list_create(sizeof(int));
+
+    if (!list) {
+        return 1;
+    }
+
+    int value = 10;
+    size_t index;
+
+    if (atlas_list_find(NULL, &index, &value, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_find(list, NULL, &value, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_find(list, &index, NULL, compare_int) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_find(list, &index, &value, NULL) != ATLAS_ERROR_NULL) {
+        atlas_list_destroy(&list);
+        return 1;
+    }
+
+    if (atlas_list_destroy(&list) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     printf("\n" COLOR_BOLD_BLUE "========================================================" COLOR_RESET "\n");
     printf(COLOR_BOLD_BLUE "\t\tAtlasDS - List Tests" COLOR_RESET "\n");
@@ -1783,6 +1919,35 @@ int main(void) {
         return 1;
     }
     printf(COLOR_GREEN "[OK]" COLOR_RESET " Get/Set bounds validation passed.\n\n");
+
+    // =========================================================
+    // Search
+    // =========================================================
+    printf(COLOR_YELLOW "[INFO]" COLOR_RESET " Running search tests...\n");
+
+    if (test_find()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find operation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find operation passed.\n");
+
+    if (test_find_not_found()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find not found validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find not found validation passed.\n");
+
+    if (test_find_empty_list()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find on empty list validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find on empty list validation passed.\n");
+
+    if (test_find_null()) {
+        printf(COLOR_RED "[ERROR]" COLOR_RESET " Find NULL validation failed.\n");
+        return 1;
+    }
+    printf(COLOR_GREEN "[OK]" COLOR_RESET " Find NULL validation passed.\n\n");
 
     // =========================================================
     // Swap

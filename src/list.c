@@ -709,3 +709,40 @@ AtlasList *atlas_list_clone(const AtlasList *source) {
 
     return list;
 }
+
+/*
+ * Implementation of atlas_list_find:
+ * Traverses the linked list and compares each stored element with
+ * the provided value using the user-supplied comparison function.
+ *
+ * If a matching element is found, its zero-based index is stored
+ * in the provided output pointer and the operation returns
+ * ATLAS_SUCCESS.
+ *
+ * Returns ATLAS_ERROR_NULL if the list, output index, value, or
+ * comparison function pointer is NULL, ATLAS_ERROR_EMPTY if the
+ * list contains no elements, or ATLAS_ERROR_NOT_FOUND if no
+ * matching element is found.
+ */
+int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *)) {
+    if (!list || !index_out || !value || !comparison) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (list->list_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasListNode *current_node = list->first_node;
+
+    for (size_t i = 0; i < list->list_size; i++) {
+        if (comparison(current_node->data, value) == 0) {
+            *index_out = i;
+            return ATLAS_SUCCESS;
+        }
+
+        current_node = current_node->next_node;
+    }
+
+    return ATLAS_ERROR_NOT_FOUND;
+}

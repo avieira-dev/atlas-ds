@@ -116,6 +116,7 @@ Current capabilities:
 - Size and empty-state queries (`size`, `empty`)
 - First (`front`) and last (`back`) element access
 - Indexed element access (`get`) and mutation (`set`)
+- Value search (`find`)
 - Indexed element swapping (`swap`)
 - Insertion at the beginning (`push_front`)
 - Insertion at the end (`push_back`)
@@ -129,9 +130,10 @@ Current capabilities:
 - Safe destruction of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of pointers, indices, and empty-list operations
+- Automated tests covering all implemented public APIs
 
 > [!NOTE]  
-> The linked list implementation is currently under active development. Additional operations such as searching, reversing, and advanced traversal utilities will be added progressively.
+> Additional operations such as membership checking (`contains`) and list reversal (`reverse`) are planned for future implementation.
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
@@ -155,7 +157,7 @@ Each module will include an implementation, usage examples, documentation, and a
 |-------------------------|-------------------|
 | Dynamic Array (int)     | 🟩🟩🟩🟩🟩 `100%` |
 | Dynamic Array (void*)   | 🟩🟩🟩🟩🟩 `100%` |
-| Linked Lists            | 🟩🟩🟩🟩⬛ `80%`  |
+| Linked Lists            | 🟩🟩🟩🟩🟧 `90%`  |
 | Stacks                  | ⬛⬛⬛⬛⬛ `0%`   |
 | Queues                  | ⬛⬛⬛⬛⬛ `0%`   |
 | Deque                   | ⬛⬛⬛⬛⬛ `0%`   |

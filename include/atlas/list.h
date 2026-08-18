@@ -349,4 +349,30 @@ int atlas_list_copy(const AtlasList *source, AtlasList *destination);
  */
 AtlasList *atlas_list_clone(const AtlasList *source);
 
+/**
+ * @brief Searches for an element in the linked list.
+ *
+ * Traverses the linked list and compares each stored element with
+ * the provided value using the user-supplied comparison function.
+ *
+ * The comparison function must return 0 when the two elements are
+ * considered equal.
+ *
+ * If a matching element is found, its zero-based index is stored
+ * in `index_out`.
+ *
+ * @param list Pointer to the linked list.
+ * @param index_out Pointer that receives the index of the first
+ * matching element.
+ * @param value Pointer to the value to search for.
+ * @param comparison Function used to compare a stored element with
+ * the provided value.
+ *
+ * @return ATLAS_SUCCESS if the value is found,
+ * ATLAS_ERROR_NULL if any required pointer is NULL,
+ * ATLAS_ERROR_EMPTY if the list contains no elements, or
+ * ATLAS_ERROR_NOT_FOUND if no matching element is found.
+ */
+int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *));
+
 #endif

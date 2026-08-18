@@ -88,7 +88,7 @@ sizeof(AtlasListNode) + type_size
 
 ## Current AtlasDS Implementation
 
-The current implementation focuses on establishing a safe foundation for future linked list operations.
+The current implementation provides the core operations required to manage a generic singly linked list, including insertion, removal, indexed access, searching, copying, cloning, and lifecycle management.
 
 Current capabilities include:
 
@@ -102,6 +102,7 @@ Current capabilities include:
 - First (`front`) and last (`back`) element access
 - Indexed element access (`get`)
 - Indexed element mutation (`set`)
+- Value search (`find`) using a user-provided comparison function
 - Indexed element swapping (`swap`)
 - Front insertion (`push_front`)
 - Back insertion (`push_back`)
@@ -115,7 +116,8 @@ Current capabilities include:
 - Safe list destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
-- Defensive NULL validation
+- Defensive validation of pointers, indices, and empty-list operations
+- Automated tests covering the implemented public API
 
 ### Currently Implemented API
 
@@ -155,6 +157,8 @@ int atlas_list_swap(const AtlasList *list, size_t index_a, size_t index_b);
 int atlas_list_copy(const AtlasList *source, AtlasList *destination);
 
 AtlasList *atlas_list_clone(const AtlasList *source);
+
+int atlas_list_find(const AtlasList *list, size_t *index_out, const void *value, int (*comparison)(const void *, const void *));
 ```
 
 > [!IMPORTANT]  
@@ -232,6 +236,9 @@ AtlasList *atlas_list_clone(const AtlasList *source);
 > [!NOTE]  
 > The `clone()` operation returns `NULL` if the source pointer is `NULL` or if memory allocation fails during list or node creation.
 
+> [!NOTE]  
+> The `find()` operation traverses the list and compares each stored element against the provided value using a user-provided comparison function. When a matching element is found, its zero-based index is written to `index_out`. If no matching element exists, the operation returns an appropriate error status.
+
 ---
 
 ## Safety Guarantees
@@ -266,7 +273,8 @@ Core responsibilities include:
 - Using `clear()` when removing all elements while preserving the list object
 - Providing valid list pointers when calling operations
 - Providing valid indices when using indexed operations such as `get()`, `set()`, `swap()`, `insert()`, and `erase()`
-- Ensuring future comparison callbacks correctly interpret stored element types
+- Providing a valid comparison callback when using `find()`
+- Ensuring comparison callbacks correctly interpret the stored element type
 
 Incorrect usage may lead to:
 
@@ -297,6 +305,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 | Last element access (`back`)   | O(1)            |
 | Indexed insertion (`insert`)   | O(n)            |
 | Indexed removal (`erase`)      | O(n)            |
+| Value search (`find`)          | O(n)            |
 | Clear (`clear`)                | O(n)            |
 | Swap (`swap`)                  | O(n)            |
 | List copy (`copy`)             | O(n)            |
@@ -317,6 +326,8 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how linked s
 > [!NOTE]  
 > The `clone()` operation creates a new list and copies every source element into a newly allocated node, resulting in O(n) time complexity and O(n) additional memory usage.
 
+> [!NOTE]  
+> The `find()` operation traverses the list sequentially until a matching element is found or the end of the list is reached. Therefore, its worst-case time complexity is O(n).
 
 Future operations will extend this table with additional complexity analysis as the API expands.
 
@@ -338,8 +349,7 @@ Linked lists are especially useful when frequent insertion and removal operation
 ---
 
 > [!NOTE]  
-> The linked list implementation is under active development. Additional operations such as searching, reversing, and iterator-style utilities will be added progressively.
-
+> The linked list implementation is under active development. Additional operations such as membership queries, list reversal, and iterator-style utilities will be added progressively.
 ---
 
 ## Usage Example
