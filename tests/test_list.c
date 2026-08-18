@@ -26,7 +26,6 @@
 
 #define COLOR_RESET "\033[0m"
 
-
 typedef struct {
     char name[255];
     int age;
