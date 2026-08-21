@@ -9,8 +9,8 @@
 #ifndef ATLAS_LIST_H
 #define ATLAS_LIST_H
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 /**
  * @brief Opaque structure representing a generic linked list.

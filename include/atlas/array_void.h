@@ -9,8 +9,8 @@
 #ifndef ATLAS_ARRAY_VOID_H
 #define ATLAS_ARRAY_VOID_H
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define ATLAS_ARRAY_VOID_STANDARD_CAPACITY 1
 
