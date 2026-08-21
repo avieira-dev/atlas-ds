@@ -6,8 +6,8 @@
  * Licensed under the MIT License.
  */
 
-#include <atlas/list.h>
-#include <atlas/status.h>
+#include "atlas/list.h"
+#include "atlas/status.h"
 
 #include <stdio.h>
 #include <string.h>
