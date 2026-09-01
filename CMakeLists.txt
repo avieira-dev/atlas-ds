@@ -19,6 +19,7 @@ add_library(atlasds STATIC
     src/array.c
     src/array_void.c
     src/list.c
+    src/stack.c
 )
 
 # ====================
