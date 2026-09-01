@@ -54,4 +54,24 @@ AtlasStack *atlas_stack_create(size_t type_size);
  */
 int atlas_stack_destroy(AtlasStack **ptr_atlas_stack);
 
+/**
+ * @brief Pushes an element onto the top of the stack.
+ *
+ * Allocates a new stack element, copies the provided value into its
+ * internal storage, and places the new element at the top of the stack.
+ *
+ * The previously top element becomes the previous element of the newly
+ * inserted element. The stack size is incremented after successful insertion.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack or value is NULL, the function returns an error code.
+ *
+ * @param value Pointer to the value to be copied into the stack.
+ * The value must contain at least type_size bytes.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the stack or value
+ * is NULL, or ATLAS_ERROR_MEMORY if memory allocation fails.
+ */
+int atlas_stack_push(AtlasStack *stack, const void *value);
+
 #endif

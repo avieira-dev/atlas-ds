@@ -29,6 +29,19 @@ struct atlas_stack_element {
 // Internal Helpers
 // =====================
 
+static AtlasStackElement *atlas_stack_create_element(const AtlasStack *stack, const void *value) {
+    AtlasStackElement *element = malloc(sizeof(AtlasStackElement) + stack->type_size);
+    if (!element) {
+        return NULL;
+    }
+
+    memcpy(element->data, value, stack->type_size);
+
+    element->previous_element = NULL;
+
+    return element;
+}
+
 /*
  * Internal helper that releases every element currently stored
  * in the stack.
@@ -110,6 +123,37 @@ int atlas_stack_destroy(AtlasStack **ptr_atlas_stack) {
     free(ptr_stack);
 
     *ptr_atlas_stack = NULL;
+
+    return ATLAS_SUCCESS;
+}
+
+/*
+ * Implementation of atlas_stack_push:
+ * Creates a new stack element containing a copy of the provided value
+ * and inserts it at the top of the stack.
+ *
+ * Preserves the previous top element by assigning it to the new
+ * element's previous pointer before updating the stack's top element.
+ *
+ * Increments the stack size after successfully inserting the new element.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack or value is NULL, or
+ * ATLAS_ERROR_MEMORY if memory allocation fails.
+ */
+int atlas_stack_push(AtlasStack *stack, const void *value) {
+    if (!stack || !value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    AtlasStackElement *element = atlas_stack_create_element(stack, value);
+    if (!element) {
+        return ATLAS_ERROR_MEMORY;
+    }
+
+    AtlasStackElement *old_top = stack->top_element;
+    stack->top_element = element;
+    element->previous_element = old_top;
+    stack->stack_size++;
 
     return ATLAS_SUCCESS;
 }

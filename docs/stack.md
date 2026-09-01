@@ -129,24 +129,21 @@ The current implementation provides the initial lifecycle required to create and
 
 Current capabilities include:
 
-- Generic type-agnostic storage design using raw bytes
-- Explicit element size tracking (type_size)
+- Generic type-agnostic storage using raw bytes
+- Explicit element size tracking (`type_size`)
 - Dynamically allocated node-based storage
 - Singly linked node structure
 - Top element tracking
 - Empty stack initialization
 - Stack size tracking
+- Stack insertion (`push`)
 - Safe stack destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
 - Validation of invalid element sizes
-- Validation of NULL pointers during destruction
-- Automated lifecycle tests
-
-The stack currently represents the foundation for the LIFO operations that will be implemented as the data structure evolves.
-
-> [!NOTE]  
-> Stack insertion and removal operations are not yet part of the public API. The current implementation focuses on establishing the stack's internal representation and lifecycle management.
+- Validation of NULL pointers
+- Allocation failure handling
+- Automated lifecycle and insertion tests
 
 ---
 
@@ -158,6 +155,8 @@ The current public API consists of the stack lifecycle operations:
 AtlasStack *atlas_stack_create(size_t type_size);
 
 int atlas_stack_destroy(AtlasStack **ptr_atlas_stack);
+
+int atlas_stack_push(AtlasStack *stack, const void *value);
 ```
 
 `atlas_stack_create()`
@@ -205,6 +204,35 @@ The destruction process is:
 > The double-pointer interface prevents the caller from retaining a dangling pointer after successful destruction.
 
 If either the provided pointer or the referenced stack is `NULL`, the function returns `ATLAS_ERROR_NULL`.
+
+`atlas_stack_push()`
+
+Inserts a new element at the top of the stack.
+
+The function receives the stack and a pointer to the value that will be copied into the newly allocated node:
+
+```c
+int atlas_stack_push(AtlasStack *stack, const void *value);
+```
+
+The insertion process is:
+
+- Validate the stack pointer.
+- Validate the value pointer.
+- Allocate a new node using the stack's `type_size`.
+- Copy the element bytes into the node's `data` storage.
+- Store the current top element in a temporary pointer.
+- Make the new node the stack's top element.
+- Set the new node's `previous_element` pointer to the previous top element.
+- Increment `stack_size`.
+
+The existing nodes are not moved or reallocated. The new node is simply linked in front of the previous top element.
+
+> [!NOTE]  
+> `push()` always inserts at the top of the stack, which is what allows the structure to maintain LIFO behavior.
+
+> [!NOTE]  
+> If node allocation fails, the stack remains unchanged and the function returns `ATLAS_ERROR_MEMORY`.
 
 ---
 
@@ -258,6 +286,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 |:-----------------------|:-----------|
 | Creation(`create`)     | O(1)       |
 | Destruction(`destroy`) | O(n)       |
+| Push(`push`)           | O(1)       |
 
 > [!NOTE]  
 > Stack creation performs a constant amount of work because only the stack metadata is allocated and initialized.
@@ -267,6 +296,9 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 
 > [!NOTE]  
 > The current implementation does not yet expose insertion or removal operations. Once the LIFO operations are implemented, their complexity will be documented here.
+
+> [!NOTE]  
+> `push()` executes in O(1) time because the new element is inserted directly at the top of the stack. No traversal of existing elements is required.
 
 ---
 
@@ -292,5 +324,30 @@ The LIFO model makes stacks a fundamental abstraction in computer science and sy
 
 ## Usage Example
 
-> [!NOTE]  
-> The stack API is currently limited to creation and destruction. Element insertion and removal operations will be added as the implementation evolves.
+The following example demonstrates how to create a generic stack and insert elements using the `push()` operation.
+
+```c
+#include "atlas/stack.h" 
+#include "atlas/status.h"
+
+int main(void) {
+    AtlasStack *stack = atlas_stack_create(sizeof(int));
+    if (!stack) {
+        return 1;
+    }
+
+    int first = 5;
+    int second = 10;
+    int third = 15;
+
+    atlas_stack_push(stack, &first); 
+    atlas_stack_push(stack, &second); 
+    atlas_stack_push(stack, &third);
+
+    if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+```

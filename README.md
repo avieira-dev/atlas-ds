@@ -142,11 +142,12 @@ Current capabilities:
 - Dynamic element allocation and destruction
 - Stack size tracking
 - Last-in, first-out (LIFO) element organization
-- Safe traversal and release of all allocated elements
 - Stack creation and destruction
+- Element insertion via `push`
+- Safe traversal and release of all allocated elements
 - Defensive validation of type size, pointers, and initialization states
 - Prevention of dangling pointers via double-pointer destruction
-- Automated lifecycle tests
+- Automated lifecycle and insertion tests
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
@@ -172,7 +173,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
-| Stacks                  | ████░░░░░░░░░░░░░░░░ `20%`  |
+| Stacks                  | █████░░░░░░░░░░░░░░░ `25%`  |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -191,7 +192,8 @@ atlas-ds/
 │   ├── dynamic-array-void.md
 │   ├── dynamic-array.md
 │   ├── index.md
-│   └── list.md
+│   ├── list.md
+│   └── stack.md
 ├── examples/
 ├── include/
 │   └── atlas/
@@ -308,6 +310,12 @@ After building the project:
   ✔ Create/Destroy operation
   ✔ Type size validation
   ✔ NULL destroy validation
+
+➤ Insertion
+────────────────────────────────────────────────────────
+  ✔ Push into empty stack
+  ✔ Push multiple elements
+  ✔ NULL push validation
 
 ════════════════════════════════════════════════════════
 
