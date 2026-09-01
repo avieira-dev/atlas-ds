@@ -6,10 +6,10 @@
  * Licensed under the MIT License.
  */
 
+#include <stdio.h>
+
 #include "atlas/array_void.h"
 #include "atlas/status.h"
-
-#include <stdio.h>
 
 static int compare_int(const void *a, const void *b) {
     int value_a = *(const int *)a;

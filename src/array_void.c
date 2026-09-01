@@ -6,11 +6,11 @@
  * Licensed under the MIT License.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "atlas/array_void.h"
 #include "atlas/status.h"
-
-#include <string.h>
-#include <stdlib.h>
 
 struct atlas_array_void {
     size_t type_size; // Size in bytes of each element

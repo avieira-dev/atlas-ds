@@ -8,23 +8,10 @@
 
 #include "atlas/list.h"
 #include "atlas/status.h"
+#include "atlas/terminal.h"
 
 #include <stdio.h>
 #include <string.h>
-
-#define COLOR_RED "\033[0;31m"
-#define COLOR_GREEN "\033[0;32m"
-#define COLOR_YELLOW "\033[0;33m"
-#define COLOR_BLUE "\033[0;34m"
-#define COLOR_CYAN "\033[0;36m"
-
-#define COLOR_BOLD_RED "\033[1;31m"
-#define COLOR_BOLD_GREEN "\033[1;32m"
-#define COLOR_BOLD_YELLOW "\033[1;33m"
-#define COLOR_BOLD_BLUE "\033[1;34m"
-#define COLOR_BOLD_CYAN "\033[1;36m"
-
-#define COLOR_RESET "\033[0m"
 
 typedef struct {
     char name[255];
@@ -2465,7 +2452,6 @@ int main(void) {
         return 1;
     }
     printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clone independence validation\n\n");
-
 
     printf(COLOR_BOLD_CYAN "════════════════════════════════════════════════════════\n" COLOR_RESET "\n");
     printf(COLOR_BOLD_GREEN " ✔ SUCCESS:" COLOR_RESET " All tests were completed successfully.\n\n");

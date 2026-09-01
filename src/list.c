@@ -6,11 +6,11 @@
  * Licensed under the MIT License.
  */
 
-#include "atlas/list.h"
-#include "atlas/status.h"
-
 #include <stdlib.h>
 #include <string.h>
+
+#include "atlas/list.h"
+#include "atlas/status.h"
 
 typedef struct atlas_list_node AtlasListNode;
 

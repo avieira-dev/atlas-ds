@@ -6,11 +6,11 @@
  * Licensed under the MIT License.
  */
 
-#include "atlas/array.h"
-#include "atlas/status.h"
-
 #include <stdbool.h>
 #include <stdio.h>
+
+#include "atlas/array.h"
+#include "atlas/status.h"
 
 static void test_fail(AtlasArray **arr, const char *message) {
     printf("\033[0;31m[ERROR]\033[0m %s\n", message);

@@ -6,10 +6,10 @@
  * Licensed under the MIT License.
  */
 
+#include <stdlib.h>
+
 #include "atlas/array.h"
 #include "atlas/status.h"
-
-#include <stdlib.h>
 
 struct atlas_array {
     size_t size; // Current number of elements in the array
