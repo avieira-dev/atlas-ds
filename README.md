@@ -1,16 +1,12 @@
 <div align="center">
-
-<h1>AtlasDS</h1>
-
-<p>A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.</p>
-
-<p>
-  <img src="https://img.shields.io/badge/status-in%20development-f39c12?style=flat-square"/>
-  <img src="https://img.shields.io/badge/language-C-A8B9CC?style=flat-square&logo=c&logoColor=white"/>
-  <img src="https://img.shields.io/badge/build-CMake-8a63d2?style=flat-square&logo=cmake&logoColor=white"/>
-  <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
-</p>
-
+    <h1>AtlasDS</h1>
+    <p>A low-level, memory-oriented data structures library in pure C, designed to expose how data structures truly work under the hood.</p>
+    <p>
+        <img src="https://img.shields.io/badge/status-in%20development-f39c12?style=flat-square"/>
+        <img src="https://img.shields.io/badge/language-C-A8B9CC?style=flat-square&logo=c&logoColor=white"/>
+        <img src="https://img.shields.io/badge/build-CMake-8a63d2?style=flat-square&logo=cmake&logoColor=white"/>
+        <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
+    </p>
 </div>
 
 ---
@@ -136,6 +132,24 @@ Current capabilities:
 
 See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
+### Generic Stack (`void*` implementation)
+
+Current capabilities:
+
+- Generic type-agnostic storage using dynamically allocated nodes
+- Element size tracking in bytes (`type_size`)
+- Singly linked node structure with top element tracking
+- Dynamic element allocation and destruction
+- Stack size tracking
+- Last-in, first-out (LIFO) element organization
+- Safe traversal and release of all allocated elements
+- Stack creation and destruction
+- Defensive validation of type size, pointers, and initialization states
+- Prevention of dangling pointers via double-pointer destruction
+- Automated lifecycle tests
+
+See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
+
 ---
 
 ## Documentation
@@ -145,6 +159,7 @@ Detailed documentation for each structure — including conceptual design, memor
 - [Dynamic Array](docs/dynamic-array.md)
 - [Generic Dynamic Array](docs/dynamic-array-void.md)
 - [Generic Linked List](docs/list.md)
+- [Generic Stack](docs/stack.md)
 
 ---
 
@@ -157,7 +172,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
-| Stacks                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Stacks                  | ████░░░░░░░░░░░░░░░░ `20%`  |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -183,16 +198,20 @@ atlas-ds/
 |       ├── array_void.h
 |       ├── array.h
 |       ├── list.h
-│       └── status.h
+|       ├── stack.h
+|       ├── status.h
+│       └── terminal.h
 ├── src/
 │   ├── array_void.c
 │   ├── array.c
-│   └── list.c
+│   ├── list.c
+│   └── stack.c
 ├── tests/
 │   ├── CMakeLists.txt
 │   ├── test_array_void.c
 │   ├── test_array.c
-│   └── test_list.c
+│   ├── test_list.c
+│   └── test_stack.c
 ├── .gitignore
 ├── CMakeLists.txt
 ├── LICENSE
@@ -221,6 +240,7 @@ After building the project:
 ./tests/test_array
 ./tests/test_array_void
 ./tests/test_list
+./tests/test_stack
 ```
 
 ## Example output
@@ -268,6 +288,26 @@ After building the project:
   ✔ Insert middle operation
   ✔ Insert end operation
   ✔ Insert invalid index validation
+
+════════════════════════════════════════════════════════
+
+ ✔ SUCCESS: All tests were completed successfully.
+```
+
+### Generic Stack (`void*` implementation)
+
+```text
+╭────────────────────────────────────────────────────────╮
+│                 AtlasDS - Stack Tests                  │
+╰────────────────────────────────────────────────────────╯
+
+ℹ Starting AtlasDS stack tests...
+
+➤ Lifecycle
+────────────────────────────────────────────────────────
+  ✔ Create/Destroy operation
+  ✔ Type size validation
+  ✔ NULL destroy validation
 
 ════════════════════════════════════════════════════════
 
