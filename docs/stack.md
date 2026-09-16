@@ -125,7 +125,7 @@ The stack itself only stores a pointer to the top element. Traversal toward the 
 
 ## Current AtlasDS Implementation
 
-The current implementation provides the initial lifecycle required to create and safely destroy a generic stack.
+The current implementation provides the lifecycle and core LIFO operations required to manage a generic stack.
 
 Current capabilities include:
 
@@ -137,19 +137,22 @@ Current capabilities include:
 - Empty stack initialization
 - Stack size tracking
 - Stack insertion (`push`)
+- Stack removal (`pop`)
+- LIFO element ordering
 - Safe stack destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
 - Validation of invalid element sizes
 - Validation of NULL pointers
+- Empty-stack validation during removal
 - Allocation failure handling
-- Automated lifecycle and insertion tests
+- Automated lifecycle, insertion, and removal tests
 
 ---
 
 ## Currently Implemented API
 
-The current public API consists of the stack lifecycle operations:
+The current public API consists of the following operations:
 
 ```c
 AtlasStack *atlas_stack_create(size_t type_size);
@@ -157,6 +160,8 @@ AtlasStack *atlas_stack_create(size_t type_size);
 int atlas_stack_destroy(AtlasStack **ptr_atlas_stack);
 
 int atlas_stack_push(AtlasStack *stack, const void *value);
+
+int atlas_stack_pop(AtlasStack *stack, void *out_value);
 ```
 
 `atlas_stack_create()`
@@ -234,6 +239,35 @@ The existing nodes are not moved or reallocated. The new node is simply linked i
 > [!NOTE]  
 > If node allocation fails, the stack remains unchanged and the function returns `ATLAS_ERROR_MEMORY`.
 
+`atlas_stack_pop()`
+
+Removes the top element from the stack and copies its value into the provided output buffer:
+
+```c
+int atlas_stack_pop(AtlasStack *stack, void *out_value);
+```
+
+The `out_value` parameter receives a copy of the removed element.
+
+The removal process is:
+
+- Validate the stack pointer
+- Validate the output value pointer
+- Validate that the stack is not empty
+- Store the current top element in a temporary pointer
+- Move the stack's top element to the current node's `previous_element`
+- Copy the element data into `out_value`
+- Release the removed node
+- Decrement `stack_size`
+
+The existing nodes are not moved or reallocated. Removing the top element only changes the `top_element` pointer.
+
+> [!NOTE]  
+> The `out_value` buffer must provide enough storage for `type_size` bytes. AtlasDS stores raw bytes and cannot verify the size of the caller-provided output buffer.
+
+> [!NOTE]  
+> If the stack is empty, `pop()` does not modify the stack and returns `ATLAS_ERROR_EMPTY`.
+
 ---
 
 ## Safety Guarantees
@@ -265,8 +299,8 @@ Core responsibilities currently include:
 - Checking whether stack creation succeeded
 - Destroying stacks when they are no longer required
 - Passing valid stack pointers to public operations
-
-As generic stack operations are introduced, additional responsibilities will include providing correctly sized values and valid output buffers.
+- Providing valid input values to `push()`
+- Providing an output buffer large enough to receive `type_size` bytes when using `pop()`
 
 Incorrect usage of generic raw-memory structures may result in:
 
@@ -287,6 +321,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 | Creation(`create`)     | O(1)       |
 | Destruction(`destroy`) | O(n)       |
 | Push(`push`)           | O(1)       |
+| Pop (`pop`)            | O(1)       |
 
 > [!NOTE]  
 > Stack creation performs a constant amount of work because only the stack metadata is allocated and initialized.
@@ -295,10 +330,10 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 > Stack destruction traverses every allocated node to release its memory, resulting in O(n) time complexity, where `n` is the number of stored elements.
 
 > [!NOTE]  
-> The current implementation does not yet expose insertion or removal operations. Once the LIFO operations are implemented, their complexity will be documented here.
+> `push()` executes in O(1) time because the new element is inserted directly at the top of the stack. No traversal of existing elements is required.
 
 > [!NOTE]  
-> `push()` executes in O(1) time because the new element is inserted directly at the top of the stack. No traversal of existing elements is required.
+> `pop()` executes in O(1) time because the top element is removed directly through the `top_element` pointer. No traversal of the remaining elements is required.
 
 ---
 
@@ -324,7 +359,7 @@ The LIFO model makes stacks a fundamental abstraction in computer science and sy
 
 ## Usage Example
 
-The following example demonstrates how to create a generic stack and insert elements using the `push()` operation.
+The following example demonstrates how to create a generic stack, insert elements using `push()`, and remove them using `pop()`.
 
 ```c
 #include "atlas/stack.h" 
@@ -343,6 +378,18 @@ int main(void) {
     atlas_stack_push(stack, &first); 
     atlas_stack_push(stack, &second); 
     atlas_stack_push(stack, &third);
+
+    int out_value;
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (out_value != third) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
 
     if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
         return 1;

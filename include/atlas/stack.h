@@ -74,4 +74,23 @@ int atlas_stack_destroy(AtlasStack **ptr_atlas_stack);
  */
 int atlas_stack_push(AtlasStack *stack, const void *value);
 
+/**
+ * @brief Removes the top element from the stack.
+ *
+ * Copies the value of the top element into the provided output buffer,
+ * removes the element from the stack, and decrements the stack size.
+ *
+ * The next element becomes the new top element after successful removal.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack or output value is NULL, the function returns an error code.
+ *
+ * @param out_value Pointer to the buffer where the removed value will be copied.
+ * The buffer must contain enough space to store type_size bytes.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the stack or output
+ * value is NULL, or ATLAS_ERROR_EMPTY if the stack contains no elements.
+ */
+int atlas_stack_pop(AtlasStack *stack, void *out_value);
+
 #endif

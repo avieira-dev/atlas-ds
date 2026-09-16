@@ -130,6 +130,147 @@ static int test_push_null(void) {
     return 0;
 }
 
+static int test_pop_single(void) {
+    AtlasStack *stack = atlas_stack_create(sizeof(int));
+
+    if (!stack) {
+        return 1;
+    }
+
+    int value = 1969;
+
+    if (atlas_stack_push(stack, &value) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    int out_value = 0;
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (out_value != value) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_pop_multiple(void) {
+    AtlasStack *stack = atlas_stack_create(sizeof(int));
+
+    if (!stack) {
+        return 1;
+    }
+
+    int first = 19;
+    int second = 47;
+    int third = 54;
+
+    if (atlas_stack_push(stack, &first) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_push(stack, &second) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_push(stack, &third) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    int out_value = 0;
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_SUCCESS || out_value != third) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_SUCCESS || out_value != second) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_SUCCESS || out_value != first) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_pop_empty(void) {
+    AtlasStack *stack = atlas_stack_create(sizeof(int));
+
+    if (!stack) {
+        return 1;
+    }
+
+    int out_value = 0;
+
+    if (atlas_stack_pop(stack, &out_value) != ATLAS_ERROR_EMPTY) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_pop_null(void) {
+    AtlasStack *stack = atlas_stack_create(sizeof(int));
+
+    if (!stack) {
+        return 1;
+    }
+
+    int value = 1941;
+    int out_value = 0;
+
+    if (atlas_stack_pop(NULL, &out_value) != ATLAS_ERROR_NULL) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_pop(stack, NULL) != ATLAS_ERROR_NULL) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_push(stack, &value) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_pop(NULL, NULL) != ATLAS_ERROR_NULL) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_destroy(&stack) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     printf("\n" COLOR_BOLD_BLUE "╭────────────────────────────────────────────────────────╮" COLOR_RESET "\n");
     printf(COLOR_BOLD_BLUE "│" COLOR_RESET "                 AtlasDS - Stack Tests                  " COLOR_BOLD_BLUE "│" COLOR_RESET "\n");
@@ -183,7 +324,37 @@ int main(void) {
         printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL push validation\n");
         return 1;
     }
-    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL push validation\n");
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL push validation\n\n");
+
+    // =========================================================
+    // Removal
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Removal" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_pop_single()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop single element\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop single element\n");
+
+    if (test_pop_multiple()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop multiple elements\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop multiple elements\n");
+
+    if (test_pop_empty()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop from empty stack\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop from empty stack\n");
+
+    if (test_pop_null()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL pop validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL pop validation\n");
 
     printf(COLOR_BOLD_CYAN "\n════════════════════════════════════════════════════════\n" COLOR_RESET "\n");
     printf(COLOR_BOLD_GREEN " ✔ SUCCESS:" COLOR_RESET " All tests were completed successfully.\n\n");

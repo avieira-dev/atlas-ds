@@ -157,3 +157,35 @@ int atlas_stack_push(AtlasStack *stack, const void *value) {
 
     return ATLAS_SUCCESS;
 }
+
+/**
+ * @brief Implementation of atlas_stack_pop:
+ * Removes the top element from the stack and copies its value
+ * into the provided output buffer.
+ *
+ * Updates the top element pointer to the previous element,
+ * releases the removed element's memory, and decrements the
+ * stack size.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack or output value is NULL,
+ * or ATLAS_ERROR_EMPTY if the stack contains no elements.
+ */
+int atlas_stack_pop(AtlasStack *stack, void *out_value) {
+    if (!stack || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (stack->stack_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    AtlasStackElement *element = stack->top_element;
+    stack->top_element = element->previous_element;
+
+    memcpy(out_value, element->data, stack->type_size);
+
+    free(element);
+    stack->stack_size--;
+
+    return ATLAS_SUCCESS;
+}

@@ -144,10 +144,11 @@ Current capabilities:
 - Last-in, first-out (LIFO) element organization
 - Stack creation and destruction
 - Element insertion via `push`
+- Element removal via `pop`
 - Safe traversal and release of all allocated elements
 - Defensive validation of type size, pointers, and initialization states
 - Prevention of dangling pointers via double-pointer destruction
-- Automated lifecycle and insertion tests
+- Automated lifecycle, insertion, and removal tests
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
@@ -173,7 +174,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
-| Stacks                  | █████░░░░░░░░░░░░░░░ `25%`  |
+| Stacks                  | ██████░░░░░░░░░░░░░░ `30%`  |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
