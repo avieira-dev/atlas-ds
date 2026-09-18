@@ -189,3 +189,28 @@ int atlas_stack_pop(AtlasStack *stack, void *out_value) {
 
     return ATLAS_SUCCESS;
 }
+
+/**
+ * @brief Implementation of atlas_stack_top.
+ *
+ * Copies the value of the top element into the provided output buffer
+ * without removing the element or modifying the stack size.
+ *
+ * The top element remains unchanged after the operation.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack or output value is NULL, or
+ * ATLAS_ERROR_EMPTY if the stack contains no elements.
+ */
+int atlas_stack_top(const AtlasStack *stack, void *out_value) {
+    if (!stack || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (stack->stack_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    memcpy(out_value, stack->top_element->data, stack->type_size);
+
+    return ATLAS_SUCCESS;
+}

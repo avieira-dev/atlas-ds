@@ -93,4 +93,21 @@ int atlas_stack_push(AtlasStack *stack, const void *value);
  */
 int atlas_stack_pop(AtlasStack *stack, void *out_value);
 
+/**
+ * @brief Returns the value of the top element without removing it.
+ *
+ * Copies the value of the top element into the provided output buffer
+ * without modifying the stack or its size.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack or output value is NULL, the function returns an error code.
+ *
+ * @param out_value Pointer to the buffer where the top value will be copied.
+ * The buffer must contain enough space to store type_size bytes.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the stack or output
+ * value is NULL, or ATLAS_ERROR_EMPTY if the stack contains no elements.
+ */
+int atlas_stack_top(const AtlasStack *stack, void *out_value);
+
 #endif

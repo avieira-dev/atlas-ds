@@ -24,15 +24,25 @@ The library also serves as a reference implementation for students and developer
 > [!NOTE]  
 > New data structures will be implemented progressively as the atlas grows.
 
+---
+
 ## Table of Contents
 
 - [Philosophy](#philosophy)
 - [Current Features](#current-features)
+  - [Dynamic Array](#dynamic-array-int-implementation)
+  - [Generic Dynamic Array](#generic-dynamic-array-void-implementation)
+  - [Generic Linked List](#generic-linked-list-void-implementation)
+  - [Generic Stack](#generic-stack-void-implementation)
 - [Documentation](#documentation)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
 - [Running Tests](#running-tests)
+  - [Example Output](#example-output)
+  - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
+  - [Generic Linked List](#generic-linked-list-void-implementation-1)
+  - [Generic Stack](#generic-stack-void-implementation-1)
 - [Integration](#integration)
 - [Author](#author)
 - [License](#license)
@@ -145,10 +155,11 @@ Current capabilities:
 - Stack creation and destruction
 - Element insertion via `push`
 - Element removal via `pop`
+- Top element access via `top`
 - Safe traversal and release of all allocated elements
 - Defensive validation of type size, pointers, and initialization states
 - Prevention of dangling pointers via double-pointer destruction
-- Automated lifecycle, insertion, and removal tests
+- Automated lifecycle, insertion, removal, and access tests
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
@@ -174,7 +185,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
-| Stacks                  | ██████░░░░░░░░░░░░░░ `30%`  |
+| Stacks                  | ██████████░░░░░░░░░░ `50%`  |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -318,9 +329,25 @@ After building the project:
   ✔ Push multiple elements
   ✔ NULL push validation
 
+➤ Removal
+────────────────────────────────────────────────────────
+  ✔ Pop single element
+  ✔ Pop multiple elements
+  ✔ Pop from empty stack
+  ✔ NULL pop validation
+
+➤ Access
+────────────────────────────────────────────────────────
+  ✔ Top single element
+  ✔ Top multiple elements
+  ✔ Top preserves element
+  ✔ Top from empty stack
+  ✔ NULL top validation
+
 ════════════════════════════════════════════════════════
 
  ✔ SUCCESS: All tests were completed successfully.
+ 
 ```
 
 ---
