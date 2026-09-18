@@ -13,6 +13,7 @@ The current AtlasDS implementation uses a **singly linked list**, where each nod
 - [Conceptual Structure](#conceptual-structure)
 - [Memory Layout](#memory-layout)
 - [Current AtlasDS Implementation](#current-atlasds-implementation)
+    - [Currently Implemented API](#currently-implemented-api)
 - [Safety Guarantees](#safety-guarantees)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)

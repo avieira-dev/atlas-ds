@@ -11,6 +11,7 @@ Unlike the specialized integer implementation, this version stores raw bytes and
 - [Conceptual Structure](#conceptual-structure)
 - [Memory Layout](#memory-layout)
 - [Current AtlasDS Implementation](#current-atlasds-implementation)
+    - [Currently Implemented API](#currently-implemented-api)
 - [Safety Guarantees](#safety-guarantees)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)

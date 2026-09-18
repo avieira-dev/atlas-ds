@@ -13,6 +13,7 @@ The AtlasDS implementation focuses on exposing the low-level mechanics behind dy
 - [Conceptual Structure](#conceptual-structure)
 - [Resizing Strategy](#resizing-strategy)
 - [Current AtlasDS Implementation](#current-atlasds-implementation)
+    - [Currently Implemented API](#currently-implemented-api)
 - [Safety Guarantees](#safety-guarantees)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
