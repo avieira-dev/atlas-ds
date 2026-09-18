@@ -40,9 +40,9 @@ The library also serves as a reference implementation for students and developer
 - [Build](#build)
 - [Running Tests](#running-tests)
   - [Example Output](#example-output)
-  - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
-  - [Generic Linked List](#generic-linked-list-void-implementation-1)
-  - [Generic Stack](#generic-stack-void-implementation-1)
+    - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
+    - [Generic Linked List](#generic-linked-list-void-implementation-1)
+    - [Generic Stack](#generic-stack-void-implementation-1)
 - [Integration](#integration)
 - [Author](#author)
 - [License](#license)
@@ -257,29 +257,86 @@ After building the project:
 ./tests/test_stack
 ```
 
-## Example output
+### Example output
 
-### Generic Dynamic Array (`void*` implementation)
+#### Generic Dynamic Array (`void*` implementation)
 
 ```text
-=========================================================
-          AtlasDS - Generic Dynamic Array Tests
-=========================================================
+╭────────────────────────────────────────────────────────╮
+│          AtlasDS - Generic Dynamic Array Tests         │
+╰────────────────────────────────────────────────────────╯
 
-[INFO] Starting AtlasDS generic dynamic array tests...
+ℹ Starting AtlasDS generic dynamic array tests...
 
-[INFO] Running capacity management tests...
-[OK] Reserve test passed.
-[OK] Reserve validation passed.
-[OK] Clear test passed.
-[OK] Clear validation passed.
-[OK] Shrink-to-fit test passed.
-[OK] Shrink-to-fit validation passed.
+➤ Lifecycle
+────────────────────────────────────────────────────────
+  ✔ Create/Destroy operation
+  ✔ Type size validation
+  ✔ NULL destroy validation
 
-[SUCCESS] All Generic Dynamic Array tests passed successfully!
+➤ Insertion
+────────────────────────────────────────────────────────
+  ✔ Push/pop with integers
+  ✔ Push/pop with doubles
+  ✔ NULL push validation
+  ✔ Insert in middle
+  ✔ NULL/bounds insert validation
+
+➤ Removal
+────────────────────────────────────────────────────────
+  ✔ Pop from empty array
+  ✔ NULL pop validation
+  ✔ Erase in middle
+  ✔ NULL/bounds erase validation
+
+➤ Access
+────────────────────────────────────────────────────────
+  ✔ Get/Set element
+  ✔ NULL/bounds get validation
+  ✔ NULL/bounds set validation
+  ✔ Front/Back element retrieval
+  ✔ Front/Back on empty array
+  ✔ NULL Front/Back validation
+
+➤ Search
+────────────────────────────────────────────────────────
+  ✔ Find value with comparator
+  ✔ NULL find validation
+  ✔ Contains value with comparator
+  ✔ NULL contains validation
+
+➤ Capacity
+────────────────────────────────────────────────────────
+  ✔ Reserve expands capacity
+  ✔ NULL/downward reserve validation
+  ✔ Shrink to fit
+  ✔ NULL shrink_to_fit validation
+
+➤ Utility
+────────────────────────────────────────────────────────
+  ✔ Element exchange
+  ✔ NULL/bounds swap validation
+  ✔ Array copy
+  ✔ NULL/type-mismatch copy validation
+  ✔ Clone array
+  ✔ NULL clone validation
+
+➤ Metadata & Clear
+────────────────────────────────────────────────────────
+  ✔ Size tracking
+  ✔ Capacity tracking
+  ✔ Empty state detection
+  ✔ Clear without truncating capacity
+  ✔ NULL clear validation
+  ✔ NULL metadata validation
+
+════════════════════════════════════════════════════════
+
+ ✔ SUCCESS: All tests were completed successfully.
+
 ```
 
-### Generic Linked List (`void*` implementation)
+#### Generic Linked List (`void*` implementation)
 
 ```text
 ╭────────────────────────────────────────────────────────╮
@@ -303,12 +360,71 @@ After building the project:
   ✔ Insert end operation
   ✔ Insert invalid index validation
 
+➤ Access
+────────────────────────────────────────────────────────
+  ✔ Set operation
+  ✔ Empty check
+  ✔ Get/Set bounds validation
+
+➤ Search
+────────────────────────────────────────────────────────
+  ✔ Find operation
+  ✔ Find not found validation
+  ✔ Find on empty list validation
+  ✔ Find NULL validation
+  ✔ Contains operation
+  ✔ Contains not found validation
+  ✔ Contains on empty list validation
+  ✔ Contains NULL validation
+
+➤ Swap
+────────────────────────────────────────────────────────
+  ✔ Swap operation
+  ✔ Swap same index validation
+  ✔ Swap invalid index validation
+  ✔ Swap on single-element list
+  ✔ Swap on empty list validation
+
+➤ Reverse
+────────────────────────────────────────────────────────
+  ✔ Reverse operation
+  ✔ Reverse single-element list
+  ✔ Reverse on empty list validation
+  ✔ Reverse NULL validation
+
+➤ Removal
+────────────────────────────────────────────────────────
+  ✔ Pop front operation
+  ✔ Pop back operation
+  ✔ Pop on empty list validation
+  ✔ Front/Back on empty list validation
+  ✔ Erase at beginning operation
+  ✔ Erase middle operation
+  ✔ Erase end operation
+  ✔ Erase invalid index validation
+
+➤ Clear
+────────────────────────────────────────────────────────
+  ✔ Clear operation on empty list
+  ✔ Clear operation on single-element list
+  ✔ Clear operation on multi-element list
+  ✔ List reuse after clear
+  ✔ Clear NULL validation
+
+➤ Copy and Clone
+────────────────────────────────────────────────────────
+  ✔ Copy operation
+  ✔ Copy independence validation
+  ✔ Clone operation
+  ✔ Clone independence validation
+
 ════════════════════════════════════════════════════════
 
  ✔ SUCCESS: All tests were completed successfully.
+
 ```
 
-### Generic Stack (`void*` implementation)
+#### Generic Stack (`void*` implementation)
 
 ```text
 ╭────────────────────────────────────────────────────────╮
