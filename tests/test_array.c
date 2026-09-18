@@ -11,1131 +11,1447 @@
 
 #include "atlas/array.h"
 #include "atlas/status.h"
+#include "atlas/terminal.h"
 
-static void test_fail(AtlasArray **arr, const char *message) {
-    printf("\033[0;31m[ERROR]\033[0m %s\n", message);
-    atlas_array_destroy(arr);
+static int test_create_destroy(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+
+    if (arr != NULL) {
+        return 1;
+    }
+
+    return 0;
 }
 
-int main(void) {
-    printf("\n");
-    printf("\033[1;33m=========================================================\033[0m\n");
-    printf("\033[1;33mAtlasDS - Dynamic Array Tests\033[0m\n");
-    printf("\033[1;33m=========================================================\033[0m\n\n");
-
-    printf("\033[0;33m[INFO]\033[0m Starting AtlasDS dynamic array tests...\n");
-
-    // =========================================================
-    // Creation Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running creation tests...\n");
-
+static int test_initial_state(void) {
     size_t initial_capacity = 3;
     AtlasArray *arr = atlas_array_create(initial_capacity);
-
     if (!arr) {
-        printf("\033[0;31m[ERROR]\033[0m Failed to create dynamic array.\n");
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Dynamic array created successfully.\n");
-
-    if (atlas_array_size(arr) == 0) {
-        printf("\033[0;32m[OK]\033[0m Initial size is correct (0).\n");
-    } else {
-        test_fail(&arr, "Initial size is incorrect.");
+    if (atlas_array_size(arr) != 0) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_capacity(arr) == initial_capacity) {
-        printf("\033[0;32m[OK]\033[0m Initial capacity is correct (%zu).\n", initial_capacity);
-    } else {
-        test_fail(&arr, "Initial capacity is incorrect.");
+    if (atlas_array_capacity(arr) != initial_capacity) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    // =========================================================
-    // Push and Resize Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running push and resize tests...\n");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_destroy_null(void) {
+    AtlasArray *arr = NULL;
+
+    atlas_array_destroy(NULL);
+    atlas_array_destroy(&arr);
+
+    return 0;
+}
+
+static int test_push_and_resize(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
 
     int values[] = {5, 10, 15, 20};
-    size_t total_values = sizeof(values) / sizeof(values[0]);
+    size_t total = sizeof(values) / sizeof(values[0]);
 
-    for (size_t i = 0; i < total_values; i++) {
+    for (size_t i = 0; i < total; i++) {
         if (atlas_array_push(arr, values[i]) != ATLAS_SUCCESS) {
-            test_fail(&arr, "Failed to insert value into dynamic array.");
+            atlas_array_destroy(&arr);
             return 1;
         }
-        printf("\033[0;32m[OK]\033[0m Inserted value at index %zu: %d\n", i, values[i]);
     }
 
-    printf("\033[0;32m[OK]\033[0m Automatic resizing completed successfully.\n");
-
-    // =========================================================
-    // Insert Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running insert tests...\n");
-
-    AtlasArray *insert_arr = atlas_array_create(4);
-    if (!insert_arr) {
-        test_fail(&arr, "Failed to create insert test array.");
+    if (atlas_array_size(arr) != total) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_push(insert_arr, 10) != ATLAS_SUCCESS || 
-        atlas_array_push(insert_arr, 20) != ATLAS_SUCCESS || 
-        atlas_array_push(insert_arr, 30) != ATLAS_SUCCESS || 
-        atlas_array_push(insert_arr, 40) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&insert_arr);
-        test_fail(&arr, "Failed to prepare insert test array.");
+    if (atlas_array_capacity(arr) != 6) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_insert(insert_arr, 2, 99) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&insert_arr);
-        test_fail(&arr, "Failed to insert element.");
+    for (size_t i = 0; i < total; i++) {
+        int value = 0;
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != values[i]) {
+            atlas_array_destroy(&arr);
+            return 1;
+        }
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_insert_middle(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+    atlas_array_push(arr, 40);
+
+    if (atlas_array_insert(arr, 2, 99) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
     int expected[] = {10, 20, 99, 30, 40};
     for (size_t i = 0; i < 5; i++) {
         int value = 0;
-        if (atlas_array_get(insert_arr, i, &value) != ATLAS_SUCCESS) {
-            atlas_array_destroy(&insert_arr);
-            test_fail(&arr, "Failed to validate insert operation.");
-            return 1;
-        }
-
-        if (value != expected[i]) {
-            atlas_array_destroy(&insert_arr);
-            test_fail(&arr, "Insert operation produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    if (atlas_array_size(insert_arr) != 5) {
-        atlas_array_destroy(&insert_arr);
-        test_fail(&arr, "Insert did not update size correctly.");
+    if (atlas_array_size(arr) != 5) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Insert operation validated successfully.\n");
-    atlas_array_destroy(&insert_arr);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // Insert at beginning
-    AtlasArray *insert_begin = atlas_array_create(4);
-    if (!insert_begin) {
-        test_fail(&arr, "Failed to create beginning insert test array.");
+static int test_insert_begin(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(insert_begin, 10);
-    atlas_array_push(insert_begin, 20);
-    atlas_array_push(insert_begin, 30);
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
 
-    if (atlas_array_insert(insert_begin, 0, 99) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&insert_begin);
-        test_fail(&arr, "Insert at beginning failed.");
+    if (atlas_array_insert(arr, 0, 99) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    int expected_begin[] = {99, 10, 20, 30};
+    int expected[] = {99, 10, 20, 30};
     for (size_t i = 0; i < 4; i++) {
         int value = 0;
-        if (atlas_array_get(insert_begin, i, &value) != ATLAS_SUCCESS || value != expected_begin[i]) {
-            atlas_array_destroy(&insert_begin);
-            test_fail(&arr, "Insert at beginning produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    printf("\033[0;32m[OK]\033[0m Insert at beginning validated successfully.\n");
-    atlas_array_destroy(&insert_begin);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // Insert at end
-    AtlasArray *insert_end = atlas_array_create(4);
-    if (!insert_end) {
-        test_fail(&arr, "Failed to create end insert test array.");
+static int test_insert_end(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(insert_end, 10);
-    atlas_array_push(insert_end, 20);
-    atlas_array_push(insert_end, 30);
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
 
-    if (atlas_array_insert(insert_end, atlas_array_size(insert_end), 99) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&insert_end);
-        test_fail(&arr, "Insert at end failed.");
+    if (atlas_array_insert(arr, atlas_array_size(arr), 99) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    int expected_end[] = {10, 20, 30, 99};
+    int expected[] = {10, 20, 30, 99};
     for (size_t i = 0; i < 4; i++) {
         int value = 0;
-        if (atlas_array_get(insert_end, i, &value) != ATLAS_SUCCESS || value != expected_end[i]) {
-            atlas_array_destroy(&insert_end);
-            test_fail(&arr, "Insert at end produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    printf("\033[0;32m[OK]\033[0m Insert at end validated successfully.\n");
-    atlas_array_destroy(&insert_end);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // =========================================================
-    // Erase Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running erase tests...\n");
-
-    // Erase in middle
-    AtlasArray *erase_middle = atlas_array_create(5);
-    if (!erase_middle) {
-        test_fail(&arr, "Failed to create middle erase test array.");
+static int test_insertion_validation(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(erase_middle, 10);
-    atlas_array_push(erase_middle, 20);
-    atlas_array_push(erase_middle, 30);
-    atlas_array_push(erase_middle, 40);
-    atlas_array_push(erase_middle, 50);
-
-    if (atlas_array_erase(erase_middle, 2) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&erase_middle);
-        test_fail(&arr, "Erase in middle failed.");
+    if (atlas_array_push(NULL, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    int expected_middle[] = {10, 20, 40, 50};
+    if (atlas_array_insert(NULL, 0, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_insert(arr, 999, 10) != ATLAS_ERROR_BOUNDS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_erase_middle(void) {
+    AtlasArray *arr = atlas_array_create(5);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+    atlas_array_push(arr, 40);
+    atlas_array_push(arr, 50);
+
+    if (atlas_array_erase(arr, 2) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    int expected[] = {10, 20, 40, 50};
     for (size_t i = 0; i < 4; i++) {
         int value = 0;
-        if (atlas_array_get(erase_middle, i, &value) != ATLAS_SUCCESS || value != expected_middle[i]) {
-            atlas_array_destroy(&erase_middle);
-            test_fail(&arr, "Erase in middle produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    if (atlas_array_size(erase_middle) != 4) {
-        atlas_array_destroy(&erase_middle);
-        test_fail(&arr, "Erase in middle did not update size correctly.");
+    if (atlas_array_size(arr) != 4) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Erase in middle validated successfully.\n");
-    atlas_array_destroy(&erase_middle);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // Erase at beginning
-    AtlasArray *erase_begin = atlas_array_create(3);
-    if (!erase_begin) {
-        test_fail(&arr, "Failed to create beginning erase test array.");
+static int test_erase_begin(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(erase_begin, 10);
-    atlas_array_push(erase_begin, 20);
-    atlas_array_push(erase_begin, 30);
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
 
-    if (atlas_array_erase(erase_begin, 0) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&erase_begin);
-        test_fail(&arr, "Erase at beginning failed.");
+    if (atlas_array_erase(arr, 0) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    int expected_begin_erase[] = {20, 30};
+    int expected[] = {20, 30};
     for (size_t i = 0; i < 2; i++) {
         int value = 0;
-        if (atlas_array_get(erase_begin, i, &value) != ATLAS_SUCCESS || value != expected_begin_erase[i]) {
-            atlas_array_destroy(&erase_begin);
-            test_fail(&arr, "Erase at beginning produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    printf("\033[0;32m[OK]\033[0m Erase at beginning validated successfully.\n");
-    atlas_array_destroy(&erase_begin);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // Erase at end
-    AtlasArray *erase_end = atlas_array_create(3);
-    if (!erase_end) {
-        test_fail(&arr, "Failed to create end erase test array.");
+static int test_erase_end(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(erase_end, 10);
-    atlas_array_push(erase_end, 20);
-    atlas_array_push(erase_end, 30);
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
 
-    if (atlas_array_erase(erase_end, 2) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&erase_end);
-        test_fail(&arr, "Erase at end failed.");
+    if (atlas_array_erase(arr, 2) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    int expected_end_erase[] = {10, 20};
+    int expected[] = {10, 20};
     for (size_t i = 0; i < 2; i++) {
         int value = 0;
-        if (atlas_array_get(erase_end, i, &value) != ATLAS_SUCCESS || value != expected_end_erase[i]) {
-            atlas_array_destroy(&erase_end);
-            test_fail(&arr, "Erase at end produced incorrect ordering.");
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != expected[i]) {
+            atlas_array_destroy(&arr);
             return 1;
         }
     }
 
-    printf("\033[0;32m[OK]\033[0m Erase at end validated successfully.\n");
-    atlas_array_destroy(&erase_end);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // Erase only element
-    AtlasArray *erase_single = atlas_array_create(1);
-    if (!erase_single) {
-        test_fail(&arr, "Failed to create single element erase test array.");
+static int test_erase_single(void) {
+    AtlasArray *arr = atlas_array_create(1);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(erase_single, 10);
+    atlas_array_push(arr, 10);
 
-    if (atlas_array_erase(erase_single, 0) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&erase_single);
-        test_fail(&arr, "Erase single element failed.");
+    if (atlas_array_erase(arr, 0) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_size(erase_single) != 0) {
-        atlas_array_destroy(&erase_single);
-        test_fail(&arr, "Erase single element did not empty array.");
+    if (atlas_array_size(arr) != 0) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Erase single element validated successfully.\n");
-    atlas_array_destroy(&erase_single);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // =========================================================
-    // Find Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running find tests...\n");
-
-    AtlasArray *find_arr = atlas_array_create(5);
-    if (!find_arr) {
-        test_fail(&arr, "Failed to create find test array.");
+static int test_erase_validation(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(find_arr, 10);
-    atlas_array_push(find_arr, 20);
-    atlas_array_push(find_arr, 30);
-    atlas_array_push(find_arr, 20);
-    atlas_array_push(find_arr, 40);
+    atlas_array_push(arr, 10);
 
-    size_t found_index = 999;
-    if (atlas_array_find(find_arr, &found_index, 20) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&find_arr);
-        test_fail(&arr, "Failed to find existing value.");
+    if (atlas_array_erase(NULL, 0) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (found_index != 1) {
-        atlas_array_destroy(&find_arr);
-        test_fail(&arr, "find returned incorrect index.");
+    if (atlas_array_erase(arr, 999) != ATLAS_ERROR_BOUNDS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m First occurrence found successfully at index %zu.\n", found_index);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    size_t unchanged_index = 777;
-    if (atlas_array_find(find_arr, &unchanged_index, 99) != ATLAS_ERROR_NOT_FOUND) {
-        atlas_array_destroy(&find_arr);
-        test_fail(&arr, "find incorrectly reported a missing value or wrong error code.");
+static int test_pop(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
         return 1;
     }
 
-    if (unchanged_index != 777) {
-        atlas_array_destroy(&find_arr);
-        test_fail(&arr, "find modified output parameter when value was not found.");
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 99);
+
+    int removed = 0;
+    if (atlas_array_pop(arr, &removed) != ATLAS_SUCCESS || removed != 99) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Missing value handled correctly.\n");
-    atlas_array_destroy(&find_arr);
-
-    // =========================================================
-    // Contains Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running contains tests...\n");
-
-    AtlasArray *contains_arr = atlas_array_create(5);
-    if (!contains_arr) {
-        test_fail(&arr, "Failed to create contains test array.");
+    if (atlas_array_size(arr) != 1) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    atlas_array_push(contains_arr, 10);
-    atlas_array_push(contains_arr, 20);
-    atlas_array_push(contains_arr, 30);
-    atlas_array_push(contains_arr, 20);
-    atlas_array_push(contains_arr, 40);
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_pop_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
+        return 1;
+    }
+
+    int dummy = 0;
+
+    if (atlas_array_pop(NULL, &dummy) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_pop(arr, NULL) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_pop(arr, &dummy) != ATLAS_ERROR_EMPTY) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_get_elements(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    int values[] = {5, 10, 15};
+    for (size_t i = 0; i < 3; i++) {
+        atlas_array_push(arr, values[i]);
+    }
+
+    for (size_t i = 0; i < 3; i++) {
+        int value = 0;
+        if (atlas_array_get(arr, i, &value) != ATLAS_SUCCESS || value != values[i]) {
+            atlas_array_destroy(&arr);
+            return 1;
+        }
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_get_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+
+    int value = 0;
+    if (atlas_array_get(arr, 999, &value) != ATLAS_ERROR_BOUNDS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_get(NULL, 0, &value) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_get(arr, 0, NULL) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_front_back(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+
+    int front = 0;
+    int back = 0;
+
+    if (atlas_array_front(arr, &front) != ATLAS_SUCCESS || front != 10) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_back(arr, &back) != ATLAS_SUCCESS || back != 30) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_front_back_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
+        return 1;
+    }
+
+    int dummy = 0;
+
+    if (atlas_array_front(NULL, &dummy) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_front(arr, NULL) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_front(arr, &dummy) != ATLAS_ERROR_EMPTY) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_back(NULL, &dummy) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_back(arr, NULL) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_back(arr, &dummy) != ATLAS_ERROR_EMPTY) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_find_existing(void) {
+    AtlasArray *arr = atlas_array_create(5);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+    atlas_array_push(arr, 20);
+
+    size_t index = 999;
+    if (atlas_array_find(arr, &index, 20) != ATLAS_SUCCESS || index != 1) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_find_missing(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+
+    size_t index = 777;
+    if (atlas_array_find(arr, &index, 99) != ATLAS_ERROR_NOT_FOUND) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (index != 777) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_find_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
+        return 1;
+    }
+
+    size_t index = 0;
+
+    if (atlas_array_find(NULL, &index, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_find(arr, NULL, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_contains_existing(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
 
     bool contains = false;
-    if (atlas_array_contains(contains_arr, &contains, 20) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&contains_arr);
-        test_fail(&arr, "contains failed for existing value.");
+    if (atlas_array_contains(arr, &contains, 20) != ATLAS_SUCCESS || !contains) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (!contains) {
-        atlas_array_destroy(&contains_arr);
-        test_fail(&arr, "contains returned false for existing value.");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_contains_missing(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Existing value detected successfully.\n");
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
 
-    if (atlas_array_contains(contains_arr, &contains, 99) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&contains_arr);
-        test_fail(&arr, "contains failed for missing value.");
+    bool contains = true;
+    if (atlas_array_contains(arr, &contains, 99) != ATLAS_SUCCESS || contains) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (contains) {
-        atlas_array_destroy(&contains_arr);
-        test_fail(&arr, "contains returned true for missing value.");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_contains_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Missing value handled correctly.\n");
-    atlas_array_destroy(&contains_arr);
+    bool dummy = false;
 
-    // =========================================================
-    // Swap Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running swap tests...\n");
-
-    AtlasArray *swap_arr = atlas_array_create(4);
-    if (!swap_arr) {
-        test_fail(&arr, "Failed to create temporary array for swap tests.");
+    if (atlas_array_contains(NULL, &dummy, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    atlas_array_push(swap_arr, 10);
-    atlas_array_push(swap_arr, 20);
-    atlas_array_push(swap_arr, 30);
-    atlas_array_push(swap_arr, 40);
+    if (atlas_array_contains(arr, NULL, 10) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
 
-    if (atlas_array_swap(swap_arr, 0, 3) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap failed on valid indices.");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_reserve(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    size_t requested = atlas_array_capacity(arr) + 10;
+    if (atlas_array_reserve(arr, requested) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != requested) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_reserve_idempotent(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    size_t requested = atlas_array_capacity(arr) + 10;
+    atlas_array_reserve(arr, requested);
+
+    if (atlas_array_reserve(arr, requested - 5) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != requested) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_reserve_validation(void) {
+    if (atlas_array_reserve(NULL, 100) != ATLAS_ERROR_NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_shrink_to_fit(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+    atlas_array_push(arr, 40);
+
+    if (atlas_array_shrink_to_fit(arr) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != atlas_array_size(arr)) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_shrink_to_fit_idempotent(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_shrink_to_fit(arr);
+
+    size_t capacity_before = atlas_array_capacity(arr);
+    if (atlas_array_shrink_to_fit(arr) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_capacity(arr) != capacity_before) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_shrink_to_fit_validation(void) {
+    if (atlas_array_shrink_to_fit(NULL) != ATLAS_ERROR_NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_swap(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
+        return 1;
+    }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+    atlas_array_push(arr, 30);
+    atlas_array_push(arr, 40);
+
+    if (atlas_array_swap(arr, 0, 3) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
     int value = 0;
-    atlas_array_get(swap_arr, 0, &value);
+    atlas_array_get(arr, 0, &value);
     if (value != 40) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap did not update first position correctly.");
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    atlas_array_get(swap_arr, 3, &value);
+    atlas_array_get(arr, 3, &value);
     if (value != 10) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap did not update second position correctly.");
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Element exchange validated successfully.\n");
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    size_t size_before_swap = atlas_array_size(swap_arr);
-    size_t capacity_before_swap = atlas_array_capacity(swap_arr);
-
-    if (atlas_array_swap(swap_arr, 1, 1) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap failed when using identical indices.");
+static int test_swap_idempotent(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
         return 1;
     }
 
-    if (atlas_array_size(swap_arr) != size_before_swap) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap changed array size.");
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
+
+    size_t size_before = atlas_array_size(arr);
+    size_t capacity_before = atlas_array_capacity(arr);
+
+    if (atlas_array_swap(arr, 1, 1) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_capacity(swap_arr) != capacity_before_swap) {
-        atlas_array_destroy(&swap_arr);
-        test_fail(&arr, "swap changed array capacity.");
+    if (atlas_array_size(arr) != size_before || atlas_array_capacity(arr) != capacity_before) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Swap idempotency validated successfully.\n");
-    atlas_array_destroy(&swap_arr);
+    atlas_array_destroy(&arr);
+    return 0;
+}
 
-    // =========================================================
-    // Copy Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running copy tests...\n");
-
-    AtlasArray *copy_src = atlas_array_create(4);
-    AtlasArray *copy_dest = atlas_array_create(1);
-
-    if (!copy_src || !copy_dest) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "Failed to create copy test arrays.");
+static int test_swap_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(copy_src, 10);
-    atlas_array_push(copy_src, 20);
-    atlas_array_push(copy_src, 30);
-    atlas_array_push(copy_src, 40);
+    atlas_array_push(arr, 10);
 
-    if (atlas_array_copy(copy_src, copy_dest) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "copy failed.");
+    if (atlas_array_swap(NULL, 0, 1) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_size(copy_dest) != 4) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "copy did not update destination size correctly.");
+    if (atlas_array_swap(arr, 999, 0) != ATLAS_ERROR_BOUNDS) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_copy(void) {
+    AtlasArray *src = atlas_array_create(4);
+    AtlasArray *dest = atlas_array_create(1);
+    if (!src || !dest) {
+        atlas_array_destroy(&src);
+        atlas_array_destroy(&dest);
+        return 1;
+    }
+
+    atlas_array_push(src, 10);
+    atlas_array_push(src, 20);
+    atlas_array_push(src, 30);
+    atlas_array_push(src, 40);
+
+    if (atlas_array_copy(src, dest) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&src);
+        atlas_array_destroy(&dest);
+        return 1;
+    }
+
+    if (atlas_array_size(dest) != 4) {
+        atlas_array_destroy(&src);
+        atlas_array_destroy(&dest);
         return 1;
     }
 
     for (size_t i = 0; i < 4; i++) {
         int src_value = 0;
         int dest_value = 0;
-
-        atlas_array_get(copy_src, i, &src_value);
-        atlas_array_get(copy_dest, i, &dest_value);
+        atlas_array_get(src, i, &src_value);
+        atlas_array_get(dest, i, &dest_value);
         if (src_value != dest_value) {
-            atlas_array_destroy(&copy_src);
-            atlas_array_destroy(&copy_dest);
-            test_fail(&arr, "copy produced incorrect data.");
+            atlas_array_destroy(&src);
+            atlas_array_destroy(&dest);
             return 1;
         }
     }
 
-    printf("\033[0;32m[OK]\033[0m Array copy validated successfully.\n");
+    atlas_array_destroy(&src);
+    atlas_array_destroy(&dest);
+    return 0;
+}
 
-    if (atlas_array_set(copy_dest, 0, 999) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "Failed to modify destination after copy.");
+static int test_copy_preserves_source(void) {
+    AtlasArray *src = atlas_array_create(2);
+    AtlasArray *dest = atlas_array_create(1);
+    if (!src || !dest) {
+        atlas_array_destroy(&src);
+        atlas_array_destroy(&dest);
         return 1;
     }
 
-    int original_value = 0;
-    atlas_array_get(copy_src, 0, &original_value);
-    if (original_value != 10) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "copy modified source array.");
+    atlas_array_push(src, 10);
+    atlas_array_copy(src, dest);
+    atlas_array_set(dest, 0, 999);
+
+    int original = 0;
+    atlas_array_get(src, 0, &original);
+    if (original != 10) {
+        atlas_array_destroy(&src);
+        atlas_array_destroy(&dest);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Source array preserved successfully.\n");
+    atlas_array_destroy(&src);
+    atlas_array_destroy(&dest);
+    return 0;
+}
 
+static int test_copy_from_empty(void) {
     AtlasArray *empty_src = atlas_array_create(2);
-    if (!empty_src) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
-        test_fail(&arr, "Failed to create empty source array.");
-        return 1;
-    }
-
-    if (atlas_array_copy(empty_src, copy_dest) != ATLAS_SUCCESS) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
+    AtlasArray *dest = atlas_array_create(3);
+    if (!empty_src || !dest) {
         atlas_array_destroy(&empty_src);
-        test_fail(&arr, "copy from empty source failed.");
+        atlas_array_destroy(&dest);
         return 1;
     }
 
-    if (atlas_array_size(copy_dest) != 0) {
-        atlas_array_destroy(&copy_src);
-        atlas_array_destroy(&copy_dest);
+    atlas_array_push(dest, 1);
+    atlas_array_push(dest, 2);
+
+    if (atlas_array_copy(empty_src, dest) != ATLAS_SUCCESS) {
         atlas_array_destroy(&empty_src);
-        test_fail(&arr, "copy from empty source did not clear destination size.");
+        atlas_array_destroy(&dest);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Empty source copy validated successfully.\n");
+    if (atlas_array_size(dest) != 0) {
+        atlas_array_destroy(&empty_src);
+        atlas_array_destroy(&dest);
+        return 1;
+    }
+
     atlas_array_destroy(&empty_src);
-    atlas_array_destroy(&copy_src);
-    atlas_array_destroy(&copy_dest);
+    atlas_array_destroy(&dest);
+    return 0;
+}
 
-    // =========================================================
-    // Clone Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running clone tests...\n");
-
-    AtlasArray *clone_src = atlas_array_create(6);
-    if (!clone_src) {
-        test_fail(&arr, "Failed to create clone source array.");
+static int test_copy_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
         return 1;
     }
 
-    atlas_array_push(clone_src, 10);
-    atlas_array_push(clone_src, 20);
-    atlas_array_push(clone_src, 30);
-    atlas_array_push(clone_src, 40);
+    if (atlas_array_copy(NULL, arr) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
 
-    AtlasArray *clone = atlas_array_clone(clone_src);
+    if (atlas_array_copy(arr, NULL) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    if (atlas_array_copy(arr, arr) != ATLAS_ERROR_INVALID_ARGUMENT) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_clone(void) {
+    AtlasArray *src = atlas_array_create(6);
+    if (!src) {
+        return 1;
+    }
+
+    atlas_array_push(src, 10);
+    atlas_array_push(src, 20);
+    atlas_array_push(src, 30);
+    atlas_array_push(src, 40);
+
+    AtlasArray *clone = atlas_array_clone(src);
     if (!clone) {
-        atlas_array_destroy(&clone_src);
-        test_fail(&arr, "Failed to clone array.");
+        atlas_array_destroy(&src);
         return 1;
     }
 
-    if (atlas_array_size(clone) != 4) {
+    if (atlas_array_size(clone) != 4 || atlas_array_capacity(clone) != 6) {
         atlas_array_destroy(&clone);
-        atlas_array_destroy(&clone_src);
-        test_fail(&arr, "Clone size mismatch.");
+        atlas_array_destroy(&src);
         return 1;
     }
 
-    if (atlas_array_capacity(clone) != 6) {
-        atlas_array_destroy(&clone);
-        atlas_array_destroy(&clone_src);
-        test_fail(&arr, "Clone capacity mismatch.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Clone validated successfully.\n");
-
-    AtlasArray *empty_clone_src = atlas_array_create(3);
-    AtlasArray *empty_clone = atlas_array_clone(empty_clone_src);
-    if (!empty_clone) {
-        atlas_array_destroy(&empty_clone_src);
-        atlas_array_destroy(&clone);
-        atlas_array_destroy(&clone_src);
-        test_fail(&arr, "Failed to clone empty array.");
-        return 1;
-    }
-
-    if (atlas_array_size(empty_clone) != 0 || atlas_array_capacity(empty_clone) != 3) {
-        atlas_array_destroy(&empty_clone);
-        atlas_array_destroy(&empty_clone_src);
-        atlas_array_destroy(&clone);
-        atlas_array_destroy(&clone_src);
-        test_fail(&arr, "Empty clone size or capacity mismatch.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Empty clone validated successfully.\n");
-    atlas_array_destroy(&empty_clone);
-    atlas_array_destroy(&empty_clone_src);
     atlas_array_destroy(&clone);
-    atlas_array_destroy(&clone_src);
+    atlas_array_destroy(&src);
+    return 0;
+}
 
-    // =========================================================
-    // Set Validation Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running set tests...\n");
-
-    int new_value = 25;
-    size_t last_index = total_values - 1;
-
-    if (atlas_array_set(arr, last_index, new_value) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Error updating value at index.");
+static int test_clone_empty(void) {
+    AtlasArray *src = atlas_array_create(3);
+    if (!src) {
         return 1;
     }
 
-    int old_value = values[last_index];
-    values[last_index] = new_value;
-
-    int updated_value = 0;
-    if (atlas_array_get(arr, last_index, &updated_value) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to retrieve updated value.");
+    AtlasArray *clone = atlas_array_clone(src);
+    if (!clone) {
+        atlas_array_destroy(&src);
         return 1;
     }
 
-    if (updated_value != new_value) {
-        test_fail(&arr, "Updated value does not match expected value.");
+    if (atlas_array_size(clone) != 0 || atlas_array_capacity(clone) != 3) {
+        atlas_array_destroy(&clone);
+        atlas_array_destroy(&src);
         return 1;
     }
 
-    printf("\033[0;32m[OK]\033[0m Element updated successfully at index %zu: %d -> %d\n", last_index, old_value, updated_value);
+    atlas_array_destroy(&clone);
+    atlas_array_destroy(&src);
+    return 0;
+}
 
-    // =========================================================
-    // Size Validation Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running size validation tests...\n");
-
-    size_t current_size = atlas_array_size(arr);
-    if (current_size == total_values) {
-        printf("\033[0;32m[OK]\033[0m Size validation passed (%zu elements).\n", current_size);
-    } else {
-        test_fail(&arr, "Size validation failed.");
+static int test_clone_null(void) {
+    if (atlas_array_clone(NULL) != NULL) {
         return 1;
     }
 
-    // =========================================================
-    // Capacity Validation Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running capacity validation tests...\n");
+    return 0;
+}
 
-    size_t expected_capacity = initial_capacity * 2;
-    size_t current_capacity = atlas_array_capacity(arr);
-
-    if (current_capacity == expected_capacity) {
-        printf("\033[0;32m[OK]\033[0m Capacity validation passed (%zu).\n", current_capacity);
-    } else {
-        test_fail(&arr, "Capacity validation failed.");
+static int test_set(void) {
+    AtlasArray *arr = atlas_array_create(3);
+    if (!arr) {
         return 1;
     }
 
-    // =========================================================
-    // Reserve Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running reserve tests...\n");
+    atlas_array_push(arr, 10);
 
-    size_t before_capacity = atlas_array_capacity(arr);
-    size_t requested_capacity = before_capacity + 10;
-
-    if (atlas_array_reserve(arr, requested_capacity) != ATLAS_SUCCESS) {
-        test_fail(&arr, "atlas_array_reserve failed to allocate requested size.");
+    if (atlas_array_set(arr, 0, 25) != ATLAS_SUCCESS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_capacity(arr) == requested_capacity) {
-        printf("\033[0;32m[OK]\033[0m Reserve successfully expanded capacity to %zu.\n", requested_capacity);
-    } else {
-        test_fail(&arr, "Capacity does not match explicitly reserved target.");
+    int value = 0;
+    if (atlas_array_get(arr, 0, &value) != ATLAS_SUCCESS || value != 25) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_reserve(arr, requested_capacity - 5) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Idempotent reserve call failed.");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_set_validation(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
         return 1;
     }
 
-    if (atlas_array_capacity(arr) == requested_capacity) {
-        printf("\033[0;32m[OK]\033[0m Downward reserve call correctly ignored.\n");
-    } else {
-        test_fail(&arr, "Reserve unexpectedly shrank the dynamic capacity.");
+    if (atlas_array_set(NULL, 0, 123) != ATLAS_ERROR_NULL) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    // =========================================================
-    // Shrink to Fit Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running shrink_to_fit tests...\n");
-
-    if (atlas_array_shrink_to_fit(arr) != ATLAS_SUCCESS) {
-        test_fail(&arr, "shrink_to_fit buffer optimization failed.");
+    if (atlas_array_set(arr, atlas_array_size(arr), 123) != ATLAS_ERROR_BOUNDS) {
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_capacity(arr) == atlas_array_size(arr)) {
-        printf("\033[0;32m[OK]\033[0m shrink_to_fit successfully tightly packed the buffer.\n");
-    } else {
-        test_fail(&arr, "Capacity does not equal size after strict shrink operation.");
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+static int test_clear(void) {
+    AtlasArray *arr = atlas_array_create(4);
+    if (!arr) {
         return 1;
     }
+
+    atlas_array_push(arr, 10);
+    atlas_array_push(arr, 20);
 
     size_t capacity_before = atlas_array_capacity(arr);
-    if (atlas_array_shrink_to_fit(arr) != ATLAS_SUCCESS) {
-        test_fail(&arr, "shrink_to_fit idempotency failed.");
-        return 1;
-    }
-
-    if (atlas_array_capacity(arr) != capacity_before) {
-        test_fail(&arr, "shrink_to_fit changed capacity unnecessarily.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m shrink_to_fit idempotency validated successfully.\n");
-
-    // =========================================================
-    // Element Retrieval Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running element retrieval tests...\n");
-
-    for (size_t i = 0; i < total_values; i++) {
-        int retrieved_value = 0;
-        if (atlas_array_get(arr, i, &retrieved_value) != ATLAS_SUCCESS) {
-            test_fail(&arr, "Failed to retrieve element.");
-            return 1;
-        }
-
-        if (retrieved_value != values[i]) {
-            test_fail(&arr, "Retrieved value does not match expected value.");
-            return 1;
-        }
-        printf("\033[0;32m[OK]\033[0m Retrieved index %zu successfully: %d\n", i, retrieved_value);
-    }
-
-    // =========================================================
-    // Front/Back Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running front/back tests...\n");
-
-    int first_value = 1941;
-    if (atlas_array_front(arr, &first_value) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to retrieve first element.");
-        return 1;
-    }
-
-    if (first_value != values[0]) {
-        test_fail(&arr, "Front element does not match expected value.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Front element retrieved successfully: %d\n", first_value);
-
-    int last_value = 1972;
-    if (atlas_array_back(arr, &last_value) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to retrieve last element.");
-        return 1;
-    }
-
-    if (last_value != values[total_values - 1]) {
-        test_fail(&arr, "Back element does not match expected value.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Back element retrieved successfully: %d\n", last_value);
-
-    // =========================================================
-    // Clear Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running clear tests...\n");
-
-    size_t cap_before_clear = atlas_array_capacity(arr);
     if (atlas_array_clear(arr) != ATLAS_SUCCESS) {
-        test_fail(&arr, "clear operation failed.");
+        atlas_array_destroy(&arr);
         return 1;
     }
 
     if (atlas_array_size(arr) != 0) {
-        test_fail(&arr, "clear operation did not reset container size to zero.");
+        atlas_array_destroy(&arr);
         return 1;
     }
 
-    if (atlas_array_capacity(arr) != cap_before_clear) {
-        test_fail(&arr, "clear operation modified capacity unexpectedly.");
+    if (atlas_array_capacity(arr) != capacity_before) {
+        atlas_array_destroy(&arr);
         return 1;
     }
-
-    printf("\033[0;32m[OK]\033[0m Array buffer cleared without memory truncation.\n");
-
-    // =========================================================
-    // Empty Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running empty tests...\n");
-
-    bool is_empty = false;
-    if (atlas_array_empty(arr, &is_empty) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to check empty state.");
-        return 1;
-    }
-
-    if (!is_empty) {
-        test_fail(&arr, "Array should be empty after clear.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Empty array detected correctly.\n");
-
-    if (atlas_array_push(arr, 99) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to insert element for empty validation.");
-        return 1;
-    }
-
-    if (atlas_array_empty(arr, &is_empty) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to check non-empty state.");
-        return 1;
-    }
-
-    if (is_empty) {
-        test_fail(&arr, "Array incorrectly reported as empty.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Non-empty array detected correctly.\n");
-
-    int reused_value = 0;
-    if (atlas_array_get(arr, 0, &reused_value) != ATLAS_SUCCESS || reused_value != 99) {
-        test_fail(&arr, "Array reuse after clear failed.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Array reuse after clear validated successfully.\n");
-
-    // =========================================================
-    // Pop Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running pop operation tests...\n");
-
-    int removed_value = 0;
-    if (atlas_array_pop(arr, &removed_value) != ATLAS_SUCCESS) {
-        test_fail(&arr, "Failed to pop last element.");
-        return 1;
-    }
-
-    if (removed_value != 99) {
-        test_fail(&arr, "Pop returned an unexpected value.");
-        return 1;
-    }
-
-    printf("\033[0;32m[OK]\033[0m Pop operation returned correct value: %d\n", removed_value);
-
-    if (atlas_array_size(arr) == 0) {
-        printf("\033[0;32m[OK]\033[0m Size updated correctly after pop (%zu).\n", atlas_array_size(arr));
-    } else {
-        test_fail(&arr, "Size was not updated correctly after pop.");
-        return 1;
-    }
-
-    // =========================================================
-    // Bounds Checking and Robustness Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running bounds checking tests...\n");
-
-    int dummy = 0;
-    if (atlas_array_get(arr, 999, &dummy) == ATLAS_ERROR_BOUNDS) {
-        printf("\033[0;32m[OK]\033[0m Out of bounds index rejected correctly with ATLAS_ERROR_BOUNDS.\n");
-    } else {
-        test_fail(&arr, "Out-of-bounds protection failed.");
-        return 1;
-    }
-
-    if (atlas_array_get(arr, 0, NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_get(..., NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_get(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_push(NULL, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_push(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_push(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_set(arr, atlas_array_size(arr), 123) == ATLAS_ERROR_BOUNDS) {
-        printf("\033[0;32m[OK]\033[0m Invalid set index rejected correctly with ATLAS_ERROR_BOUNDS.\n");
-    } else {
-        test_fail(&arr, "Invalid set index was incorrectly accepted.");
-        return 1;
-    }
-
-    if (atlas_array_set(NULL, 0, 123) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_set(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_set(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_reserve(NULL, 100) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_reserve(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_reserve(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_pop(NULL, &dummy) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_pop(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_pop(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_pop(arr, NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_pop(..., NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_pop(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_pop(arr, &dummy) == ATLAS_ERROR_EMPTY) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_pop from empty array returned ATLAS_ERROR_EMPTY.\n");
-    } else {
-        test_fail(&arr, "atlas_array_pop from empty array failed.");
-        return 1;
-    }
-
-    if (atlas_array_front(NULL, &dummy) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_front(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_front(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_front(arr, NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_front(..., NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_front(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_front(arr, &dummy) == ATLAS_ERROR_EMPTY) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_front from empty array returned ATLAS_ERROR_EMPTY.\n");
-    } else {
-        test_fail(&arr, "atlas_array_front from empty array failed.");
-        return 1;
-    }
-
-    if (atlas_array_back(NULL, &dummy) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_back(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_back(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_back(arr, NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_back(..., NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_back(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_back(arr, &dummy) == ATLAS_ERROR_EMPTY) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_back from empty array returned ATLAS_ERROR_EMPTY.\n");
-    } else {
-        test_fail(&arr, "atlas_array_back from empty array failed.");
-        return 1;
-    }
-
-    if (atlas_array_insert(NULL, 0, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_insert(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_insert(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_insert(arr, 999, 10) == ATLAS_ERROR_BOUNDS) {
-        printf("\033[0;32m[OK]\033[0m Invalid insert index rejected correctly with ATLAS_ERROR_BOUNDS.\n");
-    } else {
-        test_fail(&arr, "Invalid insert index failed.");
-        return 1;
-    }
-
-    if (atlas_array_erase(NULL, 0) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_erase(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_erase(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_erase(arr, 999) == ATLAS_ERROR_BOUNDS) {
-        printf("\033[0;32m[OK]\033[0m Invalid erase index rejected correctly with ATLAS_ERROR_BOUNDS.\n");
-    } else {
-        test_fail(&arr, "Invalid erase index failed.");
-        return 1;
-    }
-
-    size_t dummy_index = 0;
-    if (atlas_array_find(NULL, &dummy_index, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_find(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_find(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_find(arr, NULL, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_find(..., NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_find(..., NULL) failed.");
-        return 1;
-    }
-
-    bool dummy_contains = false;
-    if (atlas_array_contains(NULL, &dummy_contains, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_contains(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_contains(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_contains(arr, NULL, 10) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_contains(..., NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_contains(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_clear(NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_clear(NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_clear(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_copy(NULL, arr) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_copy(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_copy(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_copy(arr, NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_copy(..., NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_copy(..., NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_copy(arr, arr) == ATLAS_ERROR_INVALID_ARGUMENT) {
-        printf("\033[0;32m[OK]\033[0m Self-copy rejected correctly with ATLAS_ERROR_INVALID_ARGUMENT.\n");
-    } else {
-        test_fail(&arr, "atlas_array_copy(arr, arr) failed.");
-        return 1;
-    }
-
-    if (atlas_array_shrink_to_fit(NULL) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_shrink_to_fit(NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_shrink_to_fit(NULL) failed.");
-        return 1;
-    }
-
-    if (atlas_array_swap(NULL, 0, 1) == ATLAS_ERROR_NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_swap(NULL, ...) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_swap(NULL, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_swap(arr, 999, 0) == ATLAS_ERROR_BOUNDS) {
-        printf("\033[0;32m[OK]\033[0m Invalid swap index rejected correctly with ATLAS_ERROR_BOUNDS.\n");
-    } else {
-        test_fail(&arr, "atlas_array_swap(..., invalid, ...) failed.");
-        return 1;
-    }
-
-    if (atlas_array_clone(NULL) == NULL) {
-        printf("\033[0;32m[OK]\033[0m atlas_array_clone(NULL) rejected correctly.\n");
-    } else {
-        test_fail(&arr, "atlas_array_clone(NULL) should return NULL.");
-        return 1;
-    }
-
-    // =========================================================
-    // Cleanup Tests
-    // =========================================================
-    printf("\n\033[0;33m[INFO]\033[0m Running cleanup tests...\n");
 
     atlas_array_destroy(&arr);
+    return 0;
+}
 
-    if (!arr) {
-        printf("\033[0;32m[OK]\033[0m Pointer reset to NULL after destruction.\n");
-    } else {
-        printf("\033[0;31m[ERROR]\033[0m Pointer was not reset to NULL.\n");
+static int test_clear_validation(void) {
+    if (atlas_array_clear(NULL) != ATLAS_ERROR_NULL) {
         return 1;
     }
 
-    atlas_array_destroy(NULL);
-    printf("\033[0;32m[OK]\033[0m Passing NULL to destroy handled safely.\n");
+    return 0;
+}
 
-    AtlasArray *null_arr = NULL;
-    atlas_array_destroy(&null_arr);
-    printf("\033[0;32m[OK]\033[0m Passing pointer to NULL to destroy handled safely.\n");
+static int test_empty_state(void) {
+    AtlasArray *arr = atlas_array_create(2);
+    if (!arr) {
+        return 1;
+    }
 
-    printf("\n\033[1;32mAll AtlasDS dynamic array tests passed successfully!\033[0m\n\n");
-        
+    bool is_empty = false;
+    if (atlas_array_empty(arr, &is_empty) != ATLAS_SUCCESS || !is_empty) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_push(arr, 99);
+
+    if (atlas_array_empty(arr, &is_empty) != ATLAS_SUCCESS || is_empty) {
+        atlas_array_destroy(&arr);
+        return 1;
+    }
+
+    atlas_array_destroy(&arr);
+    return 0;
+}
+
+int main(void) {
+    printf("\n" COLOR_BOLD_BLUE "╭────────────────────────────────────────────────────────╮" COLOR_RESET "\n");
+    printf(COLOR_BOLD_BLUE "│" COLOR_RESET "               AtlasDS - Dynamic Array Tests            " COLOR_BOLD_BLUE "│" COLOR_RESET "\n");
+    printf(COLOR_BOLD_BLUE "╰────────────────────────────────────────────────────────╯" COLOR_RESET "\n\n");
+
+    printf(COLOR_YELLOW "ℹ " COLOR_RESET "Starting AtlasDS dynamic array tests...\n\n");
+
+    // =========================================================
+    // Lifecycle
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Lifecycle" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_create_destroy()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Create/Destroy operation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Create/Destroy operation\n");
+
+    if (test_initial_state()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Initial size/capacity validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Initial size/capacity validation\n");
+
+    if (test_destroy_null()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL destroy validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL destroy validation\n\n");
+
+    // =========================================================
+    // Insertion
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Insertion" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_push_and_resize()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Push and automatic resize\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Push and automatic resize\n");
+
+    if (test_insert_middle()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert in middle\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert in middle\n");
+
+    if (test_insert_begin()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert at beginning\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert at beginning\n");
+
+    if (test_insert_end()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Insert at end\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Insert at end\n");
+
+    if (test_insertion_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/bounds insertion validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/bounds insertion validation\n\n");
+
+    // =========================================================
+    // Removal
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Removal" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_erase_middle()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase in middle\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase in middle\n");
+
+    if (test_erase_begin()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase at beginning\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase at beginning\n");
+
+    if (test_erase_end()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase at end\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase at end\n");
+
+    if (test_erase_single()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Erase single element\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Erase single element\n");
+
+    if (test_erase_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/bounds erase validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/bounds erase validation\n");
+
+    if (test_pop()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Pop last element\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Pop last element\n");
+
+    if (test_pop_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/empty pop validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/empty pop validation\n\n");
+
+    // =========================================================
+    // Access
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Access" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_get_elements()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Element retrieval\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Element retrieval\n");
+
+    if (test_get_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL get validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL get validation\n");
+
+    if (test_front_back()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Front/Back element retrieval\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Front/Back element retrieval\n");
+
+    if (test_front_back_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/empty Front/Back validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/empty Front/Back validation\n\n");
+
+    // =========================================================
+    // Search
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Search" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_find_existing()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find existing value\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find existing value\n");
+
+    if (test_find_missing()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Find missing value\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Find missing value\n");
+
+    if (test_find_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL find validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL find validation\n");
+
+    if (test_contains_existing()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains existing value\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains existing value\n");
+
+    if (test_contains_missing()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Contains missing value\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Contains missing value\n");
+
+    if (test_contains_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL contains validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL contains validation\n\n");
+
+    // =========================================================
+    // Capacity
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Capacity" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_reserve()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Reserve expands capacity\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Reserve expands capacity\n");
+
+    if (test_reserve_idempotent()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Downward reserve ignored\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Downward reserve ignored\n");
+
+    if (test_reserve_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL reserve validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL reserve validation\n");
+
+    if (test_shrink_to_fit()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Shrink to fit\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Shrink to fit\n");
+
+    if (test_shrink_to_fit_idempotent()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Shrink to fit idempotency\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Shrink to fit idempotency\n");
+
+    if (test_shrink_to_fit_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL shrink_to_fit validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL shrink_to_fit validation\n\n");
+
+    // =========================================================
+    // Utility
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Utility" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_swap()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Element exchange\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Element exchange\n");
+
+    if (test_swap_idempotent()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Swap idempotency\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Swap idempotency\n");
+
+    if (test_swap_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/bounds swap validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/bounds swap validation\n");
+
+    if (test_copy()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Array copy\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Array copy\n");
+
+    if (test_copy_preserves_source()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Source array preserved after copy\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Source array preserved after copy\n");
+
+    if (test_copy_from_empty()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Copy from empty source\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Copy from empty source\n");
+
+    if (test_copy_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/self copy validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/self copy validation\n");
+
+    if (test_clone()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clone array\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clone array\n");
+
+    if (test_clone_empty()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clone empty array\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clone empty array\n");
+
+    if (test_clone_null()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL clone validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL clone validation\n");
+
+    if (test_set()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Set element at index\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Set element at index\n");
+
+    if (test_set_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL/bounds set validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL/bounds set validation\n\n");
+
+    // =========================================================
+    // Clear & Empty
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Clear & Empty" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_clear()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear without truncating capacity\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear without truncating capacity\n");
+
+    if (test_clear_validation()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " NULL clear validation\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL clear validation\n");
+
+    if (test_empty_state()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Empty state detection\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Empty state detection\n\n");
+
+    printf(COLOR_BOLD_CYAN "════════════════════════════════════════════════════════\n" COLOR_RESET "\n");
+    printf(COLOR_BOLD_GREEN " ✔ SUCCESS:" COLOR_RESET " All tests were completed successfully.\n\n");
+
     return 0;
 }
