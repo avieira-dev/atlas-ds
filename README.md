@@ -144,6 +144,8 @@ See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
 ### Generic Stack (`void*` implementation)
 
+**###** **Generic Stack (`void\*` implementation)**
+
 Current capabilities:
 
 - Generic type-agnostic storage using dynamically allocated nodes
@@ -156,10 +158,13 @@ Current capabilities:
 - Element insertion via `push`
 - Element removal via `pop`
 - Top element access via `top`
+- Stack size query via `size`
+- Empty-state query via `empty`
+- Stack clearing while preserving the stack structure (`clear`)
 - Safe traversal and release of all allocated elements
 - Defensive validation of type size, pointers, and initialization states
 - Prevention of dangling pointers via double-pointer destruction
-- Automated lifecycle, insertion, removal, and access tests
+- Automated tests covering all implemented public APIs
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
@@ -185,7 +190,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (int)     | ████████████████████ `100%` |
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
-| Stacks                  | ██████████░░░░░░░░░░ `50%`  |
+| Stacks                  | ████████████████████ `100%` |
 | Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -459,6 +464,23 @@ After building the project:
   ✔ Top preserves element
   ✔ Top from empty stack
   ✔ NULL top validation
+
+➤ State
+────────────────────────────────────────────────────────
+  ✔ Size of empty stack
+  ✔ Size with multiple elements
+  ✔ NULL size validation
+  ✔ Empty initial state
+  ✔ Empty non-empty stack
+  ✔ Empty after pop
+  ✔ NULL empty validation
+
+➤ Maintenance
+────────────────────────────────────────────────────────
+  ✔ Clear multiple elements
+  ✔ Clear empty stack
+  ✔ Reuse after clear
+  ✔ NULL clear validation
 
 ════════════════════════════════════════════════════════
 

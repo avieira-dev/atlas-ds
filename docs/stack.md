@@ -21,6 +21,9 @@ The current implementation uses a **singly linked structure**, where each node s
   - [atlas_stack_push()](#atlas_stack_push)
   - [atlas_stack_pop()](#atlas_stack_pop)
   - [atlas_stack_top()](#atlas_stack_top)
+  - [atlas_stack_size()](#atlas_stack_size)
+  - [atlas_stack_empty()](#atlas_stack_empty)
+  - [atlas_stack_clear()](#atlas_stack_clear)
 - [Safety Guarantees](#safety-guarantees)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
@@ -144,6 +147,9 @@ Current capabilities include:
 - Stack insertion (`push`)
 - Stack removal (`pop`)
 - Stack top element access (`top`)
+- Stack size queries (`size`)
+- Empty-state queries (`empty`)
+- Stack clearing while preserving the stack structure (`clear`)
 - LIFO element ordering
 - Safe stack destruction
 - Complete cleanup of all allocated nodes
@@ -152,7 +158,7 @@ Current capabilities include:
 - Validation of NULL pointers
 - Empty-stack validation during removal and top access
 - Allocation failure handling
-- Automated lifecycle, insertion, removal, and access tests
+- Automated lifecycle, insertion, removal, access, state, and maintenance tests
 
 ---
 
@@ -170,6 +176,12 @@ int atlas_stack_push(AtlasStack *stack, const void *value);
 int atlas_stack_pop(AtlasStack *stack, void *out_value);
 
 int atlas_stack_top(const AtlasStack *stack, void *out_value);
+
+int atlas_stack_size(const AtlasStack *stack, size_t *out_value);
+
+int atlas_stack_empty(const AtlasStack *stack, bool *out_value);
+
+int atlas_stack_clear(AtlasStack *stack);
 ```
 
 ### `atlas_stack_create()`
@@ -301,6 +313,87 @@ Unlike `pop()`, the top element is not removed and the stack remains unchanged.
 >[!NOTE]  
 > If the stack is empty, `top()` does not modify the stack and returns `ATLAS_ERROR_EMPTY`.
 
+### `atlas_stack_size()`
+
+Returns the current number of elements stored in the stack without modifying the structure:
+
+```c
+int atlas_stack_size(const AtlasStack *stack, size_t *out_value);
+```
+
+The `out_value` parameter receives the current number of elements stored in the stack.
+
+The operation:
+
+- Validate the stack pointer
+- Validate the output value pointer
+- Copy `stack_size` into `out_value`
+
+The stack maintains its element count internally, so the function does not need to traverse the linked structure.
+
+> [!NOTE]  
+> `size()` executes in O(1) time because the current number of elements is maintained directly by the stack.
+
+> [!NOTE]  
+> An empty stack is valid and returns `ATLAS_SUCCESS` with `out_value` set to `0`.
+
+### `atlas_stack_empty()`
+
+Checks whether the stack currently contains any elements:
+
+```c
+int atlas_stack_empty(const AtlasStack *stack, bool *out_value);
+```
+
+The `out_value` parameter receives `true` when the stack contains no elements and `false` otherwise.
+
+The operation:
+
+- Validate the stack pointer
+- Validate the output value pointer
+- Compare the current `stack_size` against zero
+- Store the result in `out_value`
+
+The stack itself is not modified.
+
+> [!NOTE]  
+> `empty()` executes in O(1) time because the stack size is maintained internally.
+
+> [!NOTE]  
+> An empty stack is a valid state. The function returns `ATLAS_SUCCESS` and stores `true` in `out_value`.
+
+### `atlas_stack_clear()`
+
+Removes all elements from the stack while preserving the stack structure itself:
+
+```c
+int atlas_stack_clear(AtlasStack *stack);
+```
+
+Unlike `destroy()`, this operation does not release the `AtlasStack` structure. After `clear()` completes successfully, the same stack can be reused for new insertions.
+
+The clearing process is:
+
+- Validate the stack pointer
+- Traverse the stack from the top element
+- Store the previous element before releasing the current node
+- Release every allocated node
+- Set `top_element` to `NULL`
+- Reset `stack_size` to zero
+
+After the operation, the stack satisfies the empty-state invariants:
+
+```text
+stack_size == 0
+top_element == NULL
+```
+
+> [!NOTE]  
+> Calling `clear()` on an already empty stack is considered successful and returns `ATLAS_SUCCESS`.
+
+> [!NOTE]  
+> `clear()` releases all element nodes but keeps the `AtlasStack` structure allocated and ready for reuse.
+
 ---
 
 ## Safety Guarantees
@@ -315,6 +408,9 @@ Current safety mechanisms include:
 - Safe destruction of allocated nodes
 - Complete cleanup during destruction
 - Pointer invalidation after destruction
+- Safe clearing of allocated nodes
+- Preservation of the stack structure after `clear()`
+- Consistent empty-state restoration after `clear()`
 
 > [!NOTE]  
 > These mechanisms provide defensive behavior around the stack lifecycle while preserving the low-level nature of the implementation.
@@ -335,6 +431,10 @@ Core responsibilities currently include:
 - Providing valid input values to `push()`
 - Providing an output buffer large enough to receive `type_size` bytes when using `pop()`
 - Providing an output buffer large enough to receive `type_size` bytes when using `top()`
+- Providing valid output buffers for `size()` and `empty()`
+- Understanding that `clear()` removes all elements but preserves the stack object
+
+Calling `clear()` does not invalidate the `AtlasStack` pointer. The stack remains valid and can be reused after all elements have been removed.
 
 Incorrect usage of generic raw-memory structures may result in:
 
@@ -350,13 +450,16 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 
 ## Complexity
 
-| Operation              | Complexity |
-|:-----------------------|:-----------|
-| Creation(`create`)     | O(1)       |
-| Destruction(`destroy`) | O(n)       |
-| Push(`push`)           | O(1)       |
-| Pop (`pop`)            | O(1)       |
-| Top (`top`)            | O(1)       |
+| Operation                | Complexity |
+|:-------------------------|:-----------|
+| Creation (`create`)      | O(1)       |
+| Destruction (`destroy`)  | O(n)       |
+| Push (`push`)            | O(1)       |
+| Pop (`pop`)              | O(1)       |
+| Top (`top`)              | O(1)       |
+| Size (`size`)            | O(1)       |
+| Empty (`empty`)          | O(1)       |
+| Clear (`clear`)          | O(n)       |
 
 > [!NOTE]  
 > Stack creation performs a constant amount of work because only the stack metadata is allocated and initialized.
@@ -372,6 +475,15 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 
 > [!NOTE]  
 > `top()` executes in O(1) time because the current top element is accessed directly through the `top_element` pointer without modifying or traversing the stack.
+
+> [!NOTE]  
+> `size()` executes in O(1) time because the stack maintains its current element count internally.
+
+> [!NOTE]  
+> `empty()` executes in O(1) time because it only checks whether the internally maintained stack size is zero.
+
+> [!NOTE]  
+> `clear()` executes in O(n) time because every allocated element node must be traversed and released.
 
 ---
 
@@ -397,9 +509,11 @@ The LIFO model makes stacks a fundamental abstraction in computer science and sy
 
 ## Usage Example
 
-The following example demonstrates how to create a generic stack, insert elements using `push()`, access the top element using `top()`, and remove it using `pop()`.
+The following example demonstrates how to create a generic stack, insert elements using `push()`, inspect its state using `size()` and `empty()`, access the top element using `top()`, remove it using `pop()`, and clear the remaining elements using `clear()`.
 
 ```c
+#include <stdbool.h>
+
 #include "atlas/stack.h" 
 #include "atlas/status.h"
 
@@ -434,7 +548,41 @@ int main(void) {
         return 1;
     }
 
-    if (out_value != third) {
+    size_t size = 0;
+
+    if (atlas_stack_size(stack, &size) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (size != 2) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    bool empty = false;
+
+    if (atlas_stack_empty(stack, &empty) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (empty) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_clear(stack) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (atlas_stack_empty(stack, &empty) != ATLAS_SUCCESS) {
+        atlas_stack_destroy(&stack);
+        return 1;
+    }
+
+    if (!empty) {
         atlas_stack_destroy(&stack);
         return 1;
     }

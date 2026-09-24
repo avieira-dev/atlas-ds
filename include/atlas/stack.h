@@ -9,6 +9,7 @@
 #ifndef ATLAS_STACK_H
 #define ATLAS_STACK_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 /**
@@ -109,5 +110,55 @@ int atlas_stack_pop(AtlasStack *stack, void *out_value);
  * value is NULL, or ATLAS_ERROR_EMPTY if the stack contains no elements.
  */
 int atlas_stack_top(const AtlasStack *stack, void *out_value);
+
+/**
+ * @brief Returns the current number of elements in the stack.
+ *
+ * Copies the current stack size into the provided output buffer
+ * without modifying the stack.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack or output value is NULL, the function returns an error code.
+ *
+ * @param out_value Pointer to the variable where the stack size will be stored.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the stack or
+ * output value is NULL.
+ */
+int atlas_stack_size(const AtlasStack *stack, size_t *out_value);
+
+/**
+ * @brief Checks whether the stack is empty.
+ *
+ * Determines whether the stack contains zero elements and stores the
+ * result in the provided output buffer without modifying the stack.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack or output value is NULL, the function returns an error code.
+ *
+ * @param out_value Pointer to the boolean variable where the result will be stored.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the stack or
+ * output value is NULL.
+ */
+int atlas_stack_empty(const AtlasStack *stack, bool *out_value);
+
+/**
+ * @brief Removes all elements from the stack.
+ *
+ * Releases the memory allocated for every element currently stored in the
+ * stack and resets the stack to an empty state.
+ *
+ * The stack structure itself remains valid and can be reused after the
+ * operation.
+ *
+ * Calling clear() on an already empty stack is considered successful.
+ *
+ * @param stack Pointer to the AtlasStack.
+ * If the stack is NULL, the function returns an error code.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if the stack is NULL.
+ */
+int atlas_stack_clear(AtlasStack *stack);
 
 #endif

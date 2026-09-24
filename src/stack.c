@@ -214,3 +214,70 @@ int atlas_stack_top(const AtlasStack *stack, void *out_value) {
 
     return ATLAS_SUCCESS;
 }
+
+/**
+ * @brief Implementation of atlas_stack_size.
+ *
+ * Copies the current number of elements stored in the stack into the
+ * provided output buffer without modifying the stack.
+ *
+ * The stack size is maintained internally, allowing the operation to
+ * execute in constant time.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack or output value is NULL.
+ */
+int atlas_stack_size(const AtlasStack *stack, size_t *out_value) {
+    if (!stack || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = stack->stack_size;
+
+    return ATLAS_SUCCESS;
+}
+
+/**
+ * @brief Implementation of atlas_stack_empty.
+ *
+ * Determines whether the stack contains no elements and stores the
+ * result in the provided output buffer without modifying the stack.
+ *
+ * The operation checks the internally maintained stack size and executes
+ * in constant time.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack or output value is NULL.
+ */
+int atlas_stack_empty(const AtlasStack *stack, bool *out_value) {
+    if (!stack || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = stack->stack_size == 0;
+
+    return ATLAS_SUCCESS;
+}
+
+/**
+ * @brief Implementation of atlas_stack_clear.
+ *
+ * Releases every element currently stored in the stack and resets its
+ * top element pointer and size to represent an empty stack.
+ *
+ * The stack structure itself remains allocated and can be reused after
+ * the operation.
+ *
+ * Calling clear() on an already empty stack is considered successful.
+ *
+ * Returns ATLAS_ERROR_NULL if the stack is NULL.
+ */
+int atlas_stack_clear(AtlasStack *stack) {
+    if (!stack) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    atlas_stack_free_elements(stack);
+    stack->top_element = NULL;
+    stack->stack_size = 0;
+
+    return ATLAS_SUCCESS;
+}
