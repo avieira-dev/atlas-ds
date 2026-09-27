@@ -34,6 +34,7 @@ The library also serves as a reference implementation for students and developer
   - [Generic Dynamic Array](#generic-dynamic-array-void-implementation)
   - [Generic Linked List](#generic-linked-list-void-implementation)
   - [Generic Stack](#generic-stack-void-implementation)
+  - [Generic Queue](#generic-queue-void-implementation)
 - [Documentation](#documentation)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
@@ -144,8 +145,6 @@ See the full API reference and usage example in [`docs/list.md`](docs/list.md).
 
 ### Generic Stack (`void*` implementation)
 
-**###** **Generic Stack (`void\*` implementation)**
-
 Current capabilities:
 
 - Generic type-agnostic storage using dynamically allocated nodes
@@ -168,6 +167,23 @@ Current capabilities:
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
+### **Generic Queue (`void*` implementation)**
+
+Current capabilities:
+
+- Generic type-agnostic storage using dynamically allocated nodes
+- Element size tracking in bytes (`type_size`)
+- Singly linked node structure with front and back element tracking
+- Dynamic element allocation and destruction
+- Empty queue initialization
+- Queue size tracking
+- Safe queue destruction
+- Complete cleanup of all allocated nodes
+- Prevention of dangling pointers via double-pointer destruction
+- Defensive validation of type size and pointers
+
+See the full API reference and usage example in [`docs/stack.md`](docs/queue.md).
+
 ---
 
 ## Documentation
@@ -178,6 +194,7 @@ Detailed documentation for each structure — including conceptual design, memor
 - [Generic Dynamic Array](docs/dynamic-array-void.md)
 - [Generic Linked List](docs/list.md)
 - [Generic Stack](docs/stack.md)
+- [Generic Queue](docs/queue.md)
 
 ---
 
@@ -191,7 +208,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ████████████████████ `100%` |
-| Queues                  | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Queues                  | ████░░░░░░░░░░░░░░░░ `20%`  |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -210,6 +227,7 @@ atlas-ds/
 │   ├── dynamic-array.md
 │   ├── index.md
 │   ├── list.md
+│   ├── queue.md
 │   └── stack.md
 ├── examples/
 ├── include/
@@ -217,6 +235,7 @@ atlas-ds/
 |       ├── array_void.h
 |       ├── array.h
 |       ├── list.h
+│       ├── queue.h
 |       ├── stack.h
 |       ├── status.h
 │       └── terminal.h
@@ -224,6 +243,7 @@ atlas-ds/
 │   ├── array_void.c
 │   ├── array.c
 │   ├── list.c
+│   ├── queue.c
 │   └── stack.c
 ├── tests/
 │   ├── CMakeLists.txt

@@ -43,6 +43,7 @@ Each module typically includes:
 - [Generic Dynamic Array](dynamic-array-void.md)
 - [Generic Linked List](list.md)
 - [Generic Stack](stack.md)
+- [Generic Queue](queue.md)
 
 _More data structure modules will be added as AtlasDS continues to evolve._
 
@@ -82,5 +83,6 @@ If you are new to AtlasDS, the following modules provide a solid introduction to
 - **[Generic Dynamic Array](dynamic-array-void.md)** — type-agnostic implementation based on raw memory manipulation.
 - **[Generic Linked List](list.md)** — generic node-based container illustrating dynamic memory allocation and pointer-based data structures.
 - **[Generic Stack](stack.md)** — generic node-based container illustrating last-in, first-out (LIFO) organization and stack-oriented pointer relationships.
+- **[Generic Queue](queue.md)** — generic node-based container illustrating first-in, first-out (FIFO) organization and queue-oriented pointer relationships.
 
 Together, these modules introduce the core design patterns used throughout AtlasDS.
