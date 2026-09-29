@@ -50,3 +50,43 @@ AtlasQueue *atlas_queue_create(size_t type_size);
  * input pointer or referenced queue is NULL.
  */
 int atlas_queue_destroy(AtlasQueue **ptr_atlas_queue);
+
+/**
+ * @brief Inserts an element at the back of the queue.
+ *
+ * Allocates a new element, copies the provided value into the
+ * element's internal storage, and inserts it at the back of
+ * the queue.
+ *
+ * If the queue is empty, the new element becomes both the front
+ * and back element. Otherwise, the current back element is linked
+ * to the new element and the back pointer is updated.
+ *
+ * @param queue Pointer to the queue.
+ * @param value Pointer to the value to be inserted.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the queue
+ * or value pointer is NULL, or ATLAS_ERROR_MEMORY if element
+ * allocation fails.
+ */
+int atlas_queue_enqueue(AtlasQueue *queue, const void *value);
+
+/**
+ * @brief Removes the front element from the queue.
+ *
+ * Copies the value stored in the front element into the provided
+ * output buffer, removes the element from the queue, and releases
+ * its allocated memory.
+ *
+ * If the removed element is the last element in the queue, both
+ * the front and back element pointers are reset to NULL.
+ *
+ * @param queue Pointer to the queue.
+ * @param out_value Pointer to the buffer where the removed value
+ * will be copied.
+ *
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if the queue
+ * or output value pointer is NULL, or ATLAS_ERROR_EMPTY if the queue
+ * contains no elements.
+ */
+int atlas_queue_dequeue(AtlasQueue *queue, void *out_value);

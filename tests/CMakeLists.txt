@@ -17,6 +17,10 @@ add_executable(test_stack
     test_stack.c
 )
 
+add_executable(test_queue
+    test_queue.c
+)
+
 # ====================
 # Link Library
 # ====================
@@ -24,3 +28,4 @@ target_link_libraries(test_array PRIVATE atlasds)
 target_link_libraries(test_array_void PRIVATE atlasds)
 target_link_libraries(test_list PRIVATE atlasds)
 target_link_libraries(test_stack PRIVATE atlasds)
+target_link_libraries(test_queue PRIVATE atlasds)

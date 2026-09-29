@@ -44,6 +44,7 @@ The library also serves as a reference implementation for students and developer
     - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
     - [Generic Linked List](#generic-linked-list-void-implementation-1)
     - [Generic Stack](#generic-stack-void-implementation-1)
+    - [Generic Queue](#generic-queue-void-implementation-1)
 - [Integration](#integration)
 - [Author](#author)
 - [License](#license)
@@ -177,12 +178,17 @@ Current capabilities:
 - Dynamic element allocation and destruction
 - Empty queue initialization
 - Queue size tracking
+- FIFO (First In, First Out) element organization
+- Element insertion via `enqueue`
+- Element removal via `dequeue`
 - Safe queue destruction
 - Complete cleanup of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
-- Defensive validation of type size and pointers
+- Defensive validation of type size, pointers, and empty-queue operations
+- Allocation failure handling
+- Automated lifecycle, insertion, and removal tests
 
-See the full API reference and usage example in [`docs/stack.md`](docs/queue.md).
+See the full API reference and usage example in [`docs/queue.md`](docs/queue.md).
 
 ---
 
@@ -208,7 +214,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ████████████████████ `100%` |
-| Queues                  | ████░░░░░░░░░░░░░░░░ `20%`  |
+| Queues                  | ████████░░░░░░░░░░░░ `40%`  |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -250,6 +256,7 @@ atlas-ds/
 │   ├── test_array_void.c
 │   ├── test_array.c
 │   ├── test_list.c
+│   ├── test_queue.c
 │   └── test_stack.c
 ├── .gitignore
 ├── CMakeLists.txt
@@ -279,6 +286,7 @@ After building the project:
 ./tests/test_array
 ./tests/test_array_void
 ./tests/test_list
+./tests/test_queue
 ./tests/test_stack
 ```
 
@@ -358,7 +366,6 @@ After building the project:
 ════════════════════════════════════════════════════════
 
  ✔ SUCCESS: All tests were completed successfully.
-
 ```
 
 #### Generic Linked List (`void*` implementation)
@@ -446,7 +453,6 @@ After building the project:
 ════════════════════════════════════════════════════════
 
  ✔ SUCCESS: All tests were completed successfully.
-
 ```
 
 #### Generic Stack (`void*` implementation)
@@ -505,8 +511,42 @@ After building the project:
 ════════════════════════════════════════════════════════
 
  ✔ SUCCESS: All tests were completed successfully.
- 
 ```
+
+#### Generic Queue (`void*` implementation)
+
+```text
+╭────────────────────────────────────────────────────────╮
+│                 AtlasDS - Queue Tests                  │
+╰────────────────────────────────────────────────────────╯
+
+ℹ Starting AtlasDS queue tests...
+
+➤ Lifecycle
+────────────────────────────────────────────────────────
+  ✔ Create/Destroy operation
+  ✔ Type size validation
+  ✔ NULL destroy validation
+
+➤ Insertion
+────────────────────────────────────────────────────────
+  ✔ Enqueue into empty queue
+  ✔ Enqueue multiple elements
+  ✔ NULL enqueue validation
+
+➤ Removal
+────────────────────────────────────────────────────────
+  ✔ Dequeue single element
+  ✔ Dequeue multiple elements
+  ✔ Dequeue from empty queue
+  ✔ NULL dequeue validation
+  ✔ FIFO order validation
+  ✔ Queue reuse after removing last element
+
+════════════════════════════════════════════════════════
+
+ ✔ SUCCESS: All tests were completed successfully.
+ ```
 
 ---
 
