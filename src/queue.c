@@ -210,3 +210,86 @@ int atlas_queue_dequeue(AtlasQueue *queue, void *out_value) {
 
     return ATLAS_SUCCESS;
 }
+
+/**
+ * Implementation of atlas_queue_front:
+ * Copies the value stored in the front element into the provided output buffer.
+ *
+ * The element remains in the queue after the operation.
+ *
+ * Returns ATLAS_ERROR_NULL if the queue or output value is NULL, or
+ * ATLAS_ERROR_EMPTY if the queue contains no elements.
+ */
+int atlas_queue_front(const AtlasQueue *queue, void *out_value) {
+    if (!queue || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (queue->queue_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    memcpy(out_value, queue->front_element->data, queue->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/**
+ * Implementation of atlas_queue_back:
+ * Copies the value stored in the back element into the provided output buffer.
+ *
+ * The element remains in the queue after the operation.
+ *
+ * Returns ATLAS_ERROR_NULL if the queue or output value is NULL, or
+ * ATLAS_ERROR_EMPTY if the queue contains no elements.
+ */
+int atlas_queue_back(const AtlasQueue *queue, void *out_value) {
+    if (!queue || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    if (queue->queue_size == 0) {
+        return ATLAS_ERROR_EMPTY;
+    }
+
+    memcpy(out_value, queue->back_element->data, queue->type_size);
+
+    return ATLAS_SUCCESS;
+}
+
+/**
+ * Implementation of atlas_queue_size:
+ * Retrieves the current number of elements stored in the queue.
+ *
+ * The queue remains unchanged after the operation.
+ *
+ * Returns ATLAS_ERROR_NULL if the queue or output value is NULL.
+ */
+int atlas_queue_size(const AtlasQueue *queue, size_t *out_value) {
+    if (!queue || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = queue->queue_size;
+
+    return ATLAS_SUCCESS;
+}
+
+/**
+ * Implementation of atlas_queue_empty:
+ * Checks whether the queue currently contains no elements.
+ *
+ * Stores true in the output value when the queue is empty and false
+ * otherwise. The queue remains unchanged after the operation.
+ *
+ * Returns ATLAS_ERROR_NULL if the queue or output value is NULL.
+ */
+int atlas_queue_empty(const AtlasQueue *queue, bool *out_value) {
+    if (!queue || !out_value) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    *out_value = queue->queue_size == 0;
+
+    return ATLAS_SUCCESS;
+}

@@ -6,6 +6,7 @@
  * Licensed under the MIT License.
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 
 /**
@@ -90,3 +91,48 @@ int atlas_queue_enqueue(AtlasQueue *queue, const void *value);
  * contains no elements.
  */
 int atlas_queue_dequeue(AtlasQueue *queue, void *out_value);
+
+/**
+ * @brief Copies the first element of the queue into the output buffer.
+ *
+ * The element remains in the queue after the operation.
+ *
+ * @param queue Queue to access.
+ * @param out_value Buffer that receives the element value.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if queue or out_value
+ * is NULL, or ATLAS_ERROR_EMPTY if the queue is empty.
+ */
+int atlas_queue_front(const AtlasQueue *queue, void *out_value);
+
+/**
+ * @brief Copies the last element of the queue into the output buffer.
+ *
+ * The element remains in the queue after the operation.
+ *
+ * @param queue Queue to access.
+ * @param out_value Buffer that receives the element value.
+ * @return ATLAS_SUCCESS on success, ATLAS_ERROR_NULL if queue or out_value
+*  is NULL, or ATLAS_ERROR_EMPTY if the queue is empty.
+ */
+int atlas_queue_back(const AtlasQueue *queue, void *out_value);
+
+/**
+ * @brief Retrieves the current number of elements in the queue.
+ *
+ * @param queue Queue to query.
+ * @param out_value Pointer that receives the current queue size.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if queue or
+ * out_value is NULL.
+ */
+int atlas_queue_size(const AtlasQueue *queue, size_t *out_value);
+
+/**
+ * @brief Checks whether the queue is empty.
+ *
+ * @param queue Queue to query.
+ * @param out_value Pointer that receives true if the queue is empty,
+ *                  or false otherwise.
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if queue or
+ * out_value is NULL.
+ */
+int atlas_queue_empty(const AtlasQueue *queue, bool *out_value);

@@ -16,10 +16,14 @@ The current implementation uses a **singly linked structure**, where each node s
 - [Memory Layout](#memory-layout)
 - [Current AtlasDS Implementation](#current-atlasds-implementation)
 - [Currently Implemented API](#currently-implemented-api)
-  - [`atlas_queue_create()`](#atlas_queue_create)
-  - [`atlas_queue_destroy()`](#atlas_queue_destroy)
-  - [`atlas_queue_enqueue()`](#atlas_queue_enqueue)
-  - [`atlas_queue_dequeue()`](#atlas_queue_dequeue)
+    - [`atlas_queue_create()`](#atlas_queue_create)
+    - [`atlas_queue_destroy()`](#atlas_queue_destroy)
+    - [`atlas_queue_enqueue()`](#atlas_queue_enqueue)
+    - [`atlas_queue_dequeue()`](#atlas_queue_dequeue)
+    - [`atlas_queue_front()`](#atlas_queue_front)
+    - [`atlas_queue_back()`](#atlas_queue_back)
+    - [`atlas_queue_size()`](#atlas_queue_size)
+    - [`atlas_queue_empty()`](#atlas_queue_empty)
 - [Safety Guarantees](#safety-guarantees)
 - [Responsibilities](#responsibilities)
 - [Complexity](#complexity)
@@ -157,6 +161,10 @@ Current capabilities include:
 - FIFO element organization
 - Queue insertion via enqueue()
 - Queue removal via dequeue()
+- Front element access via front()
+- Back element access via back()
+- Queue size query via size()
+- Empty-state query via empty()
 - Safe queue destruction
 - Complete cleanup of all allocated nodes
 - Double-pointer destruction to prevent dangling pointers
@@ -164,12 +172,12 @@ Current capabilities include:
 - Validation of NULL pointers
 - Empty-queue validation during removal
 - Allocation failure handling
-- Automated lifecycle, insertion, and removal tests
+- Automated tests covering lifecycle, insertion, removal, access, and state operations
 
 The current implementation provides the fundamental operations required to create, populate, consume, and destroy a generic FIFO queue.
 
 > [!NOTE]  
-> Additional operations such as front access, back access, state queries, and clearing will be added progressively as the implementation evolves.
+> The remaining planned queue operation is clear(), which will remove all elements while preserving the queue structure.
 
 ---
 
@@ -185,6 +193,14 @@ int atlas_queue_destroy(AtlasQueue **ptr_atlas_queue);
 int atlas_queue_enqueue(AtlasQueue *queue, const void *value);
 
 int atlas_queue_dequeue(AtlasQueue *queue, void *out_value);
+
+int atlas_queue_front(const AtlasQueue *queue, void *out_value);
+
+int atlas_queue_back(const AtlasQueue *queue, void *out_value);
+
+int atlas_queue_size(const AtlasQueue *queue, size_t *out_value);
+
+int atlas_queue_empty(const AtlasQueue *queue, bool *out_value);
 ```
 
 ### `atlas_queue_create()`
@@ -368,6 +384,93 @@ back_element == NULL
 
 This restores the queue to its valid empty state and allows it to be reused for future insertions.
 
+### `atlas_queue_front()`
+
+Returns a copy of the element stored at the front of the queue without removing it.
+
+The function receives the queue and a pointer to the output buffer:
+
+```c
+int atlas_queue_front(const AtlasQueue *queue, void *out_value);
+```
+
+The operation:
+
+- Validates the queue pointer
+- Validates the output value pointer
+- Validates that the queue is not empty
+- Copies the front element data into `out_value`
+
+The queue structure is not modified by this operation.
+
+The operation executes in O(1) time because the queue maintains a direct pointer to the front element.
+
+### `atlas_queue_back()`
+
+Returns a copy of the element stored at the back of the queue without removing it.
+
+The function receives the queue and a pointer to the output buffer:
+
+```c
+int atlas_queue_back(const AtlasQueue *queue, void *out_value);
+```
+
+The operation:
+
+- Validates the queue pointer
+- Validates the output value pointer
+- Validates that the queue is not empty
+- Copies the back element data into `out_value`
+
+The queue structure is not modified by this operation.
+
+The operation executes in O(1) time because the queue maintains a direct pointer to the back element.
+
+### `atlas_queue_size()`
+
+Returns the current number of elements stored in the queue.
+
+The function receives the queue and a pointer where the current size will be written:
+
+```c
+int atlas_queue_size(const AtlasQueue *queue, size_t *out_value);
+```
+
+The operation:
+
+- Validates the queue pointer
+- Validates the output pointer
+- Copies `queue_size` into `out_value`
+
+The queue itself is not modified.
+
+The operation executes in O(1) time because the current number of elements is maintained directly in the queue structure.
+
+An empty queue is a valid state for this operation. In that case, `out_value` receives `0`.
+
+### `atlas_queue_empty()`
+
+Reports whether the queue currently contains any elements.
+
+The function receives the queue and a pointer where the result will be written:
+
+```c
+int atlas_queue_empty(const AtlasQueue *queue, bool *out_value);
+```
+
+The operation:
+
+- Validates the queue pointer
+- Validates the output pointer
+- Compares queue_size against zero
+- Writes the result into out_value
+
+The queue itself is not modified.
+
+The operation executes in O(1) time because the queue maintains its current size internally.
+
+If the queue contains no elements, `out_value` receives `true`. Otherwise, it receives `false`.
+
 ---
 
 ## Safety Guarantees
@@ -380,6 +483,8 @@ Current safety mechanisms include:
 - Invalid element size validation
 - Allocation failure handling
 - Empty-queue validation during dequeue()
+- Empty-queue validation during front() and back()
+- Output buffer validation for front(), back(), size(), and empty()
 - Safe destruction of allocated nodes
 - Complete cleanup during destruction
 - Pointer invalidation after destruction
@@ -404,6 +509,8 @@ Core responsibilities currently include:
 - Passing valid queue pointers to public operations
 - Providing valid input values to `enqueue()`
 - Providing an output buffer large enough to receive `type_size` bytes when using `dequeue()`
+- Providing an output buffer large enough to receive `type_size` bytes when using `front()` or `back()`
+- Providing valid output pointers when using `size()` or `empty()`
 
 > [!IMPORTANT]  
 > AtlasDS stores raw bytes and cannot determine whether a caller-provided pointer actually refers to a buffer large enough to hold the requested data.
@@ -422,12 +529,16 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 
 ## Complexity
 
-| Operation               | Complexity |
-|:------------------------|:-----------|
-| Creation (`create`)     | O(1)       |
-| Destruction (`destroy`) | O(n)       |
-| Enqueue (`enqueue`)     | O(1)       |
-| Dequeue (`dequeue`)     | O(1)       |
+| Operation                | Complexity |
+|:-------------------------|:-----------|
+| Creation (`create`)      | O(1)       |
+| Destruction (`destroy`)  | O(n)       |
+| Enqueue (`enqueue`)      | O(1)       |
+| Dequeue (`dequeue`)      | O(1)       |
+| Front (`front`)          | O(1)       |
+| Back (`back`)            | O(1)       |
+| Size (`size`)            | O(1)       |
+| Empty (`empty`)          | O(1)       |
 
 > [!NOTE]  
 > Queue creation performs a constant amount of work because only the queue metadata is allocated and initialized.
@@ -441,7 +552,7 @@ AtlasDS intentionally exposes these responsibilities to demonstrate how manually
 > [!NOTE]  
 > `dequeue()` executes in O(1) time because the queue maintains a direct pointer to the front element. No traversal of the remaining elements is required.
 
-Future queue operations will be added to this table as the API expands.
+The remaining planned queue operation, `clear()`, will be added to this table when implemented.
 
 ---
 
@@ -467,15 +578,16 @@ The FIFO model makes queues a fundamental abstraction in computer science and sy
 
 ## Usage Example
 
-The following example demonstrates how to create a generic queue, insert elements using `enqueue()`, remove them using `dequeue()`, and verify the FIFO ordering of the structure.
+The following example demonstrates how to create a generic queue, insert elements using `enqueue()`, access the front and back elements, query the queue size and empty state, remove elements using `dequeue()`, and verify the FIFO ordering of the structure.
 
 ```c
+#include <stdbool.h>
+
 #include "atlas/queue.h"
 #include "atlas/status.h"
 
 int main(void) {
     AtlasQueue *queue = atlas_queue_create(sizeof(int));
-
     if (!queue) {
         return 1;
     }
@@ -495,6 +607,54 @@ int main(void) {
     }
 
     if (atlas_queue_enqueue(queue, &third) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    int front_value = 0;
+
+    if (atlas_queue_front(queue, &front_value) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (front_value != first) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    int back_value = 0;
+
+    if (atlas_queue_back(queue, &back_value) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (back_value != third) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_queue_size(queue, &size) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (size != 3) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    bool empty = false;
+
+    if (atlas_queue_empty(queue, &empty) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (empty) {
         atlas_queue_destroy(&queue);
         return 1;
     }
@@ -554,4 +714,4 @@ They are subsequently removed in the same order:
 This demonstrates the fundamental FIFO behavior of the AtlasDS queue.
 
 > [!NOTE]  
-> The AtlasDS queue implementation is under active development. Additional operations such as front access, back access, size queries, empty-state queries, and clearing will be added progressively.
+> The AtlasDS queue implementation is under active development. The remaining planned queue operation is `clear()`.

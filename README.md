@@ -168,7 +168,7 @@ Current capabilities:
 
 See the full API reference and usage example in [`docs/stack.md`](docs/stack.md).
 
-### **Generic Queue (`void*` implementation)**
+### Generic Queue (`void*` implementation)
 
 Current capabilities:
 
@@ -181,12 +181,16 @@ Current capabilities:
 - FIFO (First In, First Out) element organization
 - Element insertion via `enqueue`
 - Element removal via `dequeue`
+- Front element access via `front`
+- Back element access via `back`
+- Queue size query via `size`
+- Empty-state query via `empty`
 - Safe queue destruction
 - Complete cleanup of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of type size, pointers, and empty-queue operations
 - Allocation failure handling
-- Automated lifecycle, insertion, and removal tests
+- Automated tests covering lifecycle, insertion, removal, access, and state operations
 
 See the full API reference and usage example in [`docs/queue.md`](docs/queue.md).
 
@@ -214,7 +218,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ████████████████████ `100%` |
-| Queues                  | ████████░░░░░░░░░░░░ `40%`  |
+| Queues                  | ████████████████░░░░ `80%`  |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -542,6 +546,22 @@ After building the project:
   ✔ NULL dequeue validation
   ✔ FIFO order validation
   ✔ Queue reuse after removing last element
+
+➤ Access
+────────────────────────────────────────────────────────
+  ✔ Front element access
+  ✔ Front access on empty queue
+  ✔ NULL front validation
+  ✔ Back element access
+  ✔ Back access on empty queue
+  ✔ NULL back validation
+
+➤ State
+────────────────────────────────────────────────────────
+  ✔ Queue size tracking
+  ✔ NULL size validation
+  ✔ Empty state validation
+  ✔ NULL empty validation
 
 ════════════════════════════════════════════════════════
 
