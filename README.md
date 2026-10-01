@@ -185,12 +185,13 @@ Current capabilities:
 - Back element access via `back`
 - Queue size query via `size`
 - Empty-state query via `empty`
+- Queue clearing while preserving the queue structure (`clear`)
 - Safe queue destruction
 - Complete cleanup of all allocated nodes
 - Prevention of dangling pointers via double-pointer destruction
 - Defensive validation of type size, pointers, and empty-queue operations
 - Allocation failure handling
-- Automated tests covering lifecycle, insertion, removal, access, and state operations
+- Automated tests covering all implemented public APIs
 
 See the full API reference and usage example in [`docs/queue.md`](docs/queue.md).
 
@@ -218,7 +219,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Dynamic Array (void*)   | ████████████████████ `100%` |
 | Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ████████████████████ `100%` |
-| Queues                  | ████████████████░░░░ `80%`  |
+| Queues                  | ████████████████████ `100%` |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -562,6 +563,12 @@ After building the project:
   ✔ NULL size validation
   ✔ Empty state validation
   ✔ NULL empty validation
+
+➤ Maintenance
+────────────────────────────────────────────────────────
+  ✔ Clear queue
+  ✔ Clear empty queue
+  ✔ Queue reuse after clear
 
 ════════════════════════════════════════════════════════
 

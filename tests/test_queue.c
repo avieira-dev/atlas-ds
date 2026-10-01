@@ -750,6 +750,144 @@ static int test_empty_null(void) {
     return 0;
 }
 
+static int test_clear(void) {
+    AtlasQueue *queue = atlas_queue_create(sizeof(int));
+    if (!queue) {
+        return 1;
+    }
+
+    int first = 10;
+    int second = 20;
+    int third = 30;
+
+    if (atlas_queue_enqueue(queue, &first) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_enqueue(queue, &second) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_enqueue(queue, &third) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_clear(queue) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_queue_size(queue, &size) != ATLAS_SUCCESS || size != 0) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    bool empty = false;
+
+    if (atlas_queue_empty(queue, &empty) != ATLAS_SUCCESS || !empty) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    int out_value = 0;
+
+    if (atlas_queue_front(queue, &out_value) != ATLAS_ERROR_EMPTY) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_back(queue, &out_value) != ATLAS_ERROR_EMPTY) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_destroy(&queue) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_empty(void) {
+    AtlasQueue *queue = atlas_queue_create(sizeof(int));
+    if (!queue) {
+        return 1;
+    }
+
+    if (atlas_queue_clear(queue) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    size_t size = 0;
+
+    if (atlas_queue_size(queue, &size) != ATLAS_SUCCESS || size != 0) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    bool empty = false;
+
+    if (atlas_queue_empty(queue, &empty) != ATLAS_SUCCESS || !empty) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_destroy(&queue) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_clear_reuse(void) {
+    AtlasQueue *queue = atlas_queue_create(sizeof(int));
+    if (!queue) {
+        return 1;
+    }
+
+    int first = 10;
+    int second = 20;
+    int new_value = 99;
+    int out_value = 0;
+
+    if (atlas_queue_enqueue(queue, &first) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_enqueue(queue, &second) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_clear(queue) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_enqueue(queue, &new_value) != ATLAS_SUCCESS) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_dequeue(queue, &out_value) != ATLAS_SUCCESS || out_value != new_value) {
+        atlas_queue_destroy(&queue);
+        return 1;
+    }
+
+    if (atlas_queue_destroy(&queue) != ATLAS_SUCCESS) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     printf("\n" COLOR_BOLD_BLUE "╭────────────────────────────────────────────────────────╮" COLOR_RESET "\n");
     printf(COLOR_BOLD_BLUE "│" COLOR_RESET "                 AtlasDS - Queue Tests                  " COLOR_BOLD_BLUE "│" COLOR_RESET "\n");
@@ -918,6 +1056,30 @@ int main(void) {
         return 1;
     }
     printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " NULL empty validation\n\n");
+
+    // =========================================================
+    // Maintenance
+    // =========================================================
+    printf(COLOR_BOLD_CYAN "➤ Maintenance" COLOR_RESET "\n");
+    printf(COLOR_CYAN "────────────────────────────────────────────────────────" COLOR_RESET "\n");
+
+    if (test_clear()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear queue\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear queue\n");
+
+    if (test_clear_empty()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Clear empty queue\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Clear empty queue\n");
+
+    if (test_clear_reuse()) {
+        printf("  " COLOR_BOLD_RED "✖" COLOR_RESET " Queue reuse after clear\n");
+        return 1;
+    }
+    printf("  " COLOR_BOLD_GREEN "✔" COLOR_RESET " Queue reuse after clear\n\n");
 
     printf(COLOR_BOLD_CYAN "════════════════════════════════════════════════════════\n" COLOR_RESET "\n");
     printf(COLOR_BOLD_GREEN " ✔ SUCCESS:" COLOR_RESET " All tests were completed successfully.\n\n");

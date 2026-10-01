@@ -136,3 +136,18 @@ int atlas_queue_size(const AtlasQueue *queue, size_t *out_value);
  * out_value is NULL.
  */
 int atlas_queue_empty(const AtlasQueue *queue, bool *out_value);
+
+/**
+ * @brief Removes all elements from the queue.
+ *
+ * Releases all dynamically allocated elements currently stored in the queue
+ * and restores the queue to its empty state.
+ *
+ * The queue structure itself is preserved and can be reused after the
+ * operation.
+ *
+ * @param queue Pointer to the queue.
+ *
+ * @return ATLAS_SUCCESS on success, or ATLAS_ERROR_NULL if queue is NULL.
+ */
+int atlas_queue_clear(AtlasQueue *queue);

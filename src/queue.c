@@ -293,3 +293,27 @@ int atlas_queue_empty(const AtlasQueue *queue, bool *out_value) {
 
     return ATLAS_SUCCESS;
 }
+
+/**
+ * Implementation of atlas_queue_clear:
+ * Removes all elements currently stored in the queue.
+ *
+ * Releases every allocated element, resets the front and back element
+ * pointers, and sets the queue size to zero.
+ *
+ * The queue structure itself is preserved and remains available for
+ * future insertions.
+ *
+ * Returns ATLAS_ERROR_NULL if the queue is NULL.
+ */
+int atlas_queue_clear(AtlasQueue *queue) {
+    if (!queue) {
+        return ATLAS_ERROR_NULL;
+    }
+
+    atlas_queue_free_elements(queue);
+    queue->front_element = queue->back_element = NULL;
+    queue->queue_size = 0;
+
+    return ATLAS_SUCCESS;
+}
