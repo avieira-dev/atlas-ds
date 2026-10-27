@@ -221,6 +221,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Stacks                  | ████████████████████ `100%` |
 | Queues                  | ████████████████████ `100%` |
 | Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Array of Linked Lists   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Hash Tables             | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
