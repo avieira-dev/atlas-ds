@@ -30,21 +30,22 @@ The library also serves as a reference implementation for students and developer
 
 - [Philosophy](#philosophy)
 - [Current Features](#current-features)
-  - [Dynamic Array](#dynamic-array-int-implementation)
-  - [Generic Dynamic Array](#generic-dynamic-array-void-implementation)
-  - [Generic Linked List](#generic-linked-list-void-implementation)
-  - [Generic Stack](#generic-stack-void-implementation)
-  - [Generic Queue](#generic-queue-void-implementation)
+    - [Dynamic Array](#dynamic-array-int-implementation)
+    - [Generic Dynamic Array](#generic-dynamic-array-void-implementation)
+    - [Generic Linked List](#generic-linked-list-void-implementation)
+    - [Generic Stack](#generic-stack-void-implementation)
+    - [Generic Queue](#generic-queue-void-implementation)
+    - [Generic Deque](#generic-deque-void-implementation)
 - [Documentation](#documentation)
 - [Planned Structures](#planned-structures)
 - [Repository Structure](#repository-structure)
 - [Build](#build)
 - [Running Tests](#running-tests)
-  - [Example Output](#example-output)
-    - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
-    - [Generic Linked List](#generic-linked-list-void-implementation-1)
-    - [Generic Stack](#generic-stack-void-implementation-1)
-    - [Generic Queue](#generic-queue-void-implementation-1)
+    - [Example Output](#example-output)
+        - [Generic Dynamic Array](#generic-dynamic-array-void-implementation-1)
+        - [Generic Linked List](#generic-linked-list-void-implementation-1)
+        - [Generic Stack](#generic-stack-void-implementation-1)
+        - [Generic Queue](#generic-queue-void-implementation-1)
 - [Integration](#integration)
 - [Author](#author)
 - [License](#license)
@@ -195,6 +196,26 @@ Current capabilities:
 
 See the full API reference and usage example in [`docs/queue.md`](docs/queue.md).
 
+### Generic Deque (`void*` implementation)
+
+> [!NOTE]  
+> The deque module is in development. Only lifecycle operations are available so far.
+
+Current capabilities:
+
+- Generic type-agnostic storage using dynamically allocated nodes
+- Element size tracking in bytes (`type_size`)
+- Doubly linked node structure with front and back element tracking
+- Empty deque initialization
+- Deque size tracking
+- Deque creation and destruction
+- Complete cleanup of all allocated nodes
+- Prevention of dangling pointers via double-pointer destruction
+- Defensive validation of type size and NULL pointers
+- Allocation failure handling
+
+See the full conceptual design and current API in [`docs/deque.md`](docs/deque.md).
+
 ---
 
 ## Documentation
@@ -206,6 +227,7 @@ Detailed documentation for each structure — including conceptual design, memor
 - [Generic Linked List](docs/list.md)
 - [Generic Stack](docs/stack.md)
 - [Generic Queue](docs/queue.md)
+- [Generic Deque](docs/deque.md) *(in development)*
 
 ---
 
@@ -220,7 +242,7 @@ Each module will include an implementation, usage examples, documentation, and a
 | Linked Lists            | ████████████████████ `100%` |
 | Stacks                  | ████████████████████ `100%` |
 | Queues                  | ████████████████████ `100%` |
-| Deque                   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
+| Deque                   | ██░░░░░░░░░░░░░░░░░░ `10%`  |
 | Array of Linked Lists   | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Binary Search Trees     | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
 | Heaps / Priority Queues | ░░░░░░░░░░░░░░░░░░░░ `0%`   |
@@ -235,6 +257,7 @@ Each module will include an implementation, usage examples, documentation, and a
 atlas-ds/
 ├── build/
 ├── docs/
+│   ├── deque.md
 │   ├── dynamic-array-void.md
 │   ├── dynamic-array.md
 │   ├── index.md
@@ -246,6 +269,7 @@ atlas-ds/
 │   └── atlas/
 |       ├── array_void.h
 |       ├── array.h
+|       ├── deque.h
 |       ├── list.h
 │       ├── queue.h
 |       ├── stack.h
@@ -254,6 +278,7 @@ atlas-ds/
 ├── src/
 │   ├── array_void.c
 │   ├── array.c
+│   ├── deque.c
 │   ├── list.c
 │   ├── queue.c
 │   └── stack.c
