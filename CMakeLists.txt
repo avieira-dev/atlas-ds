@@ -21,6 +21,7 @@ add_library(atlasds STATIC
     src/list.c
     src/stack.c
     src/queue.c
+    src/deque.c
 )
 
 # ====================
